@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -109,5 +109,11 @@ export const UPGRADES: Record<number, string> = {
     UPDATE orders SET order_number = lpad(((id * 7919) % 10000)::text, 4, '0') || to_char(created_at AT TIME ZONE 'Europe/Oslo', 'YY')
       WHERE order_number IS NULL;
     CREATE UNIQUE INDEX IF NOT EXISTS orders_order_number_idx ON orders (order_number);
+  `,
+  // Handlekurv: flere bestillinger (linjer) kan dele samme ordrenummer. Nummeret er derfor ikke unikt lenger,
+  // men vi beholder en vanlig indeks så det går fort å slå opp.
+  8: `
+    DROP INDEX IF EXISTS orders_order_number_idx;
+    CREATE INDEX IF NOT EXISTS orders_order_number_lookup_idx ON orders (order_number);
   `,
 };

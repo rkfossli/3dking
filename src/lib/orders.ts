@@ -13,6 +13,8 @@ export function isStatus(v: string): v is Status {
 }
 
 export const MAX_QUANTITY = 20;
+/** Maks antall linjer i én handlekurv. */
+export const MAX_LINES = 15;
 
 /** Svar Liam kan gi på en bestilling. "" betyr ikke svart ennå. */
 export const APPROVALS = ["", "godkjent", "endringer"] as const;

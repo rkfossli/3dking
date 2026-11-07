@@ -2015,3 +2015,111 @@ body.has-tabbar {
     animation: none;
   }
 }
+
+/* ==========================================================================
+   Revisjonen, steg 3: handlekurv
+   ========================================================================== */
+
+.cart-line {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: var(--s3);
+  align-items: start;
+}
+
+.cart-line .thumb {
+  width: 56px;
+}
+
+.cart-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  min-width: 0;
+}
+
+.cart-info .small-text {
+  margin: 0;
+}
+
+.cart-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+
+.stepper.mini {
+  gap: var(--s3);
+}
+
+.stepper.mini button {
+  min-width: 48px;
+}
+
+.cart-sum {
+  color: var(--accent-text);
+  font-size: var(--fs-body);
+}
+
+.icon-btn {
+  background: transparent;
+  color: var(--muted);
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0;
+  box-shadow: none;
+}
+
+.cart-total {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+.cart-total .order-price {
+  justify-content: space-between;
+}
+
+.cart-total .order-price b {
+  font-size: var(--fs-display);
+  font-weight: 800;
+}
+
+.cart-total p {
+  margin: 0;
+}
+
+/* Fargeprøve: en liten rund prikk i fargen */
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  vertical-align: -2px;
+}
+
+.color-line {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+}
+
+/* Flere linjer med samme ordrenummer samles i én boks under Mine */
+.order-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.order-group > .order-head b {
+  font-size: var(--fs-body);
+}
+
+.order-group .order {
+  background: var(--card-2);
+  box-shadow: var(--nest-edge);
+}

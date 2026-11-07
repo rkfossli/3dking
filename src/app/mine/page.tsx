@@ -29,12 +29,12 @@ export default async function MyOrdersPage() {
   await db.update(users).set({ ordersSeenAt: new Date() }).where(eq(users.id, user.id));
 
   // Én bestilling i listen. Brukes i begge delene.
-  const item = (o: OrderRow) => (
+  const item = (o: OrderRow, inGroup = false) => (
     <li key={o.id} className={`card order status-${o.status}`}>
       <div className="order-head">
         <span>
           <b>{o.quantity} × {o.productName}</b>
-          {o.orderNumber && <span className="order-no">{orderNo(o.orderNumber)}</span>}
+          {o.orderNumber && !inGroup && <span className="order-no">{orderNo(o.orderNumber)}</span>}
         </span>
         <span className="badges">
           {isNew(o.changedByAdminAt) && <span className="badge nytt">Nytt</span>}
@@ -69,6 +69,31 @@ export default async function MyOrdersPage() {
     </li>
   );
 
+  // Ting som ble bestilt fra samme handlekurv (samme ordrenummer) vises i én boks.
+  const grouped = (rows: OrderRow[]) => {
+    const groups: OrderRow[][] = [];
+    for (const o of rows) {
+      const g = o.orderNumber ? groups.find((x) => x[0].orderNumber === o.orderNumber) : undefined;
+      if (g) g.push(o);
+      else groups.push([o]);
+    }
+    return groups.map((g) =>
+      g.length === 1 ? (
+        item(g[0], false)
+      ) : (
+        <li key={`ordre-${g[0].orderNumber}`} className="card order-group">
+          <div className="order-head">
+            <b>Ordre {orderNo(g[0].orderNumber)}</b>
+            <span className="muted small-text">
+              {plural(g.length, "ting", "ting")} · {kr(g.reduce((sum, o) => sum + o.quantity * o.unitPriceNok, 0))}
+            </span>
+          </div>
+          <ul className="order-list">{g.map((o) => item(o, true))}</ul>
+        </li>
+      ),
+    );
+  };
+
   return (
     <main className="page">
       <h1>Mine bestillinger</h1>
@@ -85,7 +110,7 @@ export default async function MyOrdersPage() {
         <>
           <h2 className="section-title">Pågår</h2>
           {active.length === 0 && <p className="muted small-text">Ingenting på gang akkurat nå.</p>}
-          <ul className="order-list">{active.map(item)}</ul>
+          <ul className="order-list">{grouped(active)}</ul>
         </>
       )}
 
@@ -93,7 +118,7 @@ export default async function MyOrdersPage() {
         // <details> er et innebygd HTML-element som kan foldes ut og inn uten JavaScript.
         <details className="earlier">
           <summary>Tidligere ({plural(earlier.length, "bestilling", "bestillinger")})</summary>
-          <ul className="order-list">{earlier.map(item)}</ul>
+          <ul className="order-list">{grouped(earlier)}</ul>
         </details>
       )}
     </main>

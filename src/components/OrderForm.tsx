@@ -1,43 +1,53 @@
 "use client";
 import { Icon } from "@/components/Icon";
 import Link from "next/link";
-import { useActionState, useState } from "react";
-import { placeOrderAction, type OrderState } from "@/app/order-actions";
+import { useState } from "react";
+import { addToCart } from "./cart";
 import { kr } from "@/lib/format";
-import { PushAsk } from "./PushAsk";
-import { Sparks } from "./Sparks";
 
 const MAX = 20;
 
-// Bestillingsskjemaet på produktsiden: antall, ønsker og «Bestill for …».
-// «Bestill flere» etter en bestilling lager et helt nytt skjema: key gjør at React starter på nytt.
-export function OrderForm({ productId, price }: { productId: number; price: number }) {
-  const [round, setRound] = useState(0);
-  return <OrderRound key={round} productId={productId} price={price} onAgain={() => setRound(round + 1)} />;
-}
+export type ProductForCart = { id: number; name: string; price: number; imageUrl: string | null };
 
-function OrderRound({ productId, price, onAgain }: { productId: number; price: number; onAgain: () => void }) {
+// Skjemaet på produktsiden: antall, ønsker og «Legg i handlekurven».
+// Selve bestillingen sendes fra handlekurven, så kunden kan bestille flere ting på én gang.
+export function OrderForm({ product }: { product: ProductForCart }) {
   const [qty, setQty] = useState(1);
-  const [state, action, pending] = useActionState<OrderState, FormData>(placeOrderAction, {});
+  const [note, setNote] = useState("");
+  const [added, setAdded] = useState(false);
 
-  if (state.ok) {
+  function add(e: React.FormEvent) {
+    e.preventDefault();
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      quantity: qty,
+      note: note.trim(),
+      colorId: null,
+      colorName: null,
+      colorHex: null,
+    });
+    setAdded(true);
+    setQty(1);
+    setNote("");
+  }
+
+  if (added) {
     return (
-      <div className="order-done celebrate">
-        <Sparks />
-        <b className="with-icon"><Icon name="check" /> Bestilt!</b>
-        {state.orderNumber && <p className="order-no-big">Ordrenummer #{state.orderNumber}</p>}
-        <p className="small-text muted">3DKing har fått beskjed. Du ser hvordan det går under «Mine bestillinger».</p>
-        <PushAsk />
-        <Link href="/mine" className="button small">Se bestillingen</Link>
-        <button type="button" className="small secondary" onClick={onAgain}>Bestill flere</button>
+      <div className="order-done">
+        <b className="with-icon"><Icon name="bag" /> Lagt i handlekurven</b>
+        <p className="small-text muted">Vil du ha mer, kan du legge til flere ting før du sender bestillingen.</p>
+        <Link href="/handlekurv" className="button small">Gå til handlekurven</Link>
+        <button type="button" className="small secondary" onClick={() => setAdded(false)}>Legg til en til av denne</button>
+        <Link href="/" className="button small secondary">Fortsett å handle</Link>
       </div>
     );
   }
 
   return (
-    <form action={action} className="order-form">
-      <input type="hidden" name="productId" value={productId} />
-      <input type="hidden" name="quantity" value={qty} />
+    <form onSubmit={add} className="order-form">
       <div className="stepper" aria-label="Antall">
         <button type="button" className="small secondary" onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Færre">−</button>
         <span>{qty} stk</span>
@@ -45,11 +55,16 @@ function OrderRound({ productId, price, onAgain }: { productId: number; price: n
       </div>
       <label>
         Ønsker (valgfritt)
-        <textarea name="note" rows={4} placeholder="For eksempel farge, størrelse eller navn som skal stå på" maxLength={500} />
+        <textarea
+          rows={4}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="For eksempel størrelse eller navn som skal stå på"
+          maxLength={500}
+        />
       </label>
-      {state.error && <p className="error small-text">{state.error}</p>}
-      <button type="submit" disabled={pending}>
-        {pending ? "Bestiller …" : `Bestill for ${kr(qty * price)}`}
+      <button type="submit">
+        <Icon name="bag" /> Legg i handlekurven · {kr(qty * product.price)}
       </button>
     </form>
   );

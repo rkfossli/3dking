@@ -2,13 +2,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "./Icon";
+import { cartCount, useCart } from "./cart";
 
 // Fanelinja nederst på skjermen, hentet fra Spotter. Den svever rett over infolinja.
 // `waiting` = nye bestillinger Liam ikke har laget ennå. `updates` = nytt på mine bestillinger siden sist.
 export function TabBar({ isAdmin, waiting, updates }: { isAdmin: boolean; waiting: number; updates: number }) {
   const path = usePathname();
+  const inCart = cartCount(useCart());
   const tabs: { href: string; label: string; icon: IconName; count?: number; on: boolean }[] = [
     { href: "/", label: "Butikk", icon: "shop", on: path === "/" || path.startsWith("/produkt") },
+    { href: "/handlekurv", label: "Kurv", icon: "bag", count: inCart, on: path.startsWith("/handlekurv") },
     { href: "/mine", label: "Mine", icon: "list", count: path.startsWith("/mine") ? 0 : updates, on: path.startsWith("/mine") },
   ];
   if (isAdmin) tabs.push({ href: "/admin/bestillinger", label: "Admin", icon: "crown", count: waiting, on: path.startsWith("/admin") });

@@ -50,7 +50,8 @@ export const orders = pgTable("orders", {
   userId: integer("user_id").notNull().references(() => users.id),
   productId: integer("product_id").notNull().references(() => products.id),
   // Ordrenummer kunden og Liam ser, f.eks. "482726": 4 tilfeldige sifre + årstallet (26 = 2026).
-  orderNumber: text("order_number").unique(),
+  // Alt som ble bestilt fra samme handlekurv har samme nummer.
+  orderNumber: text("order_number"),
   quantity: integer("quantity").notNull().default(1),
   note: text("note"),
   // Prisen kopieres inn når man bestiller, så gamle bestillinger ikke endres om prisen endres.

@@ -33,7 +33,7 @@ export default async function ProductPage({ params }: PageProps<"/produkt/[id]">
               {kr(p.priceNok)} <span className="price-note">(filament og strøm)</span>
             </p>
         {isAdmin && p.costNok != null && <p className="muted small-text">Filament {kr(p.costNok)} · bare synlig for deg</p>}
-        {p.available && <OrderForm productId={p.id} price={p.priceNok} />}
+        {p.available && <OrderForm product={{ id: p.id, name: p.name, price: p.priceNok, imageUrl: p.imageUrl }} />}
       </article>
     </main>
   );
