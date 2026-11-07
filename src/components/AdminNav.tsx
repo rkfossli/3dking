@@ -3,7 +3,7 @@ import { countNew } from "@/lib/orders";
 
 // Fanene øverst på admin-sidene. `active` sier hvilken fane som er valgt.
 // Bestillinger-fanen viser et tall når noe venter på å bli laget.
-export async function AdminNav({ active }: { active: "bestillinger" | "brukere" | "produkter" }) {
+export async function AdminNav({ active }: { active: "bestillinger" | "brukere" | "produkter" | "oversikt" }) {
   const waiting = await countNew();
   return (
     <>
@@ -17,6 +17,7 @@ export async function AdminNav({ active }: { active: "bestillinger" | "brukere" 
         </Link>
         <Link href="/admin/produkter" className={active === "produkter" ? "on" : ""}>Produkter</Link>
         <Link href="/admin" className={active === "brukere" ? "on" : ""}>Brukere</Link>
+        <Link href="/admin/oversikt" className={active === "oversikt" ? "on" : ""}>Oversikt</Link>
       </nav>
     </>
   );

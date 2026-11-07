@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -81,5 +81,12 @@ export const UPGRADES: Record<number, string> = {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_plan text;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS changed_by_admin_at timestamptz;
     ALTER TABLE users ADD COLUMN IF NOT EXISTS orders_seen_at timestamptz;
+  `,
+  // Fase 7: filamentkostnaden kopieres inn i bestillingen (som prisen), så månedsoversikten
+  // ikke endrer seg om Liam endrer kostnaden på produktet senere. Gamle bestillinger fylles ut nå.
+  4: `
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS unit_cost_nok integer;
+    UPDATE orders SET unit_cost_nok = products.cost_nok
+      FROM products WHERE products.id = orders.product_id AND orders.unit_cost_nok IS NULL;
   `,
 };

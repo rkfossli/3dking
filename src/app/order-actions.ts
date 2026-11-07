@@ -28,7 +28,9 @@ export async function placeOrderAction(_prev: OrderState, form: FormData): Promi
   if (!product || !product.available) return { error: "Produktet finnes ikke lenger." };
 
   // Prisen kopieres inn i bestillingen, så den ikke endres om Liam endrer prisen senere.
-  await db.insert(orders).values({ userId: user.id, productId, quantity, note, unitPriceNok: product.priceNok });
+  await db
+    .insert(orders)
+    .values({ userId: user.id, productId, quantity, note, unitPriceNok: product.priceNok, unitCostNok: product.costNok });
 
   // Varsel til Liam. after() sender det etter at svaret har gått tilbake, så brukeren slipper å vente.
   after(() =>

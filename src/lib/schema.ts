@@ -51,6 +51,7 @@ export const orders = pgTable("orders", {
   note: text("note"),
   // Prisen kopieres inn når man bestiller, så gamle bestillinger ikke endres om prisen endres.
   unitPriceNok: integer("unit_price_nok").notNull(),
+  unitCostNok: integer("unit_cost_nok"), // filamentkostnaden per stk da det ble bestilt
   status: text("status").notNull().default("ny"), // "ny" → "laget" → "levert", eller "avbrutt"
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   madeAt: timestamp("made_at", { withTimezone: true }),
