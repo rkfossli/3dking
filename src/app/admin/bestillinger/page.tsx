@@ -8,6 +8,7 @@ import { AdminNav } from "@/components/AdminNav";
 import { AdminOrderActions } from "@/components/OrderActions";
 import { OrderMessages } from "@/components/OrderMessages";
 import { messagesFor } from "@/lib/messages";
+import { colorFill } from "@/lib/palette";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +69,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
       </p>
       {o.colorName && (
         <p className="small-text color-line">
-          <span className="swatch" style={{ background: o.colorHex ?? undefined }} /> {o.colorName}
+          <span className="swatch" style={{ background: colorFill(o.colorHex) }} /> {o.colorName}
         </p>
       )}
       {o.note && <p className="small-text">«{o.note}»</p>}

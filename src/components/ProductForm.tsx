@@ -101,7 +101,7 @@ export function ProductForm({
       )}
       <label className="check">
         <input type="checkbox" name="available" defaultChecked={product?.available ?? true} />
-        Vis i butikken
+        Vis under Modeller
       </label>
       {state.error && <p className="error">{state.error}</p>}
       <div className="row-buttons left">

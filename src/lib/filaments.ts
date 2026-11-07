@@ -12,7 +12,4 @@ export async function allFilaments(): Promise<Filament[]> {
   return db.select().from(filaments).orderBy(asc(filaments.name));
 }
 
-/** Sjekker at en fargekode ser ut som «#a1b2c3». */
-export function isHex(v: string): boolean {
-  return /^#[0-9a-f]{6}$/i.test(v);
-}
+export { isHex } from "./palette";

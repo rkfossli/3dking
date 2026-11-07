@@ -8,6 +8,7 @@ import { Icon } from "./Icon";
 import { ProductImage } from "./ProductImage";
 import { PushAsk } from "./PushAsk";
 import { Sparks } from "./Sparks";
+import { colorFill } from "@/lib/palette";
 
 // Listen i handlekurven: endre antall, fjerne linjer og sende alt som én bestilling.
 export function Cart() {
@@ -35,7 +36,7 @@ export function Cart() {
         <p className="small-text muted">3DKing har fått beskjed. Du ser hvordan det går under «Mine».</p>
         <PushAsk />
         <Link href="/mine" className="button small">Se bestillingen</Link>
-        <Link href="/" className="button small secondary">Tilbake til butikken</Link>
+        <Link href="/" className="button small secondary">Tilbake til modellene</Link>
       </div>
     );
   }
@@ -44,7 +45,7 @@ export function Cart() {
     return (
       <div className="card">
         <p className="muted">Handlekurven er tom.</p>
-        <Link href="/" className="button empty-cta">Finn noe du liker i butikken</Link>
+        <Link href="/" className="button empty-cta">Finn noe du liker blant modellene</Link>
       </div>
     );
   }
@@ -61,7 +62,7 @@ export function Cart() {
               <b>{l.name}</b>
               {l.colorName && (
                 <span className="small-text color-line">
-                  <span className="swatch" style={{ background: l.colorHex ?? undefined }} /> {l.colorName}
+                  <span className="swatch" style={{ background: colorFill(l.colorHex) }} /> {l.colorName}
                 </span>
               )}
               {l.note && <span className="small-text muted">«{l.note}»</span>}

@@ -1,17 +1,20 @@
 "use client";
 import { useActionState, useState, useTransition } from "react";
 import { addFilamentAction, addFilamentsAction, deleteFilamentAction, setInStockAction, type FilamentState } from "@/app/filament-actions";
-import { PALETTE } from "@/lib/palette";
+import { PALETTE, colorFill } from "@/lib/palette";
 import { ConfirmButton } from "./ConfirmButton";
 import { Icon } from "./Icon";
 
-// Fargekartet: trykk på fargene du har (flere om gangen) og legg dem til med én knapp.
+// Fargekartet: alle PLA-fargene til Bambu Lab, gruppert etter type.
+// Trykk på fargene du har (flere om gangen) og legg dem til med én knapp.
 // Farger som allerede er lagt inn, er merket med en hake og kan ikke velges igjen.
 export function FilamentForm({ existing }: { existing: string[] }) {
   const have = new Set(existing.map((n) => n.toLowerCase()));
   const [picked, setPicked] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const q = query.trim().toLowerCase();
 
   function toggle(name: string) {
     setPicked((p) => (p.includes(name) ? p.filter((n) => n !== name) : [...p, name]));
@@ -19,8 +22,9 @@ export function FilamentForm({ existing }: { existing: string[] }) {
 
   function add() {
     setError(null);
+    const all = PALETTE.flatMap((g) => g.colors);
     start(async () => {
-      const res = await addFilamentsAction(PALETTE.filter((c) => picked.includes(c.name)));
+      const res = await addFilamentsAction(all.filter((c) => picked.includes(c.name)));
       if (res.error) setError(res.error);
       else setPicked([]);
     });
@@ -28,31 +32,55 @@ export function FilamentForm({ existing }: { existing: string[] }) {
 
   return (
     <div className="form">
-      <div className="palette" role="group" aria-label="Fargekart">
-        {PALETTE.map((c) => {
-          const added = have.has(c.name.toLowerCase());
-          const on = picked.includes(c.name);
-          return (
-            <button
-              key={c.name}
-              type="button"
-              className={`pal${on ? " on" : ""}`}
-              disabled={added || pending}
-              aria-pressed={on}
-              onClick={() => toggle(c.name)}
-            >
-              <span className="pal-dot" style={{ background: c.hex }}>
-                {(on || added) && <Icon name="tick" size={16} />}
+      <label>
+        Søk
+        <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="For eksempel Silk eller Blue" />
+      </label>
+      {PALETTE.map((g, i) => {
+        const colors = q ? g.colors.filter((c) => c.name.toLowerCase().includes(q)) : g.colors;
+        if (colors.length === 0) return null;
+        const chosen = g.colors.filter((c) => picked.includes(c.name)).length;
+        const owned = g.colors.filter((c) => have.has(c.name.toLowerCase())).length;
+        return (
+          <details key={g.line} className="pal-group" open={q !== "" || i === 0}>
+            <summary>
+              <span>{g.line}</span>
+              <span className="muted small-text">
+                {chosen > 0 ? `${chosen} valgt · ` : ""}
+                {owned > 0 ? `${owned} av ${g.colors.length} inne` : `${g.colors.length} farger`}
               </span>
-              <span className="pal-name">{c.name}</span>
-            </button>
-          );
-        })}
-      </div>
+            </summary>
+            <div className="palette" role="group" aria-label={g.line}>
+              {colors.map((c) => {
+                const added = have.has(c.name.toLowerCase());
+                const on = picked.includes(c.name);
+                return (
+                  <button
+                    key={c.name}
+                    type="button"
+                    className={`pal${on ? " on" : ""}`}
+                    disabled={added || pending}
+                    aria-pressed={on}
+                    title={c.name}
+                    onClick={() => toggle(c.name)}
+                  >
+                    <span className="pal-dot" style={{ background: colorFill(c.hex) }}>
+                      {(on || added) && <Icon name="tick" size={16} />}
+                    </span>
+                    <span className="pal-name">{c.name.slice(g.line.length + 1)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </details>
+        );
+      })}
       {error && <p className="error small-text">{error}</p>}
-      <button type="button" onClick={add} disabled={pending || picked.length === 0}>
-        {pending ? "Legger til …" : picked.length === 0 ? "Trykk på fargene du har" : `Legg til ${picked.length === 1 ? "1 farge" : `${picked.length} farger`}`}
-      </button>
+      <div className="pal-add">
+        <button type="button" onClick={add} disabled={pending || picked.length === 0}>
+          {pending ? "Legger til …" : picked.length === 0 ? "Trykk på fargene du har" : `Legg til ${picked.length === 1 ? "1 farge" : `${picked.length} farger`}`}
+        </button>
+      </div>
       <details className="own-color">
         <summary>Mangler fargen? Lag din egen</summary>
         <OwnColorForm />
@@ -77,7 +105,7 @@ function OwnColorForm() {
         <span className="swatch big own-preview" style={{ background: valid ? hex : "transparent" }} aria-hidden />
         <label>
           Navn
-          <input name="name" placeholder="For eksempel Galaksesvart" maxLength={40} required />
+          <input name="name" placeholder="For eksempel Galaksesvart" maxLength={60} required />
         </label>
       </div>
       <label>
@@ -97,7 +125,7 @@ export function FilamentRow({ id, name, hex, inStock }: { id: number; name: stri
   return (
     <li className={`user-row${inStock ? "" : " inactive"}`}>
       <div className="thumb-row">
-        <span className="swatch big" style={{ background: hex }} />
+        <span className="swatch big" style={{ background: colorFill(hex) }} />
         <div>
           <b>{name}</b>
           {!inStock && <span className="tag">tom</span>}

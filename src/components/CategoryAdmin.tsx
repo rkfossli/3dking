@@ -55,7 +55,7 @@ export function CategoryRow({ id, name, count, first, last }: { id: number; name
         {!editing && <button type="button" className="small secondary" onClick={() => setEditing(true)}>Endre navn</button>}
         <ConfirmButton
           disabled={pending}
-          question={`Slette kategorien «${name}»? Produktene blir værende i butikken.`}
+          question={`Slette kategorien «${name}»? Produktene blir ikke slettet.`}
           confirmLabel="Ja, slett"
           onConfirm={() => start(() => deleteCategoryAction(id))}
         >

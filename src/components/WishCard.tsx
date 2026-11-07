@@ -35,7 +35,7 @@ export function WishCard({ wish: w, admin = false }: { wish: Wish; admin?: boole
       {!admin && w.productId && (
         <Link href={`/produkt/${w.productId}`} className="button small">Bestill den</Link>
       )}
-      {!admin && w.status === "ja" && !w.productId && <p className="muted small-text">3DKing legger den ut i butikken, så kan du bestille den.</p>}
+      {!admin && w.status === "ja" && !w.productId && <p className="muted small-text">3DKing legger den ut under Modeller, så kan du bestille den.</p>}
       {!admin && w.status === "ny" && <DeleteWish id={w.id} />}
       {admin && <WishReply id={w.id} status={w.status} price={w.priceNok} reply={w.adminReply} productId={w.productId} />}
     </li>

@@ -51,7 +51,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         <Logo theme={user.theme} />
       </div>
       <p className="muted greeting">
-        Hei, {user.displayName}! {isAdmin ? "Slik ser butikken ut for kundene." : "Velg noe du vil at 3DKing skal printe."}
+        Hei, {user.displayName}! {isAdmin ? "Slik ser Modeller ut for kundene." : "Velg noe du vil at 3DKing skal printe."}
       </p>
       {ready > 0 && (
         <Link href="/mine" className="ready-notice">
@@ -71,7 +71,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         <form className="search" role="search" action="/">
           {activeCat && <input type="hidden" name="kategori" value={activeCat.id} />}
           <Icon name="search" />
-          <input name="q" type="search" defaultValue={search} placeholder="Søk i butikken" aria-label="Søk i butikken" enterKeyHint="search" />
+          <input name="q" type="search" defaultValue={search} placeholder="Søk etter modeller" aria-label="Søk etter modeller" enterKeyHint="search" />
         </form>
       )}
 

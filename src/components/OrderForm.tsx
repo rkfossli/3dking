@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { addToCart } from "./cart";
 import { kr } from "@/lib/format";
+import { colorFill } from "@/lib/palette";
 
 const MAX = 20;
 
@@ -66,7 +67,7 @@ export function OrderForm({ product, colors }: { product: ProductForCart; colors
                 key={c.id}
                 type="button"
                 className={`color-chip${c.id === colorId ? " on" : ""}`}
-                style={{ ["--chip" as string]: c.hex }}
+                style={{ ["--chip" as string]: colorFill(c.hex) }}
                 disabled={!c.inStock}
                 aria-pressed={c.id === colorId}
                 aria-label={c.inStock ? c.name : `${c.name} (tom)`}

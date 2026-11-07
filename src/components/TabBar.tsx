@@ -10,7 +10,7 @@ export function TabBar({ isAdmin, waiting, updates }: { isAdmin: boolean; waitin
   const path = usePathname();
   const inCart = cartCount(useCart());
   const tabs: { href: string; label: string; icon: IconName; count?: number; on: boolean }[] = [
-    { href: "/", label: "Butikk", icon: "shop", on: path === "/" || path.startsWith("/produkt") },
+    { href: "/", label: "Modeller", icon: "cube", on: path === "/" || path.startsWith("/produkt") },
     { href: "/handlekurv", label: "Kurv", icon: "bag", count: inCart, on: path.startsWith("/handlekurv") },
     { href: "/mine", label: "Mine", icon: "list", count: path.startsWith("/mine") ? 0 : updates, on: path.startsWith("/mine") },
   ];
