@@ -5,10 +5,22 @@ import { useActionState, useState, startTransition } from "react";
 import { saveProductAction, type ProductFormState } from "@/app/product-actions";
 import { shrinkImage } from "@/lib/shrinkImage";
 
-type Initial = { id: number; name: string; description: string | null; priceNok: number; costNok: number | null; available: boolean; imageUrl: string | null };
+type Initial = { id?: number; name: string; description: string | null; priceNok: number; costNok: number | null; available: boolean; imageUrl: string | null };
 
 // Samme skjema brukes for nytt produkt (uten `product`) og for å endre et (med `product`).
-export function ProductForm({ product }: { product?: Initial }) {
+// `wishId`: produktet lages fra et ønske i ønskeboksen. Feltene er da fylt ut fra ønsket.
+// `categories`: alle kategoriene, `selected`: de produktet er med i nå.
+export function ProductForm({
+  product,
+  wishId,
+  categories = [],
+  selected = [],
+}: {
+  product?: Initial;
+  wishId?: number;
+  categories?: { id: number; name: string }[];
+  selected?: number[];
+}) {
   const [state, action, pending] = useActionState<ProductFormState, FormData>(saveProductAction, {});
   // Forhåndsvisning av bildet: det gamle bildet, eller det nye som akkurat er valgt.
   const [preview, setPreview] = useState<string | null>(product?.imageUrl ?? null);
@@ -32,7 +44,8 @@ export function ProductForm({ product }: { product?: Initial }) {
   const busy = pending || shrinking;
   return (
     <form action={submit} className="form">
-      {product && <input type="hidden" name="id" value={product.id} />}
+      {product?.id != null && <input type="hidden" name="id" value={product.id} />}
+      {wishId != null && <input type="hidden" name="wishId" value={wishId} />}
       <label>
         Navn
         <input name="name" defaultValue={product?.name} placeholder="Drage, 10 cm" required />
@@ -52,7 +65,7 @@ export function ProductForm({ product }: { product?: Initial }) {
             }}
           />
         </label>
-        {product?.imageUrl && (
+        {product?.imageUrl && product.id != null && (
           <label className="check">
             <input type="checkbox" name="removeImage" />
             Fjern bilde
@@ -74,6 +87,18 @@ export function ProductForm({ product }: { product?: Initial }) {
         </label>
       </div>
       <p className="muted small-text">Filamentkost vises bare for deg. Prisen skal bare dekke filament og strøm.</p>
+      {/* Kategorier: kryss av for én eller flere. Alle avkrysningsboksene heter «category». */}
+      {categories.length > 0 && (
+        <fieldset className="cat-pick">
+          <legend>Kategorier</legend>
+          {categories.map((c) => (
+            <label key={c.id} className="cat-opt">
+              <input type="checkbox" name="category" value={c.id} defaultChecked={selected.includes(c.id)} />
+              <span>{c.name}</span>
+            </label>
+          ))}
+        </fieldset>
+      )}
       <label className="check">
         <input type="checkbox" name="available" defaultChecked={product?.available ?? true} />
         Vis i butikken

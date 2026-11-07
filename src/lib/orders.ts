@@ -13,6 +13,8 @@ export function isStatus(v: string): v is Status {
 }
 
 export const MAX_QUANTITY = 20;
+/** Maks antall linjer i én handlekurv. */
+export const MAX_LINES = 15;
 
 /** Svar Liam kan gi på en bestilling. "" betyr ikke svart ennå. */
 export const APPROVALS = ["", "godkjent", "endringer"] as const;
@@ -38,6 +40,8 @@ export type OrderRow = {
   customerResponse: string | null;
   customerNote: string | null;
   customerRespondedAt: Date | null;
+  colorName: string | null;
+  colorHex: string | null;
   productId: number;
   userId: number;
   productName: string;
@@ -68,6 +72,8 @@ async function query(where?: ReturnType<typeof eq>, oldestFirst = false) {
       customerResponse: orders.customerResponse,
       customerNote: orders.customerNote,
       customerRespondedAt: orders.customerRespondedAt,
+      colorName: orders.colorName,
+      colorHex: orders.colorHex,
       productId: orders.productId,
       userId: orders.userId,
       productName: products.name,
@@ -220,4 +226,55 @@ export async function monthlySummary(): Promise<MonthSummary[]> {
       products: [...counts].map(([name, items]) => ({ name, items })).sort((a, b) => b.items - a.items),
     }))
     .sort((a, b) => b.month.localeCompare(a.month));
+}
+
+/** Tallene i Verkstedet. */
+export type WorkshopStats = {
+  printed: number; // ting som er ferdig laget eller levert
+  orders: number; // bestillinger (ordrenumre), avbrutte teller ikke
+  customers: number; // forskjellige personer som har bestilt
+  filament: number; // hva filamentet har kostet til sammen
+  income: number; // hva kundene har betalt eller skal betale
+  top: { name: string; items: number } | null; // mest bestilte produkt
+};
+
+/** Statistikk for Liam. `since` = bare fra denne datoen (f.eks. 1. januar i år). Regnes ut i JavaScript. */
+export async function workshopStats(since?: Date): Promise<WorkshopStats> {
+  const db = await getDb();
+  const rows = await db
+    .select({
+      orderNumber: orders.orderNumber,
+      id: orders.id,
+      userId: orders.userId,
+      status: orders.status,
+      quantity: orders.quantity,
+      unitPriceNok: orders.unitPriceNok,
+      unitCostNok: sql<number | null>`coalesce(${orders.unitCostNok}, ${products.costNok})`,
+      name: products.name,
+      createdAt: orders.createdAt,
+    })
+    .from(orders)
+    .innerJoin(products, eq(products.id, orders.productId))
+    .where(ne(orders.status, "avbrutt"));
+
+  const list = since ? rows.filter((r) => r.createdAt >= since) : rows;
+  const counts = new Map<string, number>();
+  let printed = 0;
+  let filament = 0;
+  let income = 0;
+  for (const r of list) {
+    if (r.status === "laget" || r.status === "levert") printed += r.quantity;
+    filament += r.quantity * (r.unitCostNok ?? 0);
+    income += r.quantity * r.unitPriceNok;
+    counts.set(r.name, (counts.get(r.name) ?? 0) + r.quantity);
+  }
+  const [topName, topItems] = [...counts].sort((a, b) => b[1] - a[1])[0] ?? [];
+  return {
+    printed,
+    orders: new Set(list.map((r) => r.orderNumber ?? `id-${r.id}`)).size,
+    customers: new Set(list.map((r) => r.userId)).size,
+    filament,
+    income,
+    top: topName ? { name: topName, items: topItems } : null,
+  };
 }

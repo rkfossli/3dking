@@ -4,49 +4,77 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { orders, products } from "@/lib/schema";
+import { filaments, orders, products } from "@/lib/schema";
 import { pushToAdmins, safely, sendPush } from "@/lib/push";
 import { APPROVAL_LABEL } from "@/lib/format";
 import { requireAdmin, requireUser } from "@/lib/auth";
-import { APPROVALS, MAX_QUANTITY, MAX_REPLY, isStatus, newOrderNumber } from "@/lib/orders";
+import { APPROVALS, MAX_LINES, MAX_QUANTITY, MAX_REPLY, isStatus, newOrderNumber } from "@/lib/orders";
 
 export type OrderState = { error?: string; ok?: boolean; orderNumber?: string };
 
-/** En bruker bestiller et produkt. */
-export async function placeOrderAction(_prev: OrderState, form: FormData): Promise<OrderState> {
-  const user = await requireUser();
-  const productId = Number(form.get("productId"));
-  const quantity = Number(form.get("quantity"));
-  const note = String(form.get("note") ?? "").trim().slice(0, 500) || null;
+/** Én linje fra handlekurven, slik nettleseren sender den. */
+export type CartInput = { productId: number; quantity: number; note: string; colorId: number | null };
 
-  if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY) {
-    return { error: `Antall må være mellom 1 og ${MAX_QUANTITY}.` };
-  }
+/**
+ * Kunden sender handlekurven. Alle linjene blir bestillinger med samme ordrenummer,
+ * så kunden og Liam ser at de hører sammen. Prisene hentes fra databasen, ikke fra nettleseren.
+ */
+export async function placeCartAction(lines: CartInput[]): Promise<OrderState> {
+  const user = await requireUser();
+  if (!Array.isArray(lines) || lines.length === 0) return { error: "Handlekurven er tom." };
+  if (lines.length > MAX_LINES) return { error: `Maks ${MAX_LINES} linjer i én bestilling.` };
 
   const db = await getDb();
-  const [product] = await db.select().from(products).where(eq(products.id, productId));
-  if (!product || !product.available) return { error: "Produktet finnes ikke lenger." };
+  const rows = [];
+  for (const line of lines) {
+    const quantity = Number(line.quantity);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY) {
+      return { error: `Antall må være mellom 1 og ${MAX_QUANTITY}.` };
+    }
+    const [product] = await db.select().from(products).where(eq(products.id, Number(line.productId)));
+    if (!product || !product.available) return { error: "Et av produktene finnes ikke lenger. Fjern det fra kurven." };
+    const note = String(line.note ?? "").trim().slice(0, 500) || null;
+    // Fargen må finnes og være på lager. Navnet og fargekoden kopieres inn i bestillingen.
+    let color: { name: string; hex: string } | null = null;
+    if (line.colorId != null) {
+      const [f] = await db.select().from(filaments).where(eq(filaments.id, Number(line.colorId)));
+      if (!f || !f.inStock) return { error: "En av fargene er tom nå. Velg en annen farge i kurven." };
+      color = { name: f.name, hex: f.hex };
+    }
+    rows.push({ product, quantity, note, color });
+  }
 
-  // Prisen kopieres inn i bestillingen, så den ikke endres om Liam endrer prisen senere.
-  // Ordrenummeret er tilfeldig, så det kan (sjelden) være tatt. Da prøver vi et nytt.
+  // Ordrenummeret er tilfeldig. Er det tatt fra før (sjelden), prøver vi et nytt.
   let orderNumber = "";
   for (let attempt = 0; attempt < 20 && !orderNumber; attempt++) {
     const candidate = newOrderNumber();
-    const inserted = await db
-      .insert(orders)
-      .values({ orderNumber: candidate, userId: user.id, productId, quantity, note, unitPriceNok: product.priceNok, unitCostNok: product.costNok })
-      .onConflictDoNothing({ target: orders.orderNumber })
-      .returning({ id: orders.id });
-    if (inserted.length > 0) orderNumber = candidate;
+    const [taken] = await db.select({ id: orders.id }).from(orders).where(eq(orders.orderNumber, candidate)).limit(1);
+    if (!taken) orderNumber = candidate;
   }
   if (!orderNumber) return { error: "Fikk ikke laget bestillingen. Prøv igjen." };
 
-  // Varsel til Liam. after() sender det etter at svaret har gått tilbake, så brukeren slipper å vente.
+  // Prisen og filamentkostnaden kopieres inn, så de ikke endres om Liam endrer produktet senere.
+  await db.insert(orders).values(
+    rows.map((r) => ({
+      orderNumber,
+      userId: user.id,
+      productId: r.product.id,
+      quantity: r.quantity,
+      note: r.note,
+      unitPriceNok: r.product.priceNok,
+      unitCostNok: r.product.costNok,
+      colorName: r.color?.name ?? null,
+      colorHex: r.color?.hex ?? null,
+    })),
+  );
+
+  // Varsel til Liam. after() sender det etter at svaret har gått tilbake, så kunden slipper å vente.
+  const what = rows.map((r) => `${r.quantity} × ${r.product.name}${r.color ? ` (${r.color.name})` : ""}`).join(", ");
   after(() =>
     safely(
       pushToAdmins({
         title: `Ny bestilling fra ${user.displayName}`,
-        body: `#${orderNumber} · ${quantity} × ${product.name}${note ? ` · «${note}»` : ""}`,
+        body: `#${orderNumber} · ${what}`,
         url: "/admin/bestillinger?vis=ny",
         tag: "ny-bestilling",
       }),

@@ -16,6 +16,30 @@
   --warn: #f5b942;
   --radius: 14px;
   --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Fra Spotter: en flate inni kort, sterkere kanter, glød og en partnerfarge til fargeoverganger */
+  --card-2: #2a2a2a;
+  --border-strong: #6e6e6e;
+  --accent-glow: rgba(13, 247, 98, 0.45);
+  --accent-pair: #00c9b7;
+  --accent-text: var(--accent);
+  /* Tynn lys kant øverst på flater inni kort */
+  --nest-edge: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* Avstand: 4-8-12-16-24-32. Bruk disse i stedet for egne tall, så luften blir lik overalt. */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s6: 24px;
+  --s8: 32px;
+  /* Tekststørrelser: 12 (liten) / 14 (sekundær) / 16 (brødtekst) / 20 (tittel) / 28 (stor) */
+  --fs-cap: 12px;
+  --fs-sm: 14px;
+  --fs-body: 16px;
+  --fs-title: 20px;
+  --fs-display: 28px;
+  /* Høyden på fanelinja nederst og infolinja under den */
+  --tabbar-h: 64px;
+  --infobar-h: 26px;
   color-scheme: dark;
 }
 
@@ -28,6 +52,10 @@
   --accent: #ff6b00;
   --accent-ink: #2a1100;
   --warn: #ffd84a;
+  --card-2: #252525;
+  --border-strong: #6a6a70;
+  --accent-glow: rgba(255, 107, 0, 0.45);
+  --accent-pair: #ffb800;
 }
 
 [data-theme="cyber"] {
@@ -38,6 +66,10 @@
   --muted: #8e9ab7;
   --accent: #00f0ff;
   --accent-ink: #00262a;
+  --card-2: #1f2a42;
+  --border-strong: #5b6d95;
+  --accent-glow: rgba(0, 240, 255, 0.45);
+  --accent-pair: #b04cff;
 }
 
 [data-theme="onyx"] {
@@ -48,6 +80,10 @@
   --muted: #9a948a;
   --accent: #e3b65a;
   --accent-ink: #1a1304;
+  --card-2: #26231f;
+  --border-strong: #6f685e;
+  --accent-glow: rgba(227, 182, 90, 0.4);
+  --accent-pair: #c8873a;
 }
 
 /* Lys modus: felles lyse farger, så får hvert tema en mørkere temafarge som er lesbar på hvitt. */
@@ -60,25 +96,37 @@
   --danger: #d33434;
   --warn: #a86400;
   --accent-ink: #ffffff;
+  --card-2: #eceef2;
+  --border-strong: #878d98;
+  --nest-edge: inset 0 0 0 1px rgba(17, 20, 24, 0.04);
+  --accent-text: color-mix(in srgb, var(--accent) 80%, var(--text));
   color-scheme: light;
 }
 [data-mode="light"][data-theme="neon"] {
   --accent: #08803a;
+  --accent-glow: rgba(8, 128, 58, 0.26);
+  --accent-pair: #00857a;
 }
 [data-mode="light"][data-theme="steel"] {
   --bg: #f2f2f1;
   --accent: #b84800;
+  --accent-glow: rgba(184, 72, 0, 0.26);
+  --accent-pair: #a87800;
 }
 [data-mode="light"][data-theme="cyber"] {
   --bg: #eef2f8;
   --border: #ccd5e6;
   --accent: #007189;
+  --accent-glow: rgba(0, 113, 137, 0.26);
+  --accent-pair: #7a2fc0;
 }
 [data-mode="light"][data-theme="onyx"] {
   --bg: #f1eee8;
   --text: #171512;
   --accent: #9c7320;
   --accent-ink: #1a1304;
+  --accent-glow: rgba(156, 115, 32, 0.26);
+  --accent-pair: #8a5a1e;
 }
 
 * {
@@ -1522,4 +1570,930 @@ p.customer-response {
 .empty-cta {
   display: inline-flex;
   margin-top: 12px;
+}
+
+/* ==========================================================================
+   Revisjonen, steg 1: designgrunnlaget fra Spotter
+   Står sist i filen, så det overstyrer eldre regler over.
+   ========================================================================== */
+
+/* Seksjonsoverskrift: en kort strek i temafargen til venstre, som i Spotter. */
+h2 {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1.25;
+  padding-left: var(--s3);
+  border-left: 3px solid var(--accent);
+}
+
+/* Produktnavn og månedsnavn er også h2, men de skal ikke ha streken. */
+.product h2,
+.month h2 {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.section-title {
+  color: var(--text);
+  margin: var(--s6) 0 var(--s3);
+}
+
+/* Kort: fylt flate uten kant. Inni kort brukes --card-2, så lagene skiller seg. */
+.card {
+  border-color: transparent;
+  padding: var(--s4);
+  margin-top: var(--s4);
+}
+
+.admin-reply,
+.customer-group .order,
+.customer-response,
+.order-done,
+.push-ask {
+  background: var(--card-2);
+  box-shadow: var(--nest-edge);
+}
+
+.customer-group {
+  border-color: transparent;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* Fargeovergang øverst på produktkortene: temafargen og partnerfargen. */
+.grid .product {
+  position: relative;
+  overflow: hidden;
+}
+
+.grid .product::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-pair));
+}
+
+/* Prisen: større og fetere, så den er lett å se. */
+.price {
+  font-size: var(--fs-title);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--accent-text);
+}
+
+.big-number {
+  font-size: var(--fs-display);
+  font-weight: 800;
+}
+
+.stats b {
+  font-size: var(--fs-title);
+  font-weight: 800;
+}
+
+/* Knapper: minst 48 px høye, med fast mellomrom mellom ikon og tekst. */
+button,
+.button {
+  min-height: 48px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+}
+
+button.small,
+.button.small {
+  min-height: 48px;
+  padding: var(--s2) var(--s4);
+}
+
+/* Hovedknappen gløder litt i temafargen. */
+button[type="submit"]:not(.secondary):not(.danger):not(:disabled),
+.button:not(.secondary) {
+  box-shadow: 0 0 18px -6px var(--accent-glow);
+}
+
+button.secondary,
+.button.secondary {
+  background: var(--card-2);
+  border-color: var(--border);
+}
+
+/* Felt: litt mer luft og samme hjørner som knappene. */
+input,
+textarea,
+select {
+  border-radius: 12px;
+  min-height: 48px;
+}
+
+/* Fanene i admin: den valgte gløder. */
+.tabs a {
+  min-height: 44px;
+  background: var(--card);
+  border-color: transparent;
+}
+
+.tabs a.on {
+  box-shadow: 0 0 16px -4px var(--accent-glow);
+}
+
+.small-tabs a {
+  min-height: 40px;
+}
+
+/* Sideoverganger: den gamle siden tones ut, den nye glir litt opp. Se src/app/template.tsx. */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-old(.page-out) {
+  animation: 120ms ease-in both vt-fade-out;
+}
+
+::view-transition-new(.page-in) {
+  animation: 240ms cubic-bezier(0.2, 0.8, 0.3, 1) 60ms both vt-rise;
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Skjelett: grå blokker som blinker mens siden lastes. Se src/app/loading.tsx. */
+.skeleton {
+  display: grid;
+  gap: var(--s3);
+}
+
+.sk {
+  display: block;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--card) 0%, var(--card-2) 40%, var(--card) 80%);
+  background-size: 200% 100%;
+  animation: sk-shine 1.4s ease-in-out infinite;
+}
+
+.sk-title {
+  width: 52%;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.sk-line {
+  width: 80%;
+  height: 16px;
+  border-radius: 6px;
+}
+
+.sk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--s3);
+  margin-top: var(--s3);
+}
+
+.sk-card {
+  height: 260px;
+}
+
+@keyframes sk-shine {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* Feiring: gnister rundt «Bestilt!» */
+.celebrate {
+  position: relative;
+}
+
+.celebrate .spark {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  opacity: 0;
+  animation: spark 900ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.celebrate .spark:nth-child(even) {
+  background: var(--accent-pair);
+}
+
+@keyframes spark {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--a)) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--a)) translateY(-70px) scale(0.4);
+  }
+}
+
+.celebrate .with-icon {
+  animation: pop 420ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebrate .spark,
+  .celebrate .with-icon,
+  .sk {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Revisjonen, steg 2: fanelinja nederst og statuslinja på bestillinger
+   ========================================================================== */
+
+/* Infolinja ligger helt nederst. Fanelinja svever rett over den, med runde hjørner og uskarp bakgrunn. */
+.info-bar {
+  z-index: 21;
+}
+
+.tabbar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--infobar-h) + 8px + env(safe-area-inset-bottom, 0px));
+  max-width: 520px;
+  margin: 0 auto;
+  z-index: 22;
+  display: flex;
+  height: var(--tabbar-h);
+  background: color-mix(in srgb, var(--card) 82%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 30px rgba(0, 0, 0, 0.5);
+  view-transition-name: tabbar;
+}
+
+[data-mode="light"] .tabbar {
+  box-shadow: 0 10px 26px rgba(17, 20, 24, 0.14);
+}
+
+.tabbar a {
+  flex: 1;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  font-size: var(--fs-cap);
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.tabbar a.on {
+  color: var(--accent-text);
+}
+
+.tabbar a.on .icon {
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+.tab-icon {
+  position: relative;
+  display: grid;
+}
+
+.tab-badge {
+  position: absolute;
+  top: -6px;
+  right: -12px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* Plass nederst, så verken fanelinja eller infolinja dekker innholdet. */
+body.has-tabbar {
+  padding-bottom: calc(var(--tabbar-h) + var(--infobar-h) + 32px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Fanelinja står stille når siden bytter. */
+::view-transition-group(tabbar) {
+  animation: none;
+  z-index: 50;
+}
+
+::view-transition-old(tabbar) {
+  display: none;
+}
+
+::view-transition-new(tabbar) {
+  animation: none;
+}
+
+.top {
+  justify-content: flex-start;
+}
+
+.logout {
+  margin-top: var(--s6);
+}
+
+.logout button {
+  width: 100%;
+}
+
+/* Statuslinja: tre prikker med en strek imellom. Steget man er på lyser. */
+.steps {
+  list-style: none;
+  margin: var(--s3) 0 var(--s1);
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.steps li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--s1);
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+
+/* Streken fra forrige prikk til denne */
+.steps li + li::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 50%;
+  width: 100%;
+  height: 3px;
+  margin-right: 13px;
+  border-radius: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.steps li.done + li::before {
+  background: var(--accent);
+}
+
+.step-dot {
+  position: relative;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--card-2);
+  border: 2px solid var(--border);
+}
+
+.steps li.done .step-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.steps li.now .step-dot {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 25%, var(--card));
+  color: var(--accent-ink);
+  box-shadow: 0 0 12px var(--accent-glow);
+  animation: step-pulse 2s ease-in-out infinite;
+}
+
+.steps li.now .step-lbl {
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+.steps li.done .step-lbl {
+  color: var(--text);
+}
+
+@keyframes step-pulse {
+  50% {
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steps li.now .step-dot {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Revisjonen, steg 3: handlekurv
+   ========================================================================== */
+
+.cart-line {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: var(--s3);
+  align-items: start;
+}
+
+.cart-line .thumb {
+  width: 56px;
+}
+
+.cart-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  min-width: 0;
+}
+
+.cart-info .small-text {
+  margin: 0;
+}
+
+.cart-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+
+.stepper.mini {
+  gap: var(--s3);
+}
+
+.stepper.mini button {
+  min-width: 48px;
+}
+
+.cart-sum {
+  color: var(--accent-text);
+  font-size: var(--fs-body);
+}
+
+.icon-btn {
+  background: transparent;
+  color: var(--muted);
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0;
+  box-shadow: none;
+}
+
+.cart-total {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+.cart-total .order-price {
+  justify-content: space-between;
+}
+
+.cart-total .order-price b {
+  font-size: var(--fs-display);
+  font-weight: 800;
+}
+
+.cart-total p {
+  margin: 0;
+}
+
+/* Fargeprøve: en liten rund prikk i fargen */
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  vertical-align: -2px;
+}
+
+.color-line {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+}
+
+/* Flere linjer med samme ordrenummer samles i én boks under Mine */
+.order-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.order-group > .order-head b {
+  font-size: var(--fs-body);
+}
+
+.order-group .order {
+  background: var(--card-2);
+  box-shadow: var(--nest-edge);
+}
+
+/* ==========================================================================
+   Revisjonen, steg 4: fargevalg og filament
+   ========================================================================== */
+
+.colors {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.colors legend {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  padding: 0;
+  margin-bottom: var(--s2);
+}
+
+.colors legend b {
+  color: var(--text);
+}
+
+.color-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+}
+
+/* Runde fargeknapper. Den valgte får en ring i temafargen og gløder. */
+.color-chip {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--chip);
+  border: 2px solid var(--border-strong);
+  box-shadow: none;
+}
+
+.color-chip.on {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+/* Tom farge: grå skrå strek over og halvt gjennomsiktig */
+.color-chip:disabled {
+  opacity: 0.35;
+  background: linear-gradient(135deg, transparent 45%, var(--muted) 45%, var(--muted) 55%, transparent 55%), var(--chip);
+  cursor: not-allowed;
+}
+
+.swatch.big {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.filament-fields {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: var(--s3);
+}
+
+.color-pick input {
+  padding: 4px;
+  height: 48px;
+  cursor: pointer;
+}
+
+/* Små faner (filtre og underfaner) er roligere enn hovedfanene: temafarge på tekst, ikke fylt. */
+.small-tabs a.on {
+  background: color-mix(in srgb, var(--accent) 16%, var(--card));
+  border-color: var(--accent);
+  color: var(--accent-text);
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   Revisjonen, steg 5: ønskeboks og meldinger
+   ========================================================================== */
+
+/* Kortet nederst i butikken som leder til ønskeboksen */
+.wish-cta {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s3);
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: inset 3px 0 0 var(--accent-pair);
+}
+
+.wish-cta > .icon:first-child {
+  color: var(--accent-text);
+}
+
+.wish-cta span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wish-cta .small-text {
+  margin: 0;
+}
+
+.wish {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.wish-text {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.wish-img {
+  width: 100%;
+  max-width: 240px;
+  border-radius: 12px;
+  display: block;
+}
+
+.wish .admin-reply p {
+  margin: 0;
+}
+
+.badge.wish-ny {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.badge.wish-ja {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.badge.wish-nei {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* Meldinger på en bestilling: en liten chat */
+.messages {
+  margin-top: var(--s2);
+  border-top: 1px solid var(--border);
+  padding-top: var(--s2);
+}
+
+.messages summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 40px;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.messages[open] summary {
+  color: var(--text);
+}
+
+.chat {
+  list-style: none;
+  margin: var(--s2) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.chat li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  max-width: 85%;
+}
+
+.chat li.mine {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.bubble {
+  padding: var(--s2) var(--s3);
+  border-radius: 16px 16px 16px 4px;
+  background: var(--card-2);
+  box-shadow: var(--nest-edge);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.chat li.mine .bubble {
+  border-radius: 16px 16px 4px 16px;
+  background: color-mix(in srgb, var(--accent) 22%, var(--card));
+}
+
+.chat-meta {
+  font-size: var(--fs-cap);
+}
+
+.chat-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s2);
+}
+
+.chat-form button {
+  padding: 0 var(--s4);
+}
+
+/* ==========================================================================
+   Revisjonen, steg 6: kategorier, søk og statistikk
+   ========================================================================== */
+
+.search {
+  position: relative;
+  margin-top: var(--s4);
+}
+
+.search .icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.search input {
+  padding-left: 44px;
+  background: var(--card);
+  border-color: transparent;
+}
+
+.cat-tabs {
+  margin: var(--s3) 0 0;
+}
+
+/* Merkene oppå produktbildet */
+.img-wrap {
+  position: relative;
+  display: block;
+}
+
+.ribbons {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: var(--s1);
+  flex-wrap: wrap;
+}
+
+.ribbon {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.ribbon.new {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.ribbon.hot {
+  background: var(--accent-pair);
+  color: #0b0b0b;
+}
+
+/* Kategorivalget i produktskjemaet: avkrysningsbokser som «piller» */
+.cat-pick {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.cat-pick legend {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  padding: 0;
+  margin-bottom: var(--s2);
+}
+
+.cat-opt {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  min-height: 44px;
+  border-radius: 999px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.cat-opt input {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  accent-color: var(--accent);
+}
+
+.cat-opt:has(input:checked) {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--card));
+}
+
+.chat-form.grow {
+  flex: 1;
+}
+
+/* Verkstedet: store tall */
+.big-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s3);
+  margin-top: var(--s4);
+}
+
+.big-stat {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: var(--s4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  position: relative;
+  overflow: hidden;
+}
+
+.big-stat::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-pair));
+}
+
+.big-stat b {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--accent-text);
+  letter-spacing: -0.02em;
+}
+
+.big-stat span {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.big-stat.wide {
+  grid-column: 1 / -1;
+}
+
+.big-stat.wide b {
+  font-size: var(--fs-title);
 }

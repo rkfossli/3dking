@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 11;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -109,5 +109,60 @@ export const UPGRADES: Record<number, string> = {
     UPDATE orders SET order_number = lpad(((id * 7919) % 10000)::text, 4, '0') || to_char(created_at AT TIME ZONE 'Europe/Oslo', 'YY')
       WHERE order_number IS NULL;
     CREATE UNIQUE INDEX IF NOT EXISTS orders_order_number_idx ON orders (order_number);
+  `,
+  // Handlekurv: flere bestillinger (linjer) kan dele samme ordrenummer. Nummeret er derfor ikke unikt lenger,
+  // men vi beholder en vanlig indeks så det går fort å slå opp.
+  8: `
+    DROP INDEX IF EXISTS orders_order_number_idx;
+    CREATE INDEX IF NOT EXISTS orders_order_number_lookup_idx ON orders (order_number);
+  `,
+  // Fargevalg: filamentfargene Liam har, og fargen kunden valgte på hver bestilling.
+  9: `
+    CREATE TABLE IF NOT EXISTS filaments (
+      id serial PRIMARY KEY,
+      name text NOT NULL,
+      hex text NOT NULL,
+      in_stock boolean NOT NULL DEFAULT true,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS color_name text;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS color_hex text;
+  `,
+  // Ønskeboksen og meldinger på bestillinger.
+  10: `
+    CREATE TABLE IF NOT EXISTS wishes (
+      id serial PRIMARY KEY,
+      user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      text text NOT NULL,
+      link text,
+      image_url text,
+      status text NOT NULL DEFAULT 'ny',
+      price_nok integer,
+      admin_reply text,
+      product_id integer REFERENCES products(id) ON DELETE SET NULL,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      answered_at timestamptz
+    );
+    CREATE TABLE IF NOT EXISTS order_messages (
+      id serial PRIMARY KEY,
+      order_number text NOT NULL,
+      user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body text NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+    CREATE INDEX IF NOT EXISTS order_messages_number_idx ON order_messages (order_number);
+  `,
+  // Kategorier i butikken. Et produkt kan være i flere kategorier.
+  11: `
+    CREATE TABLE IF NOT EXISTS categories (
+      id serial PRIMARY KEY,
+      name text NOT NULL,
+      sort integer NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS product_categories (
+      product_id integer NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+      category_id integer NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+      PRIMARY KEY (product_id, category_id)
+    );
   `,
 };

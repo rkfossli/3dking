@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { count, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { orders, products } from "@/lib/schema";
+import { orders, productCategories, products, wishes } from "@/lib/schema";
+import { after } from "next/server";
+import { safely, sendPush } from "@/lib/push";
+import { getWish } from "@/lib/wishes";
 import { requireAdmin } from "@/lib/auth";
 import { getProduct, parseKroner } from "@/lib/products";
 import { deleteImage, saveImage } from "@/lib/images";
@@ -28,9 +31,13 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
   if (priceNok === null || Number.isNaN(priceNok)) return { error: "Skriv en pris i hele kroner, for eksempel 50." };
   if (Number.isNaN(costNok)) return { error: "Filamentkost må være et tall, eller stå tom." };
 
+  // Lages produktet fra et ønske, brukes bildet fra ønsket hvis Liam ikke velger et nytt.
+  const wishId = Number(form.get("wishId")) || null;
+  const wish = wishId ? await getWish(wishId) : null;
+
   // Bilde: et nytt bilde erstatter det gamle. "Fjern bilde" tar det bort.
   const old = id ? await getProduct(id) : null;
-  let imageUrl = old?.imageUrl ?? null;
+  let imageUrl = old?.imageUrl ?? wish?.imageUrl ?? null;
   const file = form.get("image");
   const removeImage = form.get("removeImage") === "on";
   if (file instanceof File && file.size > 0) {
@@ -45,8 +52,30 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
 
   const values = { name, description, priceNok, costNok, available, imageUrl };
   const db = await getDb();
+  let productId = id;
   if (id) await db.update(products).set(values).where(eq(products.id, id));
-  else await db.insert(products).values(values);
+  else {
+    const [created] = await db.insert(products).values(values).returning({ id: products.id });
+    productId = created.id;
+    // Ønsket kobles til det nye produktet, så kunden får en «Bestill»-knapp på ønsket sitt.
+    if (wish) {
+      await db.update(wishes).set({ productId: created.id }).where(eq(wishes.id, wish.id));
+      after(() =>
+        safely(sendPush([wish.userId], { title: "Ønsket ditt er i butikken!", body: `${name} kan bestilles nå.`, url: "/onsker", tag: `onske-${wish.id}` })),
+      );
+      revalidatePath("/onsker");
+      revalidatePath("/admin/onsker");
+    }
+  }
+
+  // Kategoriene: fjern de gamle koblingene og lag nye for de som er krysset av.
+  if (productId) {
+    const categoryIds = form.getAll("category").map(Number).filter((n) => Number.isInteger(n) && n > 0);
+    await db.delete(productCategories).where(eq(productCategories.productId, productId));
+    if (categoryIds.length > 0) {
+      await db.insert(productCategories).values(categoryIds.map((categoryId) => ({ productId: productId as number, categoryId }))).onConflictDoNothing();
+    }
+  }
 
   // Rydd bort det gamle bildet hvis det ble byttet ut eller fjernet.
   if (old?.imageUrl && old.imageUrl !== imageUrl) await deleteImage(old.imageUrl);

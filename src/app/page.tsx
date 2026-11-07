@@ -1,41 +1,54 @@
 import { Icon } from "@/components/Icon";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { availableProducts } from "@/lib/products";
+import { availableProducts, isNewProduct, popularProductIds } from "@/lib/products";
+import { allCategories, categoryMap } from "@/lib/categories";
 import { kr } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 import { InstallGuide } from "@/components/InstallGuide";
 import { PinHint } from "@/components/PinHint";
 import { Logo } from "@/components/Logo";
-import { countNew, countReadyForUser, countUpdatesForUser } from "@/lib/orders";
-import { logoutAction } from "./auth-actions";
+import { countReadyForUser } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
 // Forsiden: katalogen med alt som er til salgs. Krever innlogging.
-// Produktene skal komme tidlig på skjermen, så logo og knapper står på én rad og «Logg ut» ligger nederst.
-export default async function Home() {
+// ?kategori=3 viser bare én kategori, og ?q=drage søker i navn og beskrivelse.
+export default async function Home({ searchParams }: PageProps<"/">) {
   const user = await requireUser();
   const isAdmin = user.role === "admin";
-  const list = await availableProducts();
-  const waiting = isAdmin ? await countNew() : 0;
+  const all = await availableProducts();
+  const { kategori, q } = await searchParams;
+  const search = typeof q === "string" ? q.trim().slice(0, 60) : "";
+
+  // Kategoriene som har minst ett produkt blir faner. Tomme kategorier vises ikke.
+  const cats = await allCategories();
+  const catsOf = await categoryMap(all.map((p) => p.id));
+  const usedCats = cats.filter((c) => all.some((p) => catsOf.get(p.id)?.includes(c.id)));
+  const activeCat = usedCats.find((c) => String(c.id) === kategori) ?? null;
+
+  const needle = search.toLowerCase();
+  const list = all.filter(
+    (p) =>
+      (!activeCat || catsOf.get(p.id)?.includes(activeCat.id)) &&
+      (!needle || p.name.toLowerCase().includes(needle) || (p.description ?? "").toLowerCase().includes(needle)),
+  );
+  const popular = await popularProductIds();
+  // Lenke til en kategori, og søket beholdes.
+  const href = (catId: number | null) => {
+    const params = new URLSearchParams();
+    if (catId) params.set("kategori", String(catId));
+    if (search) params.set("q", search);
+    const s = params.toString();
+    return s ? `/?${s}` : "/";
+  };
   const ready = await countReadyForUser(user.id);
-  const updates = await countUpdatesForUser(user.id, user.ordersSeenAt);
 
   return (
     <main className="page">
+      {/* Mine bestillinger, Admin og Meg ligger i fanelinja nederst (TabBar), så toppen er bare logoen. */}
       <div className="top">
         <Logo theme={user.theme} />
-        <div className="row-buttons">
-          <Link href="/mine" className="button small secondary">
-            Mine bestillinger{updates > 0 && <span className="count" title="Nytt siden sist">{updates}</span>}
-          </Link>
-          {isAdmin && (
-            <Link href="/admin/bestillinger" className="button small">
-              Admin{waiting > 0 && <span className="count">{waiting}</span>}
-            </Link>
-          )}
-        </div>
       </div>
       <p className="muted greeting">
         Hei, {user.displayName}! {isAdmin ? "Slik ser butikken ut for kundene." : "Velg noe du vil at 3DKing skal printe."}
@@ -53,14 +66,45 @@ export default async function Home() {
       {!user.ownPin && <PinHint />}
       <InstallGuide compact place="top" />
 
-      {list.length === 0 && <div className="card"><p className="muted">Ingen produkter ennå. Kom tilbake snart!</p></div>}
+      {/* Søk: et vanlig skjema som legger ?q= i adressen. Kategorien beholdes i et skjult felt. */}
+      {all.length > 0 && (
+        <form className="search" role="search" action="/">
+          {activeCat && <input type="hidden" name="kategori" value={activeCat.id} />}
+          <Icon name="search" />
+          <input name="q" type="search" defaultValue={search} placeholder="Søk i butikken" aria-label="Søk i butikken" enterKeyHint="search" />
+        </form>
+      )}
+
+      {usedCats.length > 0 && (
+        <nav className="tabs small-tabs cat-tabs" aria-label="Kategorier">
+          <Link href={href(null)} className={activeCat ? "" : "on"}>Alle</Link>
+          {usedCats.map((c) => (
+            <Link key={c.id} href={href(c.id)} className={activeCat?.id === c.id ? "on" : ""}>{c.name}</Link>
+          ))}
+        </nav>
+      )}
+
+      {all.length === 0 && <div className="card"><p className="muted">Ingen produkter ennå. Kom tilbake snart!</p></div>}
+      {all.length > 0 && list.length === 0 && (
+        <div className="card">
+          <p className="muted">Fant ingenting{search ? ` som passer «${search}»` : ""}.</p>
+          <Link href="/" className="button small secondary empty-cta">Vis alt</Link>
+        </div>
+      )}
 
       <div className="grid">
         {list.map((p) => (
           <article key={p.id} className="card product">
             {/* Bildet og navnet går til produktsiden med stort bilde og hele beskrivelsen. */}
             <Link href={`/produkt/${p.id}`} className="product-link">
-              <ProductImage url={p.imageUrl} alt={p.name} />
+              <span className="img-wrap">
+                <ProductImage url={p.imageUrl} alt={p.name} />
+                {/* Merker: Ny (lagt ut siste 14 dager) og Populær (mest bestilt). */}
+                <span className="ribbons">
+                  {isNewProduct(p.createdAt) && <span className="ribbon new">Ny</span>}
+                  {popular.includes(p.id) && <span className="ribbon hot">Populær</span>}
+                </span>
+              </span>
               <h2>{p.name}</h2>
             </Link>
             {p.description && <p className="muted small-text clamp">{p.description}</p>}
@@ -74,16 +118,18 @@ export default async function Home() {
         ))}
       </div>
 
+      {/* Ønskeboksen: for det som ikke finnes i butikken */}
+      <Link href="/onsker" className="card wish-cta">
+        <Icon name="star" size={26} />
+        <span>
+          <b>Finner du ikke det du vil ha?</b>
+          <span className="muted small-text">Ønsk deg noe, så svarer 3DKing om det kan lages.</span>
+        </span>
+        <Icon name="arrow-right" />
+      </Link>
+
       <InstallGuide compact place="bottom" />
 
-      <div className="footer-line">
-        <p className="muted small-text">
-          Logget inn som {user.username} · <Link href="/meg">Innstillinger</Link>
-        </p>
-        <form action={logoutAction}>
-          <button type="submit" className="small secondary">Logg ut</button>
-        </form>
-      </div>
     </main>
   );
 }

@@ -9,6 +9,9 @@ import { kr, orderNo, plural, when, CUSTOMER_STATUS_LABEL } from "@/lib/format";
 import { CancelMyOrder } from "@/components/OrderActions";
 import { AdminReply } from "@/components/AdminReply";
 import { ChangeResponse } from "@/components/ChangeResponse";
+import { OrderSteps } from "@/components/OrderSteps";
+import { OrderMessages } from "@/components/OrderMessages";
+import { messagesFor } from "@/lib/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -25,21 +28,26 @@ export default async function MyOrdersPage() {
   const lastSeen = user.ordersSeenAt;
   const isNew = (changed: Date | null) => changed != null && (lastSeen == null || changed > lastSeen);
   const db = await getDb();
+  // Meldingene på alle bestillingene, samlet per ordrenummer.
+  const messages = await messagesFor(list.map((o) => o.orderNumber).filter((n): n is string => n != null));
+  const thread = (n: string | null) => n && <OrderMessages orderNumber={n} messages={messages.get(n) ?? []} meId={user.id} meIsAdmin={false} />;
   await db.update(users).set({ ordersSeenAt: new Date() }).where(eq(users.id, user.id));
 
   // Én bestilling i listen. Brukes i begge delene.
-  const item = (o: OrderRow) => (
+  const item = (o: OrderRow, inGroup = false) => (
     <li key={o.id} className={`card order status-${o.status}`}>
       <div className="order-head">
         <span>
           <b>{o.quantity} × {o.productName}</b>
-          {o.orderNumber && <span className="order-no">{orderNo(o.orderNumber)}</span>}
+          {o.orderNumber && !inGroup && <span className="order-no">{orderNo(o.orderNumber)}</span>}
         </span>
         <span className="badges">
           {isNew(o.changedByAdminAt) && <span className="badge nytt">Nytt</span>}
-          <span className={`badge ${o.status}`}>{CUSTOMER_STATUS_LABEL[o.status]}</span>
+          {o.status === "avbrutt" && <span className="badge avbrutt">{CUSTOMER_STATUS_LABEL[o.status]}</span>}
         </span>
       </div>
+      {/* Statuslinja viser hvor langt bestillingen har kommet: Mottatt → Ferdig → Levert. */}
+      <OrderSteps status={o.status} />
       {/* Prisen står tydelig for seg selv, så kunden ser hva de skal betale. */}
       <p className="order-price">
         <b>{kr(o.quantity * o.unitPriceNok)}</b> <span className="muted small-text">(filament og strøm)</span>
@@ -52,6 +60,11 @@ export default async function MyOrdersPage() {
         {o.madeAt && ` · laget ${when(o.madeAt)}`}
         {o.deliveredAt && ` · levert ${when(o.deliveredAt)}`}
       </p>
+      {o.colorName && (
+        <p className="small-text color-line">
+          <span className="swatch" style={{ background: o.colorHex ?? undefined }} /> {o.colorName}
+        </p>
+      )}
       {o.note && <p className="small-text">Ditt ønske: «{o.note}»</p>}
       {o.status === "laget" && !o.deliveryPlan && (
         <p className="small-text with-icon"><Icon name="ready" /> Ferdig laget! 3DKing sier fra når og hvor du får den.</p>
@@ -63,14 +76,38 @@ export default async function MyOrdersPage() {
       ) : (
         o.status === "ny" && <CancelMyOrder id={o.id} />
       )}
+      {!inGroup && thread(o.orderNumber)}
     </li>
   );
 
+  // Ting som ble bestilt fra samme handlekurv (samme ordrenummer) vises i én boks.
+  const grouped = (rows: OrderRow[]) => {
+    const groups: OrderRow[][] = [];
+    for (const o of rows) {
+      const g = o.orderNumber ? groups.find((x) => x[0].orderNumber === o.orderNumber) : undefined;
+      if (g) g.push(o);
+      else groups.push([o]);
+    }
+    return groups.map((g) =>
+      g.length === 1 ? (
+        item(g[0], false)
+      ) : (
+        <li key={`ordre-${g[0].orderNumber}`} className="card order-group">
+          <div className="order-head">
+            <b>Ordre {orderNo(g[0].orderNumber)}</b>
+            <span className="muted small-text">
+              {plural(g.length, "ting", "ting")} · {kr(g.reduce((sum, o) => sum + o.quantity * o.unitPriceNok, 0))}
+            </span>
+          </div>
+          <ul className="order-list">{g.map((o) => item(o, true))}</ul>
+          {thread(g[0].orderNumber)}
+        </li>
+      ),
+    );
+  };
+
   return (
     <main className="page">
-      <p>
-        <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til butikken</Link>
-      </p>
       <h1>Mine bestillinger</h1>
       {list.length === 0 && (
         <div className="card">
@@ -85,7 +122,7 @@ export default async function MyOrdersPage() {
         <>
           <h2 className="section-title">Pågår</h2>
           {active.length === 0 && <p className="muted small-text">Ingenting på gang akkurat nå.</p>}
-          <ul className="order-list">{active.map(item)}</ul>
+          <ul className="order-list">{grouped(active)}</ul>
         </>
       )}
 
@@ -93,7 +130,7 @@ export default async function MyOrdersPage() {
         // <details> er et innebygd HTML-element som kan foldes ut og inn uten JavaScript.
         <details className="earlier">
           <summary>Tidligere ({plural(earlier.length, "bestilling", "bestillinger")})</summary>
-          <ul className="order-list">{earlier.map(item)}</ul>
+          <ul className="order-list">{grouped(earlier)}</ul>
         </details>
       )}
     </main>

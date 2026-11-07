@@ -59,6 +59,42 @@ const PATHS = {
   "arrow-right": <path d="M5 12h14M13 6l6 6-6 6" />,
   // Melding: svar fra Liam
   message: <path d="M4 5h16v11H9l-5 4z" />,
+  // Butikk: markise over en disk
+  shop: (
+    <>
+      <path d="M4 10v10h16V10" />
+      <path d="M3 10 5 4h14l2 6c0 1.4-1.2 2.5-2.7 2.5S15.6 11.4 15.6 10c0 1.4-1.2 2.5-2.7 2.5h-1.8C9.6 12.5 8.4 11.4 8.4 10c0 1.4-1.2 2.5-2.7 2.5S3 11.4 3 10z" />
+      <path d="M10 20v-5h4v5" />
+    </>
+  ),
+  // Handlekurv (pose)
+  bag: (
+    <>
+      <path d="M5 8h14l-1.2 12H6.2z" />
+      <path d="M9 10V6.5a3 3 0 0 1 6 0V10" />
+    </>
+  ),
+  // Liste: bestillinger
+  list: <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />,
+  // Person: Meg
+  user: <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-8 9a8 8 0 0 1 16 0" />,
+  // Krone: admin (3DKing)
+  crown: <path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z" />,
+  // Stjerne: ønsker
+  star: <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" />,
+  // Forstørrelsesglass: søk
+  search: (
+    <>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4.5 4.5" />
+    </>
+  ),
+  // Enkel hake uten sirkel (i statuslinja)
+  tick: <path d="m5 12.5 4.5 4.5L19 7" />,
+  // Plus: legg til
+  plus: <path d="M12 5v14M5 12h14" />,
+  // Kryss: fjern
+  close: <path d="M6 6l12 12M18 6 6 18" />,
 } as const;
 
 export type IconName = keyof typeof PATHS;
