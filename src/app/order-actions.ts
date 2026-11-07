@@ -152,6 +152,32 @@ export async function setOrderStatusAction(orderId: number, status: string): Pro
   revalidatePath("/mine");
 }
 
+/**
+ * Liam leverer en bestilling og svarer samtidig på om den er betalt.
+ * «ja» = betalt nå, «gratis» = kunden skal ikke betale (regnes som ferdig), «nei» = ikke betalt ennå, med et notat.
+ * Ikke betalte bestillinger blir liggende under «Ikke betalt» til Liam trykker «Merk betalt».
+ */
+export async function deliverAction(orderId: number, payment: "ja" | "nei" | "gratis", noteInput: string): Promise<void> {
+  await requireAdmin();
+  const db = await getDb();
+  const now = new Date();
+  const note = noteInput.trim().slice(0, 200) || null;
+  await db
+    .update(orders)
+    .set({
+      status: "levert",
+      deliveredAt: now,
+      changedByAdminAt: now,
+      paidAt: payment === "nei" ? null : now,
+      paymentNote: payment === "gratis" ? "Gratis" : payment === "nei" ? note : null,
+    })
+    .where(eq(orders.id, orderId));
+  after(() => safely(notifyCustomer(orderId, "Levert", (what) => `${what} er levert. Kos deg!`)));
+  revalidatePath("/admin/bestillinger");
+  revalidatePath("/admin/oversikt");
+  revalidatePath("/mine");
+}
+
 export type ResponseState = { error?: string; ok?: boolean };
 
 /**

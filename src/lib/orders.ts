@@ -37,6 +37,7 @@ export type OrderRow = {
   deliveryPlan: string | null;
   changedByAdminAt: Date | null;
   paidAt: Date | null;
+  paymentNote: string | null;
   customerResponse: string | null;
   customerNote: string | null;
   customerRespondedAt: Date | null;
@@ -70,6 +71,7 @@ async function query(where?: ReturnType<typeof eq>, oldestFirst = false) {
       deliveryPlan: orders.deliveryPlan,
       changedByAdminAt: orders.changedByAdminAt,
       paidAt: orders.paidAt,
+      paymentNote: orders.paymentNote,
       customerResponse: orders.customerResponse,
       customerNote: orders.customerNote,
       customerRespondedAt: orders.customerRespondedAt,
@@ -101,12 +103,43 @@ export async function ordersByStatus(status: Status | "alle"): Promise<OrderRow[
   return query(status === "alle" ? undefined : eq(orders.status, status), oldestFirst);
 }
 
-/** Hvor mange bestillinger det er med hver status, for tallene på filtrene. */
-export async function countByStatus(): Promise<Record<Status, number>> {
+/**
+ * Filtrene i Ordre. «Levert» er delt i to: «Ikke betalt» (levert, men ikke betalt ennå)
+ * og «Ferdig» (levert og betalt). Slik ser Liam hvem som skylder penger.
+ */
+export const ORDER_FILTERS = ["ny", "laget", "ubetalt", "ferdig", "avbrutt", "alle"] as const;
+export type OrderFilter = (typeof ORDER_FILTERS)[number];
+export const FILTER_LABEL: Record<OrderFilter, string> = {
+  ny: "Ny",
+  laget: "Laget",
+  ubetalt: "Ikke betalt",
+  ferdig: "Ferdig",
+  avbrutt: "Avbrutt",
+  alle: "Alle",
+};
+
+export function isOrderFilter(v: string): v is OrderFilter {
+  return (ORDER_FILTERS as readonly string[]).includes(v);
+}
+
+export async function ordersByFilter(filter: OrderFilter): Promise<OrderRow[]> {
+  if (filter === "ubetalt") return query(and(eq(orders.status, "levert"), isNull(orders.paidAt)), true);
+  if (filter === "ferdig") return query(and(eq(orders.status, "levert"), isNotNull(orders.paidAt)), false);
+  return ordersByStatus(filter);
+}
+
+/** Hvor mange bestillinger det er under hvert filter, for tallene på filtrene. */
+export async function countByFilter(): Promise<Record<OrderFilter, number>> {
   const db = await getDb();
-  const rows = await db.select({ status: orders.status, n: count() }).from(orders).groupBy(orders.status);
-  const counts: Record<Status, number> = { ny: 0, laget: 0, levert: 0, avbrutt: 0 };
-  for (const r of rows) if (isStatus(r.status)) counts[r.status] = r.n;
+  const rows = await db
+    .select({ status: orders.status, paid: sql<boolean>`${orders.paidAt} is not null`, n: count() })
+    .from(orders)
+    .groupBy(orders.status, sql`${orders.paidAt} is not null`);
+  const counts: Record<OrderFilter, number> = { ny: 0, laget: 0, ubetalt: 0, ferdig: 0, avbrutt: 0, alle: 0 };
+  for (const r of rows) {
+    if (r.status === "levert") counts[r.paid ? "ferdig" : "ubetalt"] += r.n;
+    else if (r.status === "ny" || r.status === "laget" || r.status === "avbrutt") counts[r.status] += r.n;
+  }
   return counts;
 }
 

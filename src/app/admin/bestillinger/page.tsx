@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { countByStatus, ordersByStatus, isStatus, type OrderRow, type Status } from "@/lib/orders";
+import { countByFilter, ordersByFilter, isOrderFilter, FILTER_LABEL, ORDER_FILTERS, type OrderFilter, type OrderRow } from "@/lib/orders";
 import { kr, orderNo, plural, when, CUSTOMER_RESPONSE_LABEL, STATUS_LABEL } from "@/lib/format";
 import { OrderReplyForm } from "@/components/OrderReplyForm";
 import { AdminReply } from "@/components/AdminReply";
@@ -13,15 +13,15 @@ import { ColorLine } from "@/components/ColorLine";
 
 export const dynamic = "force-dynamic";
 
-const FILTERS: (Status | "alle")[] = ["ny", "laget", "levert", "avbrutt", "alle"];
-
 // Liams bestillingsfane. ?vis=laget i adressen velger hvilke bestillinger som vises.
 export default async function AdminOrdersPage({ searchParams }: PageProps<"/admin/bestillinger">) {
   const admin = await requireAdmin();
   const { vis } = await searchParams;
-  const filter: Status | "alle" = typeof vis === "string" && (isStatus(vis) || vis === "alle") ? vis : "ny";
-  const list = await ordersByStatus(filter);
-  const counts = await countByStatus();
+  // Gamle lenker med ?vis=levert viser de ferdige.
+  const wanted = vis === "levert" ? "ferdig" : vis;
+  const filter: OrderFilter = typeof wanted === "string" && isOrderFilter(wanted) ? wanted : "ny";
+  const list = await ordersByFilter(filter);
+  const counts = await countByFilter();
 
   // Summer for det som vises: hva brukerne betaler, og hva filamentet kostet.
   const total = list.reduce((sum, o) => sum + o.quantity * o.unitPriceNok, 0);
@@ -54,7 +54,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
         </span>
         <span className="badges">
           {o.status !== "avbrutt" && (
-            <span className={`badge ${o.paidAt ? "betalt" : "ubetalt"}`}>{o.paidAt ? "Betalt" : "Ikke betalt"}</span>
+            <span className={`badge ${o.paidAt ? "betalt" : "ubetalt"}`}>{o.paymentNote === "Gratis" && o.paidAt ? "Gratis" : o.paidAt ? "Betalt" : "Ikke betalt"}</span>
           )}
           <span className={`badge ${o.status}`}>{STATUS_LABEL[o.status]}</span>
         </span>
@@ -66,8 +66,13 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
         Bestilt {when(o.createdAt)}
         {o.madeAt && ` · laget ${when(o.madeAt)}`}
         {o.deliveredAt && ` · levert ${when(o.deliveredAt)}`}
-        {o.paidAt && ` · betalt ${when(o.paidAt)}`}
+        {o.paidAt && o.paymentNote !== "Gratis" && ` · betalt ${when(o.paidAt)}`}
       </p>
+      {o.paymentNote && (
+        <p className={`small-text pay-note${o.paidAt ? "" : " owed"}`}>
+          {o.paidAt ? "Betaling" : "Ikke betalt"}: «{o.paymentNote}»
+        </p>
+      )}
       <ColorLine main={o.colorName ? { name: o.colorName, hex: o.colorHex ?? "" } : null} extra={parseExtraColors(o.extraColors)} />
       {o.note && <p className="small-text">«{o.note}»</p>}
       <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Ditt svar" />
@@ -91,12 +96,12 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
     <main className="page">
       <AdminNav active="bestillinger" />
       <nav className="tabs small-tabs">
-        {FILTERS.map((f) => {
+        {ORDER_FILTERS.map((f) => {
           // Tallet viser hvor mange som ligger under hvert filter. «Alle» får ikke tall.
           const n = f === "alle" ? 0 : counts[f];
           return (
             <Link key={f} href={`/admin/bestillinger?vis=${f}`} className={f === filter ? "on" : ""}>
-              {f === "alle" ? "Alle" : STATUS_LABEL[f]}
+              {FILTER_LABEL[f]}
               {n > 0 && <span className="filter-count">{n}</span>}
             </Link>
           );
@@ -107,7 +112,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
       {list.length > 0 && (
         <p className="muted small-text">
           {plural(list.length, "bestilling", "bestillinger")} · {kr(total)} · filament ca. {kr(cost)}
-          {(filter === "ny" || filter === "laget") && " · eldste først"}
+          {(filter === "ny" || filter === "laget" || filter === "ubetalt") && " · eldste først"}
         </p>
       )}
 
