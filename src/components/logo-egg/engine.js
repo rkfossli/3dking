@@ -265,7 +265,10 @@ class Egg {
       f.push({ transform: `translate(${rand(-a, a)}px,${rand(-a, a)}px)` });
     }
     f.push({ transform: "translate(0,0)" });
-    document.body.animate(f, { duration: 380 * Math.sqrt(k) });
+    // Rist alt på siden unntatt infolinja nederst. Rister vi hele <body>, blir body
+    // "ramme" for faste (position: fixed) elementer, og infolinja hopper opp et øyeblikk.
+    for (const el of document.body.children)
+      if (!el.classList.contains("info-bar")) el.animate(f, { duration: 380 * Math.sqrt(k) });
   }
 
   // Tegn en sprekk som "vokser" frem
