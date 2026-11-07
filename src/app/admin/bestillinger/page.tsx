@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { countByStatus, ordersByStatus, isStatus, type Status } from "@/lib/orders";
+import { countByStatus, ordersByStatus, isStatus, type OrderRow, type Status } from "@/lib/orders";
 import { kr, plural, when, STATUS_LABEL } from "@/lib/format";
 import { OrderReplyForm } from "@/components/OrderReplyForm";
 import { AdminReply } from "@/components/AdminReply";
@@ -22,6 +22,44 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
   // Summer for det som vises: hva brukerne betaler, og hva filamentet kostet.
   const total = list.reduce((sum, o) => sum + o.quantity * o.unitPriceNok, 0);
   const cost = list.reduce((sum, o) => sum + o.quantity * (o.costNok ?? 0), 0);
+
+  // Samle bestillingene per person. Rekkefølgen er den første bestillingen til hver person.
+  const groups: { userId: number; userName: string; orders: OrderRow[] }[] = [];
+  for (const o of list) {
+    const g = groups.find((x) => x.userId === o.userId);
+    if (g) g.orders.push(o);
+    else groups.push({ userId: o.userId, userName: o.userName, orders: [o] });
+  }
+
+  // Én bestilling med knapper og svar-skjema. inGroup = den ligger i en boks for én person.
+  const orderCard = (o: OrderRow, inGroup: boolean) => (
+    <li key={o.id} className={`card order status-${o.status}`}>
+      <div className="order-head">
+        <b>{o.quantity} × {o.productName}</b>
+        <span className="badges">
+          {o.status !== "avbrutt" && (
+            <span className={`badge ${o.paidAt ? "betalt" : "ubetalt"}`}>{o.paidAt ? "Betalt" : "Ikke betalt"}</span>
+          )}
+          <span className={`badge ${o.status}`}>{STATUS_LABEL[o.status]}</span>
+        </span>
+      </div>
+      <p className="small-text">
+        {inGroup ? kr(o.quantity * o.unitPriceNok) : <>Bestilt av <b>{o.userName}</b> · {kr(o.quantity * o.unitPriceNok)}</>}
+      </p>
+      <p className="muted small-text">
+        Bestilt {when(o.createdAt)}
+        {o.madeAt && ` · laget ${when(o.madeAt)}`}
+        {o.deliveredAt && ` · levert ${when(o.deliveredAt)}`}
+        {o.paidAt && ` · betalt ${when(o.paidAt)}`}
+      </p>
+      {o.note && <p className="small-text">«{o.note}»</p>}
+      <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Ditt svar" />
+      <AdminOrderActions id={o.id} status={o.status} paid={o.paidAt != null} />
+      {o.status !== "avbrutt" && (
+        <OrderReplyForm id={o.id} userName={o.userName} approval={o.approval} reply={o.adminReply} deliveryPlan={o.deliveryPlan} status={o.status} />
+      )}
+    </li>
+  );
 
   return (
     <main className="page">
@@ -48,34 +86,22 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
       )}
 
       <ul className="order-list">
-        {list.map((o) => (
-          <li key={o.id} className={`card order status-${o.status}`}>
-            <div className="order-head">
-              <b>{o.quantity} × {o.productName}</b>
-              <span className="badges">
-                {o.status !== "avbrutt" && (
-                  <span className={`badge ${o.paidAt ? "betalt" : "ubetalt"}`}>{o.paidAt ? "Betalt" : "Ikke betalt"}</span>
-                )}
-                <span className={`badge ${o.status}`}>{STATUS_LABEL[o.status]}</span>
-              </span>
-            </div>
-            <p className="small-text">
-              Bestilt av <b>{o.userName}</b> · {kr(o.quantity * o.unitPriceNok)}
-            </p>
-            <p className="muted small-text">
-              Bestilt {when(o.createdAt)}
-              {o.madeAt && ` · laget ${when(o.madeAt)}`}
-              {o.deliveredAt && ` · levert ${when(o.deliveredAt)}`}
-              {o.paidAt && ` · betalt ${when(o.paidAt)}`}
-            </p>
-            {o.note && <p className="small-text">«{o.note}»</p>}
-            <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Ditt svar" />
-            <AdminOrderActions id={o.id} status={o.status} paid={o.paidAt != null} />
-            {o.status !== "avbrutt" && (
-              <OrderReplyForm id={o.id} userName={o.userName} approval={o.approval} reply={o.adminReply} deliveryPlan={o.deliveryPlan} status={o.status} />
-            )}
-          </li>
-        ))}
+        {groups.map((g) =>
+          g.orders.length === 1 ? (
+            orderCard(g.orders[0], false)
+          ) : (
+            // Flere bestillinger fra samme person samles i én boks, så Liam ser at de hører sammen.
+            <li key={`kunde-${g.userId}`} className="card customer-group">
+              <div className="order-head">
+                <b>{g.userName}</b>
+                <span className="muted small-text">
+                  {plural(g.orders.length, "bestilling", "bestillinger")} · {kr(g.orders.reduce((sum, o) => sum + o.quantity * o.unitPriceNok, 0))}
+                </span>
+              </div>
+              <ul className="order-list">{g.orders.map((o) => orderCard(o, true))}</ul>
+            </li>
+          ),
+        )}
       </ul>
     </main>
   );

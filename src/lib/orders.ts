@@ -35,6 +35,7 @@ export type OrderRow = {
   changedByAdminAt: Date | null;
   paidAt: Date | null;
   productId: number;
+  userId: number;
   productName: string;
   productImage: string | null;
   costNok: number | null;
@@ -60,6 +61,7 @@ async function query(where?: ReturnType<typeof eq>, oldestFirst = false) {
       changedByAdminAt: orders.changedByAdminAt,
       paidAt: orders.paidAt,
       productId: orders.productId,
+      userId: orders.userId,
       productName: products.name,
       productImage: products.imageUrl,
       // Kostnaden fra da det ble bestilt. Mangler den, brukes produktets kostnad nå.

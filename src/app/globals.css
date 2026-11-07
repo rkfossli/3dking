@@ -1281,3 +1281,24 @@ select:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 0;
 }
+
+/* Flere bestillinger fra samme person i én boks */
+.customer-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-color: var(--accent);
+}
+
+.customer-group > .order-head b {
+  font-size: 17px;
+  color: var(--accent);
+}
+
+.customer-group .order {
+  background: var(--bg);
+}
+
+.page > .order-list {
+  margin-top: 12px;
+}
