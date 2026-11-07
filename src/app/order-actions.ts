@@ -8,9 +8,9 @@ import { orders, products } from "@/lib/schema";
 import { pushToAdmins, safely, sendPush } from "@/lib/push";
 import { APPROVAL_LABEL } from "@/lib/format";
 import { requireAdmin, requireUser } from "@/lib/auth";
-import { APPROVALS, MAX_QUANTITY, MAX_REPLY, isStatus } from "@/lib/orders";
+import { APPROVALS, MAX_QUANTITY, MAX_REPLY, isStatus, newOrderNumber } from "@/lib/orders";
 
-export type OrderState = { error?: string; ok?: boolean };
+export type OrderState = { error?: string; ok?: boolean; orderNumber?: string };
 
 /** En bruker bestiller et produkt. */
 export async function placeOrderAction(_prev: OrderState, form: FormData): Promise<OrderState> {
@@ -28,16 +28,25 @@ export async function placeOrderAction(_prev: OrderState, form: FormData): Promi
   if (!product || !product.available) return { error: "Produktet finnes ikke lenger." };
 
   // Prisen kopieres inn i bestillingen, så den ikke endres om Liam endrer prisen senere.
-  await db
-    .insert(orders)
-    .values({ userId: user.id, productId, quantity, note, unitPriceNok: product.priceNok, unitCostNok: product.costNok });
+  // Ordrenummeret er tilfeldig, så det kan (sjelden) være tatt. Da prøver vi et nytt.
+  let orderNumber = "";
+  for (let attempt = 0; attempt < 20 && !orderNumber; attempt++) {
+    const candidate = newOrderNumber();
+    const inserted = await db
+      .insert(orders)
+      .values({ orderNumber: candidate, userId: user.id, productId, quantity, note, unitPriceNok: product.priceNok, unitCostNok: product.costNok })
+      .onConflictDoNothing({ target: orders.orderNumber })
+      .returning({ id: orders.id });
+    if (inserted.length > 0) orderNumber = candidate;
+  }
+  if (!orderNumber) return { error: "Fikk ikke laget bestillingen. Prøv igjen." };
 
   // Varsel til Liam. after() sender det etter at svaret har gått tilbake, så brukeren slipper å vente.
   after(() =>
     safely(
       pushToAdmins({
         title: `Ny bestilling fra ${user.displayName}`,
-        body: `${quantity} × ${product.name}${note ? ` · «${note}»` : ""}`,
+        body: `#${orderNumber} · ${quantity} × ${product.name}${note ? ` · «${note}»` : ""}`,
         url: "/admin/bestillinger?vis=ny",
         tag: "ny-bestilling",
       }),
@@ -47,7 +56,7 @@ export async function placeOrderAction(_prev: OrderState, form: FormData): Promi
   revalidatePath("/mine");
   revalidatePath("/admin/bestillinger");
   revalidatePath("/admin/oversikt");
-  return { ok: true };
+  return { ok: true, orderNumber };
 }
 
 /** Brukeren angrer en bestilling som ikke er laget ennå. */
@@ -74,12 +83,13 @@ export async function cancelMyOrderAction(orderId: number): Promise<void> {
 async function notifyCustomer(orderId: number, title: string, body: (productName: string) => string) {
   const db = await getDb();
   const [o] = await db
-    .select({ userId: orders.userId, productName: products.name, quantity: orders.quantity })
+    .select({ userId: orders.userId, productName: products.name, quantity: orders.quantity, orderNumber: orders.orderNumber })
     .from(orders)
     .innerJoin(products, eq(products.id, orders.productId))
     .where(eq(orders.id, orderId));
   if (!o) return;
-  await sendPush([o.userId], { title, body: body(`${o.quantity} × ${o.productName}`), url: "/mine", tag: `bestilling-${orderId}` });
+  const no = o.orderNumber ? `#${o.orderNumber} · ` : "";
+  await sendPush([o.userId], { title, body: no + body(`${o.quantity} × ${o.productName}`), url: "/mine", tag: `bestilling-${orderId}` });
 }
 
 /** Liam flytter en bestilling til en ny status. */
@@ -129,11 +139,11 @@ export async function respondToChangesAction(_prev: ResponseState, form: FormDat
   if (done.length === 0) return { error: "Fant ikke bestillingen." };
 
   const [o] = await db
-    .select({ productName: products.name, quantity: orders.quantity })
+    .select({ productName: products.name, quantity: orders.quantity, orderNumber: orders.orderNumber })
     .from(orders)
     .innerJoin(products, eq(products.id, orders.productId))
     .where(eq(orders.id, orderId));
-  const what = o ? `${o.quantity} × ${o.productName}` : "bestillingen";
+  const what = o ? `${o.orderNumber ? `#${o.orderNumber} · ` : ""}${o.quantity} × ${o.productName}` : "bestillingen";
   after(() =>
     safely(
       pushToAdmins({

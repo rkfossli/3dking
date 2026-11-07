@@ -10,6 +10,11 @@ export function when(d: Date): string {
   return d.toLocaleString("nb-NO", { timeZone: "Europe/Oslo", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
+/** Ordrenummeret slik det vises: "#482726". Eldre bestillinger uten nummer viser ingenting. */
+export function orderNo(n: string | null): string {
+  return n ? `#${n}` : "";
+}
+
 /** Norske navn på statusene. */
 export const STATUS_LABEL: Record<string, string> = {
   ny: "Ny",

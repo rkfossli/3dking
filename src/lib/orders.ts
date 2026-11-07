@@ -21,6 +21,7 @@ export const MAX_REPLY = 500;
 /** Én rad per bestilling, med navnet på produktet og den som bestilte (JOIN mot to tabeller). */
 export type OrderRow = {
   id: number;
+  orderNumber: string | null;
   quantity: number;
   note: string | null;
   unitPriceNok: number;
@@ -50,6 +51,7 @@ async function query(where?: ReturnType<typeof eq>, oldestFirst = false) {
   const q = db
     .select({
       id: orders.id,
+      orderNumber: orders.orderNumber,
       quantity: orders.quantity,
       note: orders.note,
       unitPriceNok: orders.unitPriceNok,
@@ -124,6 +126,13 @@ export async function outstandingByUser(): Promise<Debt[]> {
 /** Bestillingene til én bruker. */
 export async function ordersForUser(userId: number): Promise<OrderRow[]> {
   return query(eq(orders.userId, userId));
+}
+
+/** Nytt ordrenummer: 4 tilfeldige sifre + de to siste sifrene i årstallet, f.eks. "482726" i 2026. */
+export function newOrderNumber(now = new Date()): string {
+  const random = String(Math.floor(Math.random() * 10_000)).padStart(4, "0");
+  const year = new Intl.DateTimeFormat("nb-NO", { timeZone: "Europe/Oslo", year: "2-digit" }).format(now);
+  return random + year;
 }
 
 /** Hvor mange av brukerens bestillinger som er laget og venter på levering. Vises på forsiden. */
