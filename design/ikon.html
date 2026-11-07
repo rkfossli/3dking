@@ -1,0 +1,66 @@
+<!doctype html>
+<!--
+  Kilden til app-ikonet og logoen, i samme stil som Spotter: skarp neongrønn (#0DF762) med mørk kant
+  og en myk glød BAK (ikke over), på børstet stål eller mørk bakgrunn.
+  PNG-filene i public/icons og public/logo.png er laget herfra med et skjermbilde (Playwright).
+  ?stil=1..4: 1 Stål, 2 Mørk, 3 Grønn til turkis, 4 Grønn bakgrunn.
+  ?vis=ikon|maskable|badge|logo  ?str=512 (piksler)
+-->
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; background: transparent; }
+  svg { display: block; }
+</style>
+<div id="ut"></div>
+<script>
+  const GRONN = "#0DF762";
+  const TURKIS = "#00C9B7";
+  const MORK = "#14181b";
+  // Kronen: flat bunn, tre tagger. Tegnet i en 100x60-boks.
+  const K = "M10 58 L3 12 L31 34 L50 2 L69 34 L97 12 L90 58 Z";
+
+  const defs = `<defs>
+    <linearGradient id="stal" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#5b646b"/><stop offset="0.35" stop-color="#2c3237"/>
+      <stop offset="0.62" stop-color="#3a4147"/><stop offset="1" stop-color="#111416"/></linearGradient>
+    <pattern id="riller" width="100" height="1.4" patternUnits="userSpaceOnUse"><rect width="100" height="0.5" fill="#fff" opacity="0.05"/></pattern>
+    <radialGradient id="mork" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#22262a"/><stop offset="1" stop-color="#0c0d0e"/></radialGradient>
+    <linearGradient id="gt" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="${GRONN}"/><stop offset="1" stop-color="${TURKIS}"/></linearGradient>
+    <filter id="glod" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>
+  </defs>`;
+
+  // Tegner krone + tekst. fyll = farge inni, kant = mørk kant rundt, glod = om det skal være glød bak.
+  function merke(L, fyll, kant, glod) {
+    const form = (f, k, w) =>
+      `<g transform="translate(${L.kx} ${L.ky}) scale(${L.ks})"><path d="${K}" fill="${f}" stroke="${k}" stroke-width="${w / L.ks}" stroke-linejoin="round"/></g>` +
+      `<text x="${L.tx}" y="${L.ty}" text-anchor="middle" font-family="Inter" font-weight="900" font-size="${L.ts}" letter-spacing="${L.ls || 0}" fill="${f}" stroke="${k}" stroke-width="${w}" stroke-linejoin="round" paint-order="stroke">${L.str}</text>`;
+    return (glod ? `<g opacity="0.55" filter="url(#glod)">${form(GRONN, GRONN, 1.2)}</g>` : "") + form(fyll, kant, 1.2);
+  }
+
+  const STILER = {
+    1: { bg: `<rect width="100" height="100" fill="url(#stal)"/><rect width="100" height="100" fill="url(#riller)"/>`, fyll: GRONN, kant: MORK, glod: true },
+    2: { bg: `<rect width="100" height="100" fill="url(#mork)"/>`, fyll: GRONN, kant: MORK, glod: true },
+    3: { bg: `<rect width="100" height="100" fill="url(#stal)"/><rect width="100" height="100" fill="url(#riller)"/>`, fyll: "url(#gt)", kant: MORK, glod: true },
+    4: { bg: `<rect width="100" height="100" fill="${GRONN}"/>`, fyll: "#062b13", kant: "#062b13", glod: false, logoFyll: GRONN },
+  };
+
+  const q = new URLSearchParams(location.search);
+  const s = STILER[q.get("stil") || "1"];
+  const vis = q.get("vis") || "ikon";
+  const S = Number(q.get("str") || 512);
+
+  const IKON = { kx: 23, ky: 14, ks: 0.54, tx: 50, ty: 86, ts: 38, str: "3D" };
+  const LOGO = { kx: 64, ky: 6, ks: 0.72, tx: 100, ty: 91, ts: 40, str: "3D KING", ls: 1 };
+  // maskable: Android kan klippe ikonet til en sirkel, så innholdet krympes inn mot midten.
+  const ikon = (skala) =>
+    `<svg viewBox="0 0 100 100" width="100%" height="100%">${defs}${s.bg}<g transform="translate(50 50) scale(${skala}) translate(-50 -50)">${merke(IKON, s.fyll, s.kant, s.glod)}</g></svg>`;
+  // Badge: det lille hvite symbolet Android viser i statuslinjen. Bare kronen, hvit på gjennomsiktig.
+  const badge = `<svg viewBox="0 0 100 100" width="100%" height="100%"><g transform="translate(8 22) scale(.84)"><path d="${K}" fill="#fff"/></g></svg>`;
+  // Logoen står på mørk bakgrunn i appen, så stil 4 bruker grønn tekst der.
+  const logo = `<svg viewBox="-5 -5 210 110" width="100%" height="100%">${defs}${merke(LOGO, s.logoFyll || s.fyll, MORK, true)}</svg>`;
+
+  const ut = document.getElementById("ut");
+  ut.style.width = S + "px";
+  ut.style.height = (vis === "logo" ? Math.round((S * 110) / 210) : S) + "px";
+  ut.innerHTML = vis === "logo" ? logo : vis === "badge" ? badge : ikon(vis === "maskable" ? 0.78 : 1);
+</script>

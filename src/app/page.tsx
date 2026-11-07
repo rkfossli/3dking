@@ -4,6 +4,7 @@ import { availableProducts } from "@/lib/products";
 import { kr } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 import { OrderButton } from "@/components/OrderButton";
+import { InstallGuide } from "@/components/InstallGuide";
 import { countNew, countReadyForUser, countUpdatesForUser } from "@/lib/orders";
 import { logoutAction } from "./auth-actions";
 
@@ -21,7 +22,9 @@ export default async function Home() {
   return (
     <main className="page">
       <div className="top">
-        <h1>3DKing</h1>
+        {/* Logoen er laget fra design/ikon.html. Alt-teksten leses opp for de som ikke ser bildet. */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- liten fast PNG, trenger ikke next/image */}
+        <img src="/logo.png" alt="3D King" className="logo" width={600} height={314} />
         <div className="row-buttons">
           <Link href="/mine" className="button small secondary">
             Mine bestillinger{updates > 0 && <span className="count" title="Nytt siden sist">{updates}</span>}
@@ -43,6 +46,8 @@ export default async function Home() {
         </Link>
       )}
 
+      <InstallGuide compact />
+
       {list.length === 0 && <div className="card"><p className="muted">Ingen produkter ennå. Kom tilbake snart!</p></div>}
 
       <div className="grid">
@@ -58,7 +63,7 @@ export default async function Home() {
         ))}
       </div>
       <p className="muted small-text footer-line">
-        Logget inn som {user.username} · <Link href="/meg">Bytt PIN</Link>
+        Logget inn som {user.username} · <Link href="/meg">Varsler, app og PIN</Link>
       </p>
     </main>
   );
