@@ -1231,3 +1231,53 @@ nav.tabs:not(.small-tabs) a {
   font-weight: 600;
   color: var(--muted);
 }
+
+/* Valgene i svar-skjemaet: store knapper i temafargene */
+.choice-list {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choice-list legend {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-weight: 400;
+}
+
+.choice.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.choice.on b {
+  color: var(--accent);
+}
+
+.choice .small-text {
+  margin: 0;
+}
+
+/* Feltet du skriver i får en ramme i temafargen */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}

@@ -2,6 +2,13 @@
 import { useActionState, useState } from "react";
 import { replyToOrderAction, type ReplyState } from "@/app/order-actions";
 
+// De tre svarene Liam kan gi, med en forklaring på hva kunden ser.
+const CHOICES = [
+  { value: "", label: "Bare en beskjed", help: "Ikke godkjent ennå. Kunden ser bare beskjeden din, for eksempel et spørsmål." },
+  { value: "godkjent", label: "Godkjent", help: "Du lager den slik kunden ba om." },
+  { value: "endringer", label: "Godkjent med endringer", help: "Du lager den, men litt annerledes. Skriv hva som endres." },
+];
+
 // Liams svar på en bestilling: godkjenning, beskjed og planlagt levering.
 // Skjemaet er lukket til han trykker «Svar» / «Endre svar».
 export function OrderReplyForm({
@@ -41,14 +48,24 @@ export function OrderReplyForm({
   return (
     <form action={action} className="reply-form">
       <input type="hidden" name="orderId" value={id} />
-      <label>
-        Svar
-        <select name="approval" value={choice} onChange={(e) => setChoice(e.target.value)}>
-          <option value="">Ikke godkjent ennå (bare beskjed)</option>
-          <option value="godkjent">Godkjent</option>
-          <option value="endringer">Godkjent med endringer</option>
-        </select>
-      </label>
+      {/* Tre valg som knapper i appens farger (i stedet for en nedtrekksliste, som bruker telefonens farger). */}
+      <input type="hidden" name="approval" value={choice} />
+      <fieldset className="choice-list">
+        <legend>Svar på bestillingen</legend>
+        {CHOICES.map((c) => (
+          <button
+            key={c.value}
+            type="button"
+            role="radio"
+            aria-checked={choice === c.value}
+            className={`choice ${choice === c.value ? "on" : ""}`}
+            onClick={() => setChoice(c.value)}
+          >
+            <b>{c.label}</b>
+            <span className="small-text muted">{c.help}</span>
+          </button>
+        ))}
+      </fieldset>
       <label>
         Beskjed til {userName}
         <textarea name="reply" rows={3} maxLength={500} value={text} onChange={(e) => setText(e.target.value)} placeholder="F.eks. «Blir blå i stedet for rød, tom for rødt filament.»" />
