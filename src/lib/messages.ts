@@ -8,6 +8,11 @@ export type Message = { id: number; orderNumber: string; body: string; createdAt
 
 export const MAX_MESSAGE = 500;
 
+/** En bestilling er ferdig når alle linjene er levert eller avbrutt. Da er samtalen stengt. */
+export function isFinished(statuses: string[]): boolean {
+  return statuses.length > 0 && statuses.every((s) => s === "levert" || s === "avbrutt");
+}
+
 /** Alle meldinger på noen ordrenumre, eldste først, samlet per nummer. */
 export async function messagesFor(orderNumbers: string[]): Promise<Map<string, Message[]>> {
   const map = new Map<string, Message[]>();

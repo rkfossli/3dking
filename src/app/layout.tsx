@@ -43,6 +43,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           Hobbyprosjekt · <span className="wide-only">Prisene dekker bare filament og strøm</span>
           <span className="narrow-only">Pris = filament og strøm</span>
         </footer>
+        {/* Vises bare når en telefon holdes på tvers. iPhone lar ikke nettsider låse skjermen, så vi ber om å snu den. */}
+        <div className="rotate-hint" aria-hidden>
+          <b>Snu telefonen</b>
+          <span>3DKing vises bare stående.</span>
+        </div>
         <ServiceWorker />
       </body>
     </html>

@@ -11,7 +11,7 @@ import { AdminReply } from "@/components/AdminReply";
 import { ChangeResponse } from "@/components/ChangeResponse";
 import { OrderSteps } from "@/components/OrderSteps";
 import { OrderMessages } from "@/components/OrderMessages";
-import { messagesFor } from "@/lib/messages";
+import { messagesFor, isFinished } from "@/lib/messages";
 import { colorFill } from "@/lib/palette";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export default async function MyOrdersPage() {
   const db = await getDb();
   // Meldingene på alle bestillingene, samlet per ordrenummer.
   const messages = await messagesFor(list.map((o) => o.orderNumber).filter((n): n is string => n != null));
-  const thread = (n: string | null) => n && <OrderMessages orderNumber={n} messages={messages.get(n) ?? []} meId={user.id} meIsAdmin={false} />;
+  const thread = (n: string | null) => n && <OrderMessages orderNumber={n} messages={messages.get(n) ?? []} meId={user.id} meIsAdmin={false} closed={isFinished(list.filter((o) => o.orderNumber === n).map((o) => o.status))} />;
   await db.update(users).set({ ordersSeenAt: new Date() }).where(eq(users.id, user.id));
 
   // Én bestilling i listen. Brukes i begge delene.

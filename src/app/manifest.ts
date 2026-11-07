@@ -10,6 +10,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Bestill 3D-printede ting",
     start_url: "/",
     display: "standalone",
+    orientation: "portrait", // appen vises bare stående når den er installert
     background_color: "#121212",
     theme_color: "#121212",
     icons: [

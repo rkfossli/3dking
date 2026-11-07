@@ -7,7 +7,7 @@ import { AdminReply } from "@/components/AdminReply";
 import { AdminNav } from "@/components/AdminNav";
 import { AdminOrderActions } from "@/components/OrderActions";
 import { OrderMessages } from "@/components/OrderMessages";
-import { messagesFor } from "@/lib/messages";
+import { messagesFor, isFinished } from "@/lib/messages";
 import { colorFill } from "@/lib/palette";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +40,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
   const thread = (n: string | null) => {
     if (!n || shown.has(n)) return null;
     shown.add(n);
-    return <OrderMessages orderNumber={n} messages={messages.get(n) ?? []} meId={admin.id} meIsAdmin />;
+    return <OrderMessages orderNumber={n} messages={messages.get(n) ?? []} meId={admin.id} meIsAdmin closed={isFinished(list.filter((o) => o.orderNumber === n).map((o) => o.status))} />;
   };
 
   // Én bestilling med knapper og svar-skjema. inGroup = den ligger i en boks for én person.
