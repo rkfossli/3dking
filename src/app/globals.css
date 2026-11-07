@@ -1509,3 +1509,9 @@ p.customer-response {
   background: var(--accent);
   box-shadow: 0 0 12px 4px var(--accent);
 }
+
+/* Knappen under "Du har ikke bestilt noe ennå" */
+.empty-cta {
+  display: inline-flex;
+  margin-top: 12px;
+}

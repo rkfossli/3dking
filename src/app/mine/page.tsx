@@ -74,9 +74,10 @@ export default async function MyOrdersPage() {
       <h1>Mine bestillinger</h1>
       {list.length === 0 && (
         <div className="card">
-          <p className="muted">
-            Du har ikke bestilt noe ennå. <Link href="/">Finn noe du liker i butikken.</Link>
-          </p>
+          <p className="muted">Du har ikke bestilt noe ennå.</p>
+          <Link href="/" className="button empty-cta">
+            Finn noe du liker i butikken
+          </Link>
         </div>
       )}
 
