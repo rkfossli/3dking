@@ -2,9 +2,9 @@
 // Handlinger for produkter. Bare admin får bruke dem.
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { products } from "@/lib/schema";
+import { orders, products } from "@/lib/schema";
 import { requireAdmin } from "@/lib/auth";
 import { getProduct, parseKroner } from "@/lib/products";
 import { deleteImage, saveImage } from "@/lib/images";
@@ -63,4 +63,21 @@ export async function setAvailableAction(id: number, available: boolean): Promis
   await db.update(products).set({ available }).where(eq(products.id, id));
   revalidatePath("/admin/produkter");
   revalidatePath("/");
+}
+
+/**
+ * Slett et produkt for godt, sammen med bildet.
+ * Har noen bestilt produktet, slettes det ikke, så bestillingshistorikken ikke blir ødelagt.
+ */
+export async function deleteProductAction(id: number): Promise<{ error?: string }> {
+  await requireAdmin();
+  const db = await getDb();
+  const [{ n }] = await db.select({ n: count() }).from(orders).where(eq(orders.productId, id));
+  if (n > 0) return { error: `${n} bestilling(er) gjelder dette produktet. Skjul det i stedet, eller slett bestillingene først.` };
+  const product = await getProduct(id);
+  await db.delete(products).where(eq(products.id, id));
+  if (product?.imageUrl) await deleteImage(product.imageUrl);
+  revalidatePath("/admin/produkter");
+  revalidatePath("/");
+  return {};
 }

@@ -463,3 +463,21 @@ input[type="file"] {
   padding: 5px 10px;
   font-size: 13px;
 }
+
+.row-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+  max-width: 60%;
+}
+
+.row-actions .error {
+  text-align: right;
+}
+
+.footer-line {
+  margin-top: 32px;
+  text-align: center;
+}

@@ -48,6 +48,9 @@ export default async function Home() {
           </article>
         ))}
       </div>
+      <p className="muted small-text footer-line">
+        Logget inn som {user.username} · <Link href="/meg">Bytt PIN</Link>
+      </p>
     </main>
   );
 }

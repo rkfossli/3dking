@@ -63,3 +63,12 @@ export async function setOrderStatusAction(orderId: number, status: string): Pro
   revalidatePath("/admin/bestillinger");
   revalidatePath("/mine");
 }
+
+/** Liam sletter en bestilling for godt (for eksempel en test eller en som er avbrutt). */
+export async function deleteOrderAction(orderId: number): Promise<void> {
+  await requireAdmin();
+  const db = await getDb();
+  await db.delete(orders).where(eq(orders.id, orderId));
+  revalidatePath("/admin/bestillinger");
+  revalidatePath("/mine");
+}

@@ -165,3 +165,8 @@ export async function checkLogin(usernameInput: string, pin: string): Promise<Lo
   const left = MAX_FAILS - counted.attempt;
   return { ok: false, error: `${WRONG} ${left} forsøk igjen.` };
 }
+
+/** Sjekker om PIN-en stemmer for en bruker (brukes når man bytter PIN). */
+export function pinMatches(pin: string, pinHash: string): Promise<boolean> {
+  return bcrypt.compare(pin, pinHash);
+}

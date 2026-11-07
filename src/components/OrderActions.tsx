@@ -1,6 +1,6 @@
 "use client";
 import { useTransition } from "react";
-import { cancelMyOrderAction, setOrderStatusAction } from "@/app/order-actions";
+import { cancelMyOrderAction, deleteOrderAction, setOrderStatusAction } from "@/app/order-actions";
 
 // Knappene Liam bruker for å flytte en bestilling videre (eller tilbake hvis han trykket feil).
 export function AdminOrderActions({ id, status }: { id: number; status: string }) {
@@ -22,6 +22,16 @@ export function AdminOrderActions({ id, status }: { id: number; status: string }
           onClick={() => confirm("Avbryte denne bestillingen?") && set("avbrutt")}
         >
           Avbryt
+        </button>
+      )}
+      {(status === "avbrutt" || status === "levert") && (
+        <button
+          type="button"
+          className="small danger"
+          disabled={pending}
+          onClick={() => confirm("Slette bestillingen for godt? Dette kan ikke angres.") && start(() => deleteOrderAction(id))}
+        >
+          Slett
         </button>
       )}
     </div>
