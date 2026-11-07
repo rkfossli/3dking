@@ -37,13 +37,13 @@ export default async function MePage() {
       <section className="card">
         <h2>Hva appen lagrer om deg</h2>
         <ul className="plain-list small-text">
-          <li>Navnet og brukernavnet ditt, som Liam la inn.</li>
-          <li>PIN-en din, men bare som en kode som ikke kan leses tilbake. Ingen, heller ikke Liam, kan se den.</li>
-          <li>Bestillingene dine, med ønskene du skrev og svarene fra Liam.</li>
+          <li>Navnet og brukernavnet ditt, som 3DKing la inn.</li>
+          <li>PIN-en din, men bare som en kode som ikke kan leses tilbake. Ingen, heller ikke 3DKing, kan se den.</li>
+          <li>Bestillingene dine, med ønskene du skrev og svarene fra 3DKing.</li>
           <li>Hvilket tema du har valgt, og om du vil ha varsler på denne enheten.</li>
         </ul>
         <p className="muted small-text">
-          Appen bruker ingen reklame og deler ingenting med andre. Vil du at alt om deg skal slettes, så si fra til Liam.
+          Appen bruker ingen reklame og deler ingenting med andre. Vil du at alt om deg skal slettes, så si fra til 3DKing.
         </p>
       </section>
     </main>

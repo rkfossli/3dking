@@ -23,7 +23,7 @@ function OrderRound({ productId, price, onAgain }: { productId: number; price: n
     return (
       <div className="order-done">
         <b className="with-icon"><Icon name="check" /> Bestilt!</b>
-        <p className="small-text muted">Liam har fått beskjed. Du ser hvordan det går under «Mine bestillinger».</p>
+        <p className="small-text muted">3DKing har fått beskjed. Du ser hvordan det går under «Mine bestillinger».</p>
         <PushAsk />
         <Link href="/mine" className="button small">Se bestillingen</Link>
         <button type="button" className="small secondary" onClick={onAgain}>Bestill flere</button>

@@ -146,7 +146,7 @@ export async function replyToOrderAction(_prev: ReplyState, form: FormData): Pro
     })
     .where(eq(orders.id, orderId));
   if (!empty) {
-    const title = approval ? APPROVAL_LABEL[approval] : "Beskjed fra Liam";
+    const title = approval ? APPROVAL_LABEL[approval] : "Beskjed fra 3DKing";
     const text = [reply, plan && `Levering: ${plan}`].filter(Boolean).join(" · ");
     after(() => safely(notifyCustomer(orderId, title, (what) => (text ? `${what}: ${text}` : what))));
   }

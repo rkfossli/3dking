@@ -11,9 +11,9 @@ export default async function LoginPage() {
   return (
     <main className="page narrow">
       <Logo big />
-      <p className="muted">Logg inn med brukernavnet og PIN-en du har fått av Liam.</p>
+      <p className="muted">Logg inn med brukernavnet og PIN-en du har fått av 3DKing.</p>
       <LoginForm />
-      <p className="muted small-text center">Glemt PIN? Spør Liam om en ny.</p>
+      <p className="muted small-text center">Glemt PIN? Spør 3DKing om en ny.</p>
     </main>
   );
 }

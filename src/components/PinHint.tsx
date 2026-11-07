@@ -20,7 +20,7 @@ export function PinHint() {
   return (
     <div className="card hint">
       <p className="small-text">
-        Du bruker PIN-en Liam laget til deg. Lag gjerne din egen, så er det bare du som kan den.
+        Du bruker PIN-en du fikk av 3DKing. Lag gjerne din egen, så er det bare du som kan den.
       </p>
       <div className="row-buttons left">
         <Link href="/meg#pin" className="button small">Bytt PIN</Link>

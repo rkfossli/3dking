@@ -63,7 +63,7 @@ export function PushSettings({ isAdmin }: { isAdmin: boolean }) {
 
   const what = isAdmin
     ? "Du får beskjed når noen bestiller noe."
-    : "Du får beskjed når Liam svarer, når bestillingen er laget, og når den er levert.";
+    : "Du får beskjed når 3DKing svarer, når bestillingen er laget, og når den er levert.";
 
   if (state === "loading") return <p className="muted small-text">Sjekker …</p>;
   if (state === "ios-home")

@@ -44,9 +44,9 @@ export default async function MyOrdersPage() {
       </p>
       {o.note && <p className="small-text">Ditt ønske: «{o.note}»</p>}
       {o.status === "laget" && !o.deliveryPlan && (
-        <p className="small-text with-icon"><Icon name="ready" /> Ferdig laget! Liam sier fra når og hvor du får den.</p>
+        <p className="small-text with-icon"><Icon name="ready" /> Ferdig laget! 3DKing sier fra når og hvor du får den.</p>
       )}
-      <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Svar fra Liam" />
+      <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Svar fra 3DKing" />
       {o.status === "ny" && <CancelMyOrder id={o.id} />}
     </li>
   );
