@@ -55,10 +55,17 @@ export async function cancelMyOrderAction(orderId: number): Promise<void> {
   const user = await requireUser();
   const db = await getDb();
   // Både "min bestilling" og "fortsatt ny" sjekkes i samme spørring, så ingen kan avbryte andres.
-  await db
+  const done = await db
     .update(orders)
     .set({ status: "avbrutt" })
-    .where(and(eq(orders.id, orderId), eq(orders.userId, user.id), eq(orders.status, "ny")));
+    .where(and(eq(orders.id, orderId), eq(orders.userId, user.id), eq(orders.status, "ny")))
+    .returning({ id: orders.id });
+  // Liam får beskjed, så han ikke begynner å printe noe som er avbrutt.
+  if (done.length > 0) {
+    after(() =>
+      safely(pushToAdmins({ title: `${user.displayName} avbrøt en bestilling`, body: "Se Ordre › Avbrutt.", url: "/admin/bestillinger?vis=avbrutt", tag: `avbrutt-${orderId}` })),
+    );
+  }
   revalidatePath("/mine");
   revalidatePath("/admin/bestillinger");
 }
@@ -96,6 +103,50 @@ export async function setOrderStatusAction(orderId: number, status: string): Pro
   if (status === "avbrutt") after(() => safely(notifyCustomer(orderId, "Bestilling avbrutt", (what) => `${what} ble avbrutt.`)));
   revalidatePath("/admin/bestillinger");
   revalidatePath("/mine");
+}
+
+export type ResponseState = { error?: string; ok?: boolean };
+
+/**
+ * Kunden svarer på «godkjent med endringer»: godtar endringene, eller sier at de ikke er ønsket.
+ * Liam får et varsel. Vil kunden heller avbryte, brukes cancelMyOrderAction.
+ */
+export async function respondToChangesAction(_prev: ResponseState, form: FormData): Promise<ResponseState> {
+  const user = await requireUser();
+  const orderId = Number(form.get("orderId"));
+  const response = String(form.get("response") ?? "");
+  const note = String(form.get("note") ?? "").trim();
+  if (response !== "godtatt" && response !== "avslatt") return { error: "Ugyldig valg." };
+  if (note.length > MAX_REPLY) return { error: `Kommentaren kan være maks ${MAX_REPLY} tegn.` };
+
+  const db = await getDb();
+  // Bare egne bestillinger, og bare når Liam faktisk har foreslått endringer.
+  const done = await db
+    .update(orders)
+    .set({ customerResponse: response, customerNote: note || null, customerRespondedAt: new Date() })
+    .where(and(eq(orders.id, orderId), eq(orders.userId, user.id), eq(orders.approval, "endringer")))
+    .returning({ id: orders.id });
+  if (done.length === 0) return { error: "Fant ikke bestillingen." };
+
+  const [o] = await db
+    .select({ productName: products.name, quantity: orders.quantity })
+    .from(orders)
+    .innerJoin(products, eq(products.id, orders.productId))
+    .where(eq(orders.id, orderId));
+  const what = o ? `${o.quantity} × ${o.productName}` : "bestillingen";
+  after(() =>
+    safely(
+      pushToAdmins({
+        title: response === "godtatt" ? `${user.displayName} godtok endringene` : `${user.displayName} vil ikke ha endringene`,
+        body: `${what}${note ? ` · «${note}»` : ""}`,
+        url: "/admin/bestillinger?vis=alle",
+        tag: `svar-${orderId}`,
+      }),
+    ),
+  );
+  revalidatePath("/mine");
+  revalidatePath("/admin/bestillinger");
+  return { ok: true };
 }
 
 /** Liam markerer at en bestilling er betalt (eller angrer). Betaling skjer med Vipps, utenfor appen. */
@@ -143,6 +194,10 @@ export async function replyToOrderAction(_prev: ReplyState, form: FormData): Pro
       repliedAt: empty ? null : new Date(),
       deliveryPlan: plan || null,
       changedByAdminAt: new Date(),
+      // Nytt svar fra Liam betyr at kunden må svare på nytt.
+      customerResponse: null,
+      customerNote: null,
+      customerRespondedAt: null,
     })
     .where(eq(orders.id, orderId));
   if (!empty) {

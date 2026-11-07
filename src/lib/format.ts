@@ -31,6 +31,12 @@ export function plural(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }
 
+/** Kundens svar på «godkjent med endringer». */
+export const CUSTOMER_RESPONSE_LABEL: Record<string, string> = {
+  godtatt: "Endringene er godtatt",
+  avslatt: "Endringene er ikke ønsket",
+};
+
 /** Teksten som vises for svaret fra admin. */
 export const APPROVAL_LABEL: Record<string, string> = {
   godkjent: "Godkjent",

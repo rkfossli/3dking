@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { countByStatus, ordersByStatus, isStatus, type OrderRow, type Status } from "@/lib/orders";
-import { kr, plural, when, STATUS_LABEL } from "@/lib/format";
+import { kr, plural, when, CUSTOMER_RESPONSE_LABEL, STATUS_LABEL } from "@/lib/format";
 import { OrderReplyForm } from "@/components/OrderReplyForm";
 import { AdminReply } from "@/components/AdminReply";
 import { AdminNav } from "@/components/AdminNav";
@@ -54,6 +54,14 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
       </p>
       {o.note && <p className="small-text">«{o.note}»</p>}
       <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Ditt svar" />
+      {o.approval === "endringer" && (
+        <p className={`customer-response small-text ${o.customerResponse ?? "venter"}`}>
+          <b>{o.userName}:</b>{" "}
+          {o.customerResponse ? CUSTOMER_RESPONSE_LABEL[o.customerResponse] : "har ikke svart på endringene ennå"}
+          {o.customerNote && <> · «{o.customerNote}»</>}
+          {o.customerRespondedAt && <span className="muted"> · {when(o.customerRespondedAt)}</span>}
+        </p>
+      )}
       <AdminOrderActions id={o.id} status={o.status} paid={o.paidAt != null} />
       {o.status !== "avbrutt" && (
         <OrderReplyForm id={o.id} userName={o.userName} approval={o.approval} reply={o.adminReply} deliveryPlan={o.deliveryPlan} status={o.status} />

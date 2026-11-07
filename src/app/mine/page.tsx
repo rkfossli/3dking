@@ -8,6 +8,7 @@ import { ordersForUser, type OrderRow } from "@/lib/orders";
 import { kr, plural, when, CUSTOMER_STATUS_LABEL } from "@/lib/format";
 import { CancelMyOrder } from "@/components/OrderActions";
 import { AdminReply } from "@/components/AdminReply";
+import { ChangeResponse } from "@/components/ChangeResponse";
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +37,15 @@ export default async function MyOrdersPage() {
           <span className={`badge ${o.status}`}>{CUSTOMER_STATUS_LABEL[o.status]}</span>
         </span>
       </div>
+      {/* Prisen står tydelig for seg selv, så kunden ser hva de skal betale. */}
+      <p className="order-price">
+        <b>{kr(o.quantity * o.unitPriceNok)}</b> <span className="muted small-text">(filament og strøm)</span>
+        {o.status !== "avbrutt" && (
+          <span className={`badge ${o.paidAt ? "betalt" : "ubetalt"}`}>{o.paidAt ? "Betalt" : "Ikke betalt ennå"}</span>
+        )}
+      </p>
       <p className="muted small-text">
-        Bestilt {when(o.createdAt)} · {kr(o.quantity * o.unitPriceNok)}
-        {o.status !== "avbrutt" && (o.paidAt ? " · betalt" : " · ikke betalt ennå")}
+        Bestilt {when(o.createdAt)}
         {o.madeAt && ` · laget ${when(o.madeAt)}`}
         {o.deliveredAt && ` · levert ${when(o.deliveredAt)}`}
       </p>
@@ -47,7 +54,12 @@ export default async function MyOrdersPage() {
         <p className="small-text with-icon"><Icon name="ready" /> Ferdig laget! 3DKing sier fra når og hvor du får den.</p>
       )}
       <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Svar fra 3DKing" />
-      {o.status === "ny" && <CancelMyOrder id={o.id} />}
+      {/* Har 3DKing foreslått endringer, kan kunden svare (og avbryte) i én boks. Ellers vanlig Avbryt-knapp. */}
+      {o.approval === "endringer" && (o.status === "ny" || o.status === "laget") ? (
+        <ChangeResponse id={o.id} status={o.status} response={o.customerResponse} note={o.customerNote} />
+      ) : (
+        o.status === "ny" && <CancelMyOrder id={o.id} />
+      )}
     </li>
   );
 
