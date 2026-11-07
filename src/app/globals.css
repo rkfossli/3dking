@@ -2966,3 +2966,12 @@ input[type="checkbox"]:focus-visible {
 .pay-note.owed {
   color: var(--warn, #f5a524);
 }
+
+/* Verkstedet: når tellingen startet, og knappen for å starte på nytt */
+.stats-start {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s2);
+  margin-top: var(--s4);
+}

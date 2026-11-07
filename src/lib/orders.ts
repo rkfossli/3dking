@@ -3,6 +3,7 @@ import "server-only";
 import { and, asc, count, desc, eq, gt, isNotNull, isNull, ne, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { orders, products, users } from "./schema";
+import { statsSince } from "./stats";
 
 /** En bestilling går ny → laget → levert. Avbrutt er en utvei underveis. */
 export const STATUSES = ["ny", "laget", "levert", "avbrutt"] as const;
@@ -292,7 +293,10 @@ export async function workshopStats(since?: Date): Promise<WorkshopStats> {
     .innerJoin(products, eq(products.id, orders.productId))
     .where(ne(orders.status, "avbrutt"));
 
-  const list = since ? rows.filter((r) => r.createdAt >= since) : rows;
+  // Bare bestillinger etter at tellingen startet (og etter starten av perioden, hvis valgt).
+  const start = await statsSince();
+  const from = [since, start].filter((d): d is Date => d != null).sort((a, b) => b.getTime() - a.getTime())[0];
+  const list = from ? rows.filter((r) => r.createdAt >= from) : rows;
   const counts = new Map<string, number>();
   let printed = 0;
   let filament = 0;

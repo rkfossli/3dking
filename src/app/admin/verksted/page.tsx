@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { workshopStats } from "@/lib/orders";
-import { kr } from "@/lib/format";
+import { kr, when } from "@/lib/format";
+import { statsSince } from "@/lib/stats";
+import { RestartStats } from "@/components/RestartStats";
 import { AdminNav } from "@/components/AdminNav";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +20,7 @@ export default async function WorkshopPage({ searchParams }: PageProps<"/admin/v
   const { periode } = await searchParams;
   const thisYear = periode === "ar";
   const s = await workshopStats(thisYear ? startOfYear() : undefined);
+  const since = await statsSince();
 
   return (
     <main className="page">
@@ -52,6 +55,12 @@ export default async function WorkshopPage({ searchParams }: PageProps<"/admin/v
         Avbrutte bestillinger teller ikke. «Ting printet» er det som er ferdig laget eller levert. Kundene har betalt eller skal betale {kr(s.income)} til
         sammen, som dekker filament og strøm.
       </p>
+      <div className="card stats-start">
+        <p className="small-text">
+          {since ? <>Tellingen startet <b>{when(since)}</b>. Bestillinger fra før er ikke med.</> : "Tellingen tar med alle bestillinger."}
+        </p>
+        <RestartStats />
+      </div>
     </main>
   );
 }
