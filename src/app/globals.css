@@ -197,3 +197,101 @@ button.secondary {
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+
+/* Fase 3: faner, produkter og katalog */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tabs a {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.tabs a.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+textarea {
+  font: inherit;
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  resize: vertical;
+}
+
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.check input {
+  width: 20px;
+  height: 20px;
+}
+
+.small-text {
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.row-buttons.left {
+  justify-content: flex-start;
+}
+
+.button.small {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.product h2 {
+  font-size: 16px;
+  margin: 8px 0 0;
+}
+
+.product-img {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 8px 0 0;
+}
