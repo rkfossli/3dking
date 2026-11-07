@@ -3,6 +3,7 @@ import { ChangePinForm } from "@/components/ChangePinForm";
 import { PushSettings } from "@/components/PushSettings";
 import { InstallGuide } from "@/components/InstallGuide";
 import { ThemePicker } from "@/components/ThemePicker";
+import { IntroTourButton } from "@/components/IntroTour";
 import { logoutAction } from "../auth-actions";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,11 @@ export default async function MePage() {
     <main className="page narrow">
       <h1>{user.displayName}</h1>
       <p className="muted">Logget inn som {user.username}</p>
+      <section className="card">
+        <h2>Slik bestiller du</h2>
+        <p className="muted small-text">En kort tur gjennom det viktigste: finne en modell, bestille, følge bestillingen og betale.</p>
+        <IntroTourButton />
+      </section>
       <section className="card">
         <h2>Utseende</h2>
         <ThemePicker current={user.theme} mode={user.mode} />

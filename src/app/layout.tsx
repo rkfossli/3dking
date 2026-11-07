@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import { TabBar } from "@/components/TabBar";
+import { IntroTour } from "@/components/IntroTour";
 import { countNew, countUpdatesForUser } from "@/lib/orders";
 import { getCurrentUser } from "@/lib/auth";
 import { isMode, isTheme, themeBg } from "@/lib/themes";
@@ -48,6 +49,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <b>Snu telefonen</b>
           <span>3DKing vises bare stående.</span>
         </div>
+        {/* Introturen åpner seg selv første gang en kunde logger inn. 3DKing selv slipper. */}
+        {user && <IntroTour autoOpen={!user.tourSeenAt && !isAdmin} />}
         <ServiceWorker />
       </body>
     </html>
