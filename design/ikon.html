@@ -3,7 +3,7 @@
   Kilden til app-ikonet og logoen, i samme stil som Spotter: skarp neongrønn (#0DF762) med mørk kant
   og en myk glød BAK (ikke over), på børstet stål eller mørk bakgrunn.
   PNG-filene i public/icons og public/logo.png er laget herfra med et skjermbilde (Playwright).
-  ?stil=1..4: 1 Stål, 2 Mørk, 3 Grønn til turkis, 4 Grønn bakgrunn.
+  ?stil=1..4: 1 Stål, 2 Mørk (valgt), 3 Grønn til turkis, 4 Grønn bakgrunn.
   ?vis=ikon|maskable|badge|logo  ?str=512 (piksler)
 -->
 <meta charset="utf-8" />
@@ -45,7 +45,7 @@
   };
 
   const q = new URLSearchParams(location.search);
-  const s = STILER[q.get("stil") || "1"];
+  const s = STILER[q.get("stil") || "2"];
   const vis = q.get("vis") || "ikon";
   const S = Number(q.get("str") || 512);
 
