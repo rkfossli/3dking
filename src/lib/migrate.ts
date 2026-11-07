@@ -1,7 +1,13 @@
 // Oppretter tabellene første gang appen kobler til en tom database.
-// SQL-en her må stemme med schema.ts. Senere endringer legges til i UPGRADES med et nytt versjonsnummer.
+// SQL-en her må stemme med schema.ts.
+//
+// Slik endrer du databasen senere:
+// 1. Endre schema.ts.
+// 2. Legg SQL-en for endringen i UPGRADES med neste nummer.
+// 3. Øk SCHEMA_VERSION til det nummeret.
+// SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -55,6 +61,16 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
 );
 `;
 
-// Endringer for databaser som allerede finnes. Nøkkel = versjonen endringen tar databasen til.
-// Eksempel for senere: 2: `ALTER TABLE products ADD COLUMN color text;`
-export const UPGRADES: Record<number, string> = {};
+// Endringer etter versjon 1. Nøkkel = versjonen endringen tar databasen til.
+export const UPGRADES: Record<number, string> = {
+  // Fase 2: innlogging. Økter (hvem er logget inn) og teller for feil PIN.
+  2: `
+    CREATE TABLE IF NOT EXISTS sessions (
+      token text PRIMARY KEY,
+      user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      expires_at timestamptz NOT NULL
+    );
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_pins integer NOT NULL DEFAULT 0;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until timestamptz;
+  `,
+};

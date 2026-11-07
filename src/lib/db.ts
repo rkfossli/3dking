@@ -49,12 +49,10 @@ async function readVersion(conn: Conn): Promise<number> {
 async function migrate(conn: Conn): Promise<void> {
   const version = await readVersion(conn);
   if (version >= SCHEMA_VERSION) return;
-  if (version === 0) {
-    await conn.exec(SCHEMA_SQL);
-  } else {
-    for (let v = version + 1; v <= SCHEMA_VERSION; v++) {
-      if (UPGRADES[v]) await conn.exec(UPGRADES[v]);
-    }
+  // Tom database: lag versjon 1 først. Deretter kjøres hver endring som mangler, i rekkefølge.
+  if (version === 0) await conn.exec(SCHEMA_SQL);
+  for (let v = Math.max(version, 1) + 1; v <= SCHEMA_VERSION; v++) {
+    if (UPGRADES[v]) await conn.exec(UPGRADES[v]);
   }
   await conn.exec(
     `INSERT INTO settings (key, value) VALUES ('schema_version', '${SCHEMA_VERSION}')

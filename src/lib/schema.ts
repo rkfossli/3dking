@@ -14,7 +14,17 @@ export const users = pgTable("users", {
   theme: text("theme").notNull().default("neon"),
   mode: text("mode").notNull().default("dark"),
   active: boolean("active").notNull().default(true),
+  // Feil PIN på rad, og når en eventuell sperre slutter.
+  failedPins: integer("failed_pins").notNull().default(0),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Innloggede økter. Cookien i nettleseren inneholder bare `token`, og her slår vi opp hvem det er.
+export const sessions = pgTable("sessions", {
+  token: text("token").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });
 
 // Produktene Liam legger ut. Kroner lagres som heltall, ikke desimaltall.
