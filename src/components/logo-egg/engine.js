@@ -1,7 +1,7 @@
 // Påskeegget i logoen.
 // Trykk 1: sprekk. Trykk 2: en bit faller litt ned. Trykk 3: hele logoen raser ned til bunnen av skjermen.
 // Etter 5 sekunder kommer den tilbake gjennom røyk.
-// Det finnes tre varianter (Knust glass, Feilprint og Krona faller), og hver gang velges en tilfeldig.
+// Det finnes tre varianter (Knust glass, Feilprint og Krona faller). Hver gang velges en tilfeldig, men Feilprint litt oftere.
 //
 // Slik virker det: vi legger et lag over hele skjermen (pointer-events: none, så trykk går gjennom).
 // Logoen deles opp i biter (div-er som viser hver sin del av logobildet), og bitene flyttes med
@@ -13,6 +13,7 @@
 const LW = 600;
 const LH = 314;
 const KINDS = ["glass", "voxel", "crown"];
+const WEIGHT = { glass: 1, voxel: 1.5, crown: 1 };
 let lastKind = null;
 
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -83,8 +84,19 @@ function hexToRgb(hex) {
  * onDone kalles når logoen er tilbake og alt er ryddet bort.
  */
 export function createEgg(img, onDone) {
-  const kinds = KINDS.filter((k) => k !== lastKind);
-  const kind = kinds[Math.floor(Math.random() * kinds.length)];
+  // Feilprint vekter mer og kan komme to ganger på rad. De andre gjentas aldri rett etter seg selv.
+  // Totalt blir det Feilprint omtrent hver andre gang.
+  const kinds = KINDS.filter((k) => k !== lastKind || k === "voxel");
+  const total = kinds.reduce((sum, k) => sum + WEIGHT[k], 0);
+  let pick = Math.random() * total;
+  let kind = kinds[kinds.length - 1];
+  for (const k of kinds) {
+    pick -= WEIGHT[k];
+    if (pick < 0) {
+      kind = k;
+      break;
+    }
+  }
   lastKind = kind;
   return new Egg(img, kind, onDone);
 }
@@ -253,7 +265,10 @@ class Egg {
       f.push({ transform: `translate(${rand(-a, a)}px,${rand(-a, a)}px)` });
     }
     f.push({ transform: "translate(0,0)" });
-    document.body.animate(f, { duration: 380 * Math.sqrt(k) });
+    // Rist alt på siden unntatt infolinja nederst. Rister vi hele <body>, blir body
+    // "ramme" for faste (position: fixed) elementer, og infolinja hopper opp et øyeblikk.
+    for (const el of document.body.children)
+      if (!el.classList.contains("info-bar")) el.animate(f, { duration: 380 * Math.sqrt(k) });
   }
 
   // Tegn en sprekk som "vokser" frem
