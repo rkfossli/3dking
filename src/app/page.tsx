@@ -4,7 +4,6 @@ import { requireUser } from "@/lib/auth";
 import { availableProducts } from "@/lib/products";
 import { kr } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
-import { OrderButton } from "@/components/OrderButton";
 import { InstallGuide } from "@/components/InstallGuide";
 import { PinHint } from "@/components/PinHint";
 import { Logo } from "@/components/Logo";
@@ -67,7 +66,8 @@ export default async function Home() {
             {p.description && <p className="muted small-text clamp">{p.description}</p>}
             <p className="price">{kr(p.priceNok)}</p>
             {isAdmin && p.costNok != null && <p className="muted small-text">Filament {kr(p.costNok)} · bare synlig for deg</p>}
-            <OrderButton productId={p.id} price={p.priceNok} />
+            {/* «Bestill» åpner produktsiden, der skjemaet har god plass til ønsker. */}
+            <Link href={`/produkt/${p.id}`} className="button small order-btn">Bestill</Link>
           </article>
         ))}
       </div>

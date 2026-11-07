@@ -1163,3 +1163,71 @@ nav.tabs:not(.small-tabs) {
 nav.tabs:not(.small-tabs) a {
   padding: 8px 10px;
 }
+
+/* Lister med navn og knapper (brukere og produkter i admin):
+   får ikke knappene plass ved siden av navnet, går de ned på en egen linje under. */
+.user-row {
+  flex-wrap: wrap;
+}
+
+.user-row > .row-buttons,
+.user-row .row-actions {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.user-row .row-buttons {
+  flex-wrap: wrap;
+}
+
+/* Produktlisten på telefon: knappene på én linje under bildet og navnet */
+@media (max-width: 520px) {
+  .user-row .row-actions {
+    flex-basis: 100%;
+    max-width: none;
+    align-items: flex-start;
+  }
+  .user-row .row-actions .row-buttons {
+    justify-content: flex-start;
+  }
+}
+
+/* Bestillingsskjemaet på produktsiden: god plass til ønsker */
+.order-form {
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.order-form textarea {
+  font-size: 16px; /* 16px hindrer at iPhone zoomer inn */
+  min-height: 110px;
+}
+
+.stepper span {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.stepper button {
+  min-width: 52px;
+  font-size: 20px;
+}
+
+.product .order-btn {
+  width: 100%;
+}
+
+/* Produkt uten bilde: ikon og «Bilde kommer snart» */
+.product-img.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.no-image {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}

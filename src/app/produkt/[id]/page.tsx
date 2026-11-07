@@ -5,7 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { getProduct } from "@/lib/products";
 import { kr } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
-import { OrderButton } from "@/components/OrderButton";
+import { OrderForm } from "@/components/OrderForm";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +31,7 @@ export default async function ProductPage({ params }: PageProps<"/produkt/[id]">
         {p.description && <p className="description">{p.description}</p>}
         <p className="price">{kr(p.priceNok)}</p>
         {isAdmin && p.costNok != null && <p className="muted small-text">Filament {kr(p.costNok)} · bare synlig for deg</p>}
-        {p.available && <OrderButton productId={p.id} price={p.priceNok} />}
+        {p.available && <OrderForm productId={p.id} price={p.priceNok} />}
       </article>
     </main>
   );

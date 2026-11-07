@@ -8,15 +8,14 @@ import { PushAsk } from "./PushAsk";
 
 const MAX = 20;
 
-// «Bestill»-knappen på et produktkort. Trykk, og et lite skjema med antall og kommentar folder seg ut.
+// Bestillingsskjemaet på produktsiden: antall, ønsker og «Bestill for …».
 // «Bestill flere» etter en bestilling lager et helt nytt skjema: key gjør at React starter på nytt.
-export function OrderButton({ productId, price }: { productId: number; price: number }) {
+export function OrderForm({ productId, price }: { productId: number; price: number }) {
   const [round, setRound] = useState(0);
-  return <OrderForm key={round} productId={productId} price={price} onAgain={() => setRound(round + 1)} />;
+  return <OrderRound key={round} productId={productId} price={price} onAgain={() => setRound(round + 1)} />;
 }
 
-function OrderForm({ productId, price, onAgain }: { productId: number; price: number; onAgain: () => void }) {
-  const [open, setOpen] = useState(false);
+function OrderRound({ productId, price, onAgain }: { productId: number; price: number; onAgain: () => void }) {
   const [qty, setQty] = useState(1);
   const [state, action, pending] = useActionState<OrderState, FormData>(placeOrderAction, {});
 
@@ -32,14 +31,6 @@ function OrderForm({ productId, price, onAgain }: { productId: number; price: nu
     );
   }
 
-  if (!open) {
-    return (
-      <button type="button" className="small order-btn" onClick={() => setOpen(true)}>
-        Bestill
-      </button>
-    );
-  }
-
   return (
     <form action={action} className="order-form">
       <input type="hidden" name="productId" value={productId} />
@@ -49,12 +40,14 @@ function OrderForm({ productId, price, onAgain }: { productId: number; price: nu
         <span>{qty} stk</span>
         <button type="button" className="small secondary" onClick={() => setQty(Math.min(MAX, qty + 1))} aria-label="Flere">+</button>
       </div>
-      <textarea name="note" rows={2} placeholder="Ønsker? For eksempel farge eller størrelse" aria-label="Ønsker" maxLength={500} />
+      <label>
+        Ønsker (valgfritt)
+        <textarea name="note" rows={4} placeholder="For eksempel farge, størrelse eller navn som skal stå på" maxLength={500} />
+      </label>
       {state.error && <p className="error small-text">{state.error}</p>}
-      <button type="submit" className="small" disabled={pending}>
+      <button type="submit" disabled={pending}>
         {pending ? "Bestiller …" : `Bestill for ${kr(qty * price)}`}
       </button>
-      <button type="button" className="small secondary" onClick={() => setOpen(false)}>Avbryt</button>
     </form>
   );
 }
