@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { placeOrderAction, type OrderState } from "@/app/order-actions";
 import { kr } from "@/lib/format";
 import { PushAsk } from "./PushAsk";
+import { Sparks } from "./Sparks";
 
 const MAX = 20;
 
@@ -21,7 +22,8 @@ function OrderRound({ productId, price, onAgain }: { productId: number; price: n
 
   if (state.ok) {
     return (
-      <div className="order-done">
+      <div className="order-done celebrate">
+        <Sparks />
         <b className="with-icon"><Icon name="check" /> Bestilt!</b>
         {state.orderNumber && <p className="order-no-big">Ordrenummer #{state.orderNumber}</p>}
         <p className="small-text muted">3DKing har fått beskjed. Du ser hvordan det går under «Mine bestillinger».</p>
