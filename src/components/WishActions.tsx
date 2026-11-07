@@ -40,7 +40,7 @@ export function WishReply({ id, status, price, reply, productId }: { id: number;
   }
 
   return (
-    <form action={action} className="reply-form">
+    <form noValidate action={action} className="reply-form">
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="status" value={choice} />
       <fieldset className="choice-list">

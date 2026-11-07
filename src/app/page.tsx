@@ -68,7 +68,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
       {/* Søk: et vanlig skjema som legger ?q= i adressen. Kategorien beholdes i et skjult felt. */}
       {all.length > 0 && (
-        <form className="search" role="search" action="/">
+        <form noValidate className="search" role="search" action="/">
           {activeCat && <input type="hidden" name="kategori" value={activeCat.id} />}
           <Icon name="search" />
           <input name="q" type="search" defaultValue={search} placeholder="Søk etter modeller" aria-label="Søk etter modeller" enterKeyHint="search" />

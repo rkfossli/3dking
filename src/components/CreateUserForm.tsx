@@ -5,7 +5,7 @@ import { createUserAction, type PinState } from "@/app/admin-actions";
 export function CreateUserForm() {
   const [state, action, pending] = useActionState<PinState, FormData>(createUserAction, {});
   return (
-    <form action={action} className="form">
+    <form noValidate action={action} className="form">
       <label>
         Navn
         <input name="displayName" placeholder="Ola Nordmann" required />

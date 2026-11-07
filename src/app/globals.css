@@ -2737,3 +2737,190 @@ button:focus:not(:focus-visible),
   align-items: center;
   gap: var(--s1);
 }
+
+/* Sju admin-faner: fire i hver rad, med ikonet over teksten */
+.admin-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.admin-grid a {
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s2) var(--s1);
+  font-size: var(--fs-cap);
+}
+
+/* Mine farger: filter (Alle / Inne / Tom) og Rediger-knapp på samme linje */
+.my-colors-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--card-2);
+}
+
+.seg button {
+  min-height: 36px;
+  padding: 0 var(--s2);
+  white-space: nowrap;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.seg button.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.my-group {
+  border-top: 1px solid var(--border);
+  padding-top: var(--s3);
+  margin-top: var(--s3);
+}
+
+.my-group h3 {
+  margin: 0 0 var(--s2);
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.pal-state {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent-text);
+}
+
+.pal-state.off {
+  color: var(--muted);
+}
+
+/* Tom farge: blek, med en strek over prøven */
+.pal.empty {
+  opacity: 0.55;
+}
+
+.pal.empty .pal-dot {
+  background-image: linear-gradient(135deg, transparent 45%, var(--muted) 45%, var(--muted) 55%, transparent 55%) !important;
+}
+
+.mine-edit {
+  cursor: default;
+}
+
+.mine-edit .small {
+  min-height: 32px;
+  padding: 0 var(--s2);
+}
+
+.ok-text {
+  color: var(--accent-text);
+}
+
+/* Skjult for øyet, men fortsatt i skjemaet (brukes av bildevelgeren) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Bildevelger i appens stil */
+.image-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s1);
+}
+
+.image-pick-label {
+  font-size: var(--fs-sm);
+}
+
+.image-pick-btn {
+  position: relative;
+  cursor: pointer;
+}
+
+.image-pick-btn:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.image-pick-name {
+  overflow-wrap: anywhere;
+}
+
+/* Valg med knapper (f.eks. farger per print) */
+.choice {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s1);
+}
+
+.choice legend {
+  font-size: var(--fs-sm);
+  margin-bottom: var(--s1);
+}
+
+/* Avkrysningsbokser i appens stil i stedet for nettleserens egne */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  border: 2px solid var(--border-strong);
+  border-radius: 7px;
+  background: var(--card-2);
+  display: inline-grid;
+  place-content: center;
+  cursor: pointer;
+}
+
+input[type="checkbox"]::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  background: var(--accent-ink);
+  transform: scale(0);
+  transition: transform 0.12s ease;
+}
+
+input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

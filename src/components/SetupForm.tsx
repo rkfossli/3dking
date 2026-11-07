@@ -5,7 +5,7 @@ import { setupAction, type FormState } from "@/app/auth-actions";
 export function SetupForm() {
   const [state, action, pending] = useActionState<FormState, FormData>(setupAction, {});
   return (
-    <form action={action} className="form">
+    <form noValidate action={action} className="form">
       <label>
         Navnet ditt
         <input name="displayName" placeholder="Liam" required />

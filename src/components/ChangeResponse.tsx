@@ -50,7 +50,7 @@ export function ChangeResponse({
       </p>
       {!declining ? (
         <div className="row-buttons left">
-          <form action={action}>
+          <form noValidate action={action}>
             <input type="hidden" name="orderId" value={id} />
             <input type="hidden" name="response" value="godtatt" />
             <button type="submit" className="small" disabled={pending}>
@@ -63,7 +63,7 @@ export function ChangeResponse({
           {status === "ny" && <CancelMyOrder id={id} />}
         </div>
       ) : (
-        <form action={action} className="stack">
+        <form noValidate action={action} className="stack">
           <input type="hidden" name="orderId" value={id} />
           <input type="hidden" name="response" value="avslatt" />
           <label>

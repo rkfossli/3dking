@@ -2,6 +2,7 @@
 import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { addWishAction, type WishState } from "@/app/wish-actions";
 import { shrinkImage } from "@/lib/shrinkImage";
+import { ImagePicker } from "./ImagePicker";
 
 // Skjemaet i ønskeboksen: hva du ønsker deg, en lenke (f.eks. MakerWorld) og et bilde.
 export function WishForm() {
@@ -28,7 +29,7 @@ export function WishForm() {
   }
 
   return (
-    <form ref={form} action={submit} className="form">
+    <form noValidate ref={form} action={submit} className="form">
       <label>
         Hva ønsker du deg?
         <textarea name="text" rows={3} maxLength={500} placeholder="For eksempel en Pokémon-figur, 8 cm høy, i gult" required />
@@ -37,10 +38,7 @@ export function WishForm() {
         Lenke (valgfritt)
         <input name="link" type="url" inputMode="url" placeholder="https://makerworld.com/..." />
       </label>
-      <label>
-        Bilde (valgfritt)
-        <input name="image" type="file" accept="image/*" />
-      </label>
+      <ImagePicker label="Bilde (valgfritt)" />
       {state.error && <p className="error small-text">{state.error}</p>}
       {state.ok && <p className="ok small-text">Ønsket er sendt. 3DKing svarer så fort som mulig.</p>}
       <button type="submit" disabled={pending || shrinking}>{shrinking ? "Krymper bilde …" : pending ? "Sender …" : "Send ønsket"}</button>

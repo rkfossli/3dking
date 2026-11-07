@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState, startTransition } from "react";
 import { saveProductAction, type ProductFormState } from "@/app/product-actions";
 import { shrinkImage } from "@/lib/shrinkImage";
+import { ImagePicker } from "./ImagePicker";
 
 type Initial = { id?: number; name: string; description: string | null; priceNok: number; costNok: number | null; available: boolean; colorCount?: number; imageUrl: string | null };
 
@@ -25,6 +26,7 @@ export function ProductForm({
   // Forhåndsvisning av bildet: det gamle bildet, eller det nye som akkurat er valgt.
   const [preview, setPreview] = useState<string | null>(product?.imageUrl ?? null);
   const [shrinking, setShrinking] = useState(false);
+  const [colorCount, setColorCount] = useState(product?.colorCount ?? 1);
 
   // Før skjemaet sendes: bytt ut det store bildet med en krympet kopi.
   async function submit(form: FormData) {
@@ -43,7 +45,7 @@ export function ProductForm({
 
   const busy = pending || shrinking;
   return (
-    <form action={submit} className="form">
+    <form noValidate action={submit} className="form">
       {product?.id != null && <input type="hidden" name="id" value={product.id} />}
       {wishId != null && <input type="hidden" name="wishId" value={wishId} />}
       <label>
@@ -53,18 +55,11 @@ export function ProductForm({
       <div className="image-field">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {preview ? <img src={preview} alt="" className="product-img" /> : <div className="product-img empty" aria-hidden><Icon name="cube" size={40} /></div>}
-        <label>
-          Bilde
-          <input
-            name="image"
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) setPreview(URL.createObjectURL(f)); // viser bildet med en gang, før det lastes opp
-            }}
-          />
-        </label>
+        <ImagePicker
+          onPick={(f) => {
+            if (f) setPreview(URL.createObjectURL(f)); // viser bildet med en gang, før det lastes opp
+          }}
+        />
         {product?.imageUrl && product.id != null && (
           <label className="check">
             <input type="checkbox" name="removeImage" />
@@ -87,14 +82,19 @@ export function ProductForm({
         </label>
       </div>
       <p className="muted small-text">Filamentkost vises bare for deg. Prisen skal bare dekke filament og strøm.</p>
-      <label>
-        Farger per print
-        <select name="colorCount" defaultValue={product?.colorCount ?? 1}>
-          <option value={1}>1 farge</option>
-          <option value={2}>2 farger (hovedfarge + 1)</option>
-          <option value={3}>3 farger (hovedfarge + 2)</option>
-        </select>
-      </label>
+      {/* Farger per print: tre knapper i stedet for nettleserens nedtrekksliste. */}
+      <fieldset className="choice">
+        <legend>Farger per print</legend>
+        <input type="hidden" name="colorCount" value={colorCount} />
+        <div className="seg">
+          {[1, 2, 3].map((n) => (
+            <button key={n} type="button" className={colorCount === n ? "on" : ""} aria-pressed={colorCount === n} onClick={() => setColorCount(n)}>
+              {n === 1 ? "1 farge" : `${n} farger`}
+            </button>
+          ))}
+        </div>
+        <span className="muted small-text">{colorCount === 1 ? "Kunden velger én farge." : `Kunden velger en hovedfarge og ${colorCount - 1} til.`}</span>
+      </fieldset>
       {/* Kategorier: kryss av for én eller flere. Alle avkrysningsboksene heter «category». */}
       {categories.length > 0 && (
         <fieldset className="cat-pick">
