@@ -6,7 +6,8 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { products } from "@/lib/schema";
 import { requireAdmin } from "@/lib/auth";
-import { parseKroner } from "@/lib/products";
+import { getProduct, parseKroner } from "@/lib/products";
+import { deleteImage, saveImage } from "@/lib/images";
 
 export type ProductFormState = { error?: string };
 
@@ -27,10 +28,28 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
   if (priceNok === null || Number.isNaN(priceNok)) return { error: "Skriv en pris i hele kroner, for eksempel 50." };
   if (Number.isNaN(costNok)) return { error: "Filamentkost må være et tall, eller stå tom." };
 
-  const values = { name, description, priceNok, costNok, available };
+  // Bilde: et nytt bilde erstatter det gamle. "Fjern bilde" tar det bort.
+  const old = id ? await getProduct(id) : null;
+  let imageUrl = old?.imageUrl ?? null;
+  const file = form.get("image");
+  const removeImage = form.get("removeImage") === "on";
+  if (file instanceof File && file.size > 0) {
+    try {
+      imageUrl = await saveImage(file);
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Klarte ikke å lagre bildet." };
+    }
+  } else if (removeImage) {
+    imageUrl = null;
+  }
+
+  const values = { name, description, priceNok, costNok, available, imageUrl };
   const db = await getDb();
   if (id) await db.update(products).set(values).where(eq(products.id, id));
   else await db.insert(products).values(values);
+
+  // Rydd bort det gamle bildet hvis det ble byttet ut eller fjernet.
+  if (old?.imageUrl && old.imageUrl !== imageUrl) await deleteImage(old.imageUrl);
 
   revalidatePath("/admin/produkter");
   revalidatePath("/");
