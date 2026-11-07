@@ -1381,3 +1381,8 @@ p.customer-response {
   font-family: ui-monospace, monospace;
   font-weight: 600;
 }
+
+/* Luft mellom hilsenen og det som kommer under (ferdig-meldingen, produktene) */
+.greeting {
+  margin-bottom: 16px;
+}
