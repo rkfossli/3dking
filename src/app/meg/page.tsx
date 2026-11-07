@@ -17,14 +17,14 @@ export default async function MePage() {
       <p className="muted">Logget inn som {user.username}</p>
       <section className="card">
         <h2>Slik bestiller du</h2>
-        <p className="muted small-text">En kort tur gjennom det viktigste: finne en modell, bestille, følge bestillingen og betale.</p>
+        <p className="muted small-text">En kort tur gjennom appen som viser det viktigste: finne en modell, bestille og følge bestillingen.</p>
         <IntroTourButton />
       </section>
       <section className="card">
         <h2>Utseende</h2>
         <ThemePicker current={user.theme} mode={user.mode} />
       </section>
-      <section className="card">
+      <section className="card" id="varsler">
         <h2>Varsler</h2>
         <PushSettings isAdmin={user.role === "admin"} />
       </section>
