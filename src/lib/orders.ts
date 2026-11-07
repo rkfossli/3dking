@@ -1,6 +1,6 @@
 // Bestillinger: statuser og spørringer.
 import "server-only";
-import { and, count, desc, eq, gt, isNotNull } from "drizzle-orm";
+import { and, count, desc, eq, gt, isNotNull, ne, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { orders, products, users } from "./schema";
 
@@ -58,7 +58,8 @@ async function query(where?: ReturnType<typeof eq>) {
       changedByAdminAt: orders.changedByAdminAt,
       productName: products.name,
       productImage: products.imageUrl,
-      costNok: products.costNok,
+      // Kostnaden fra da det ble bestilt. Mangler den, brukes produktets kostnad nå.
+      costNok: sql<number | null>`coalesce(${orders.unitCostNok}, ${products.costNok})`,
       userName: users.displayName,
     })
     .from(orders)
@@ -108,4 +109,58 @@ export async function countNew(): Promise<number> {
   const db = await getDb();
   const [row] = await db.select({ n: count() }).from(orders).where(and(eq(orders.status, "ny")));
   return row.n;
+}
+
+/** Én måned i oversikten. */
+export type MonthSummary = {
+  month: string; // "2026-11"
+  orders: number;
+  items: number;
+  income: number; // det brukerne betaler
+  filament: number; // det filamentet kostet
+  products: { name: string; items: number }[]; // mest bestilt først
+};
+
+/** Måneden en dato hører til, i norsk tid, som "2026-11". */
+const monthKey = (d: Date) =>
+  new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Oslo", year: "numeric", month: "2-digit" }).format(d);
+
+/**
+ * Månedsoversikt for Liam: alle bestillinger som ikke er avbrutt, gruppert på måneden de ble bestilt.
+ * Regnes ut i JavaScript i stedet for SQL, så det er lettere å lese.
+ */
+export async function monthlySummary(): Promise<MonthSummary[]> {
+  const db = await getDb();
+  const rows = await db
+    .select({
+      createdAt: orders.createdAt,
+      quantity: orders.quantity,
+      unitPriceNok: orders.unitPriceNok,
+      unitCostNok: sql<number | null>`coalesce(${orders.unitCostNok}, ${products.costNok})`,
+      name: products.name,
+    })
+    .from(orders)
+    .innerJoin(products, eq(products.id, orders.productId))
+    .where(ne(orders.status, "avbrutt"));
+
+  const months = new Map<string, MonthSummary & { counts: Map<string, number> }>();
+  for (const r of rows) {
+    const key = monthKey(r.createdAt);
+    let m = months.get(key);
+    if (!m) {
+      m = { month: key, orders: 0, items: 0, income: 0, filament: 0, products: [], counts: new Map() };
+      months.set(key, m);
+    }
+    m.orders += 1;
+    m.items += r.quantity;
+    m.income += r.quantity * r.unitPriceNok;
+    m.filament += r.quantity * (r.unitCostNok ?? 0);
+    m.counts.set(r.name, (m.counts.get(r.name) ?? 0) + r.quantity);
+  }
+  return [...months.values()]
+    .map(({ counts, ...m }) => ({
+      ...m,
+      products: [...counts].map(([name, items]) => ({ name, items })).sort((a, b) => b.items - a.items),
+    }))
+    .sort((a, b) => b.month.localeCompare(a.month));
 }

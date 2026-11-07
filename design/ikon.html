@@ -4,7 +4,7 @@
   og en myk glød BAK (ikke over), på børstet stål eller mørk bakgrunn.
   PNG-filene i public/icons og public/logo.png er laget herfra med et skjermbilde (Playwright).
   ?stil=1..4: 1 Stål, 2 Mørk (valgt), 3 Grønn til turkis, 4 Grønn bakgrunn.
-  ?vis=ikon|maskable|badge|logo  ?str=512 (piksler)
+  ?vis=ikon|maskable|badge|logo  ?str=512 (piksler)  ?farge=ff6b00 (annen temafarge)
 -->
 <meta charset="utf-8" />
 <style>
@@ -13,7 +13,8 @@
 </style>
 <div id="ut"></div>
 <script>
-  const GRONN = "#0DF762";
+  // ?farge=ff6b00 gir logoen en annen temafarge (brukes til logoene i public/logo/).
+  const GRONN = new URLSearchParams(location.search).get("farge") ? "#" + new URLSearchParams(location.search).get("farge") : "#0DF762";
   const TURKIS = "#00C9B7";
   const MORK = "#14181b";
   // Kronen: flat bunn, tre tagger. Tegnet i en 100x60-boks.

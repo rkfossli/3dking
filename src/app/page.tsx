@@ -5,6 +5,7 @@ import { kr } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 import { OrderButton } from "@/components/OrderButton";
 import { InstallGuide } from "@/components/InstallGuide";
+import { Logo } from "@/components/Logo";
 import { countNew, countReadyForUser, countUpdatesForUser } from "@/lib/orders";
 import { logoutAction } from "./auth-actions";
 
@@ -22,9 +23,7 @@ export default async function Home() {
   return (
     <main className="page">
       <div className="top">
-        {/* Logoen er laget fra design/ikon.html. Alt-teksten leses opp for de som ikke ser bildet. */}
-        {/* eslint-disable-next-line @next/next/no-img-element -- liten fast PNG, trenger ikke next/image */}
-        <img src="/logo.png" alt="3D King" className="logo" width={600} height={314} />
+        <Logo theme={user.theme} />
         <div className="row-buttons">
           <Link href="/mine" className="button small secondary">
             Mine bestillinger{updates > 0 && <span className="count" title="Nytt siden sist">{updates}</span>}
@@ -63,7 +62,7 @@ export default async function Home() {
         ))}
       </div>
       <p className="muted small-text footer-line">
-        Logget inn som {user.username} · <Link href="/meg">Varsler, app og PIN</Link>
+        Logget inn som {user.username} · <Link href="/meg">Innstillinger</Link>
       </p>
     </main>
   );
