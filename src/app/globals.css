@@ -619,3 +619,71 @@ button.danger-solid {
   background: var(--danger);
   color: #fff;
 }
+
+/* Fase 6: varsler og guiden for appen på hjemskjermen */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.install-guide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.install-guide .order-head {
+  width: 100%;
+}
+
+.install-guide p {
+  margin: 0;
+}
+
+.install-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+/* Kvittering etter bestilling */
+.order-done {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  text-align: center;
+}
+
+.order-done b {
+  color: var(--accent);
+}
+
+.order-done p {
+  margin: 0;
+}
+
+.order-done .button {
+  text-align: center;
+}
+
+/* Logoen øverst på forsiden og innloggingen */
+.logo {
+  display: block;
+  width: 150px;
+  height: auto;
+}
+
+.logo.big {
+  width: 240px;
+  margin: 8px auto 16px;
+}

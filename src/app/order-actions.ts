@@ -1,9 +1,12 @@
 "use server";
 // Handlinger for bestillinger.
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { orders, products } from "@/lib/schema";
+import { pushToAdmins, safely, sendPush } from "@/lib/push";
+import { APPROVAL_LABEL } from "@/lib/format";
 import { requireAdmin, requireUser } from "@/lib/auth";
 import { APPROVALS, MAX_QUANTITY, MAX_REPLY, isStatus } from "@/lib/orders";
 
@@ -27,6 +30,18 @@ export async function placeOrderAction(_prev: OrderState, form: FormData): Promi
   // Prisen kopieres inn i bestillingen, så den ikke endres om Liam endrer prisen senere.
   await db.insert(orders).values({ userId: user.id, productId, quantity, note, unitPriceNok: product.priceNok });
 
+  // Varsel til Liam. after() sender det etter at svaret har gått tilbake, så brukeren slipper å vente.
+  after(() =>
+    safely(
+      pushToAdmins({
+        title: "Ny bestilling! 🛒",
+        body: `${user.displayName}: ${quantity} × ${product.name}${note ? ` («${note}»)` : ""}`,
+        url: "/admin/bestillinger?vis=ny",
+        tag: "ny-bestilling",
+      }),
+    ),
+  );
+
   revalidatePath("/mine");
   revalidatePath("/admin/bestillinger");
   return { ok: true };
@@ -45,6 +60,18 @@ export async function cancelMyOrderAction(orderId: number): Promise<void> {
   revalidatePath("/admin/bestillinger");
 }
 
+/** Varsel til den som bestilte. Hentes fra databasen så vi vet hvem og hva. */
+async function notifyCustomer(orderId: number, title: string, body: (productName: string) => string) {
+  const db = await getDb();
+  const [o] = await db
+    .select({ userId: orders.userId, productName: products.name, quantity: orders.quantity })
+    .from(orders)
+    .innerJoin(products, eq(products.id, orders.productId))
+    .where(eq(orders.id, orderId));
+  if (!o) return;
+  await sendPush([o.userId], { title, body: body(`${o.quantity} × ${o.productName}`), url: "/mine", tag: `bestilling-${orderId}` });
+}
+
 /** Liam flytter en bestilling til en ny status. */
 export async function setOrderStatusAction(orderId: number, status: string): Promise<void> {
   await requireAdmin();
@@ -61,6 +88,9 @@ export async function setOrderStatusAction(orderId: number, status: string): Pro
       changedByAdminAt: now,
     })
     .where(eq(orders.id, orderId));
+  if (status === "laget") after(() => safely(notifyCustomer(orderId, "Ferdig laget! 🎉", (what) => `${what} er ferdig printet.`)));
+  if (status === "levert") after(() => safely(notifyCustomer(orderId, "Levert 📦", (what) => `${what} er levert. Kos deg!`)));
+  if (status === "avbrutt") after(() => safely(notifyCustomer(orderId, "Bestilling avbrutt", (what) => `${what} ble avbrutt.`)));
   revalidatePath("/admin/bestillinger");
   revalidatePath("/mine");
 }
@@ -102,6 +132,11 @@ export async function replyToOrderAction(_prev: ReplyState, form: FormData): Pro
       changedByAdminAt: new Date(),
     })
     .where(eq(orders.id, orderId));
+  if (!empty) {
+    const title = approval ? `${APPROVAL_LABEL[approval]} ✅` : "Beskjed fra 3DKing";
+    const text = [reply, plan && `Levering: ${plan}`].filter(Boolean).join(" · ");
+    after(() => safely(notifyCustomer(orderId, title, (what) => (text ? `${what}: ${text}` : what))));
+  }
   revalidatePath("/admin/bestillinger");
   revalidatePath("/mine");
   return { ok: true };
