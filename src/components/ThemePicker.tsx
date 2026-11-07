@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icon";
 import { useState, useTransition } from "react";
 import { setModeAction, setThemeAction } from "@/app/theme-actions";
 import { LIGHT_ACCENT, LIGHT_BG, THEMES, themeBg, type Mode } from "@/lib/themes";
@@ -33,7 +34,7 @@ export function ThemePicker({ current, mode: initialMode }: { current: string; m
               start(() => setModeAction(m));
             }}
           >
-            {m === "dark" ? "🌙 Mørk" : "☀️ Lys"}
+            <Icon name={m === "dark" ? "moon" : "sun"} size={16} className="inline" /> {m === "dark" ? "Mørk" : "Lys"}
           </button>
         ))}
       </div>

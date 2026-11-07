@@ -1,3 +1,4 @@
+import { Icon } from "@/components/Icon";
 import Link from "next/link";
 import { countNew } from "@/lib/orders";
 
@@ -8,7 +9,7 @@ export async function AdminNav({ active }: { active: "bestillinger" | "brukere" 
   return (
     <>
       <p>
-        <Link href="/">← Til butikken</Link>
+        <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til butikken</Link>
       </p>
       <h1>Admin</h1>
       <nav className="tabs">

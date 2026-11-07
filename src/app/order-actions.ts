@@ -36,7 +36,7 @@ export async function placeOrderAction(_prev: OrderState, form: FormData): Promi
   after(() =>
     safely(
       pushToAdmins({
-        title: "Ny bestilling! 🛒",
+        title: "Ny bestilling",
         body: `${user.displayName}: ${quantity} × ${product.name}${note ? ` («${note}»)` : ""}`,
         url: "/admin/bestillinger?vis=ny",
         tag: "ny-bestilling",
@@ -90,8 +90,8 @@ export async function setOrderStatusAction(orderId: number, status: string): Pro
       changedByAdminAt: now,
     })
     .where(eq(orders.id, orderId));
-  if (status === "laget") after(() => safely(notifyCustomer(orderId, "Ferdig laget! 🎉", (what) => `${what} er ferdig printet.`)));
-  if (status === "levert") after(() => safely(notifyCustomer(orderId, "Levert 📦", (what) => `${what} er levert. Kos deg!`)));
+  if (status === "laget") after(() => safely(notifyCustomer(orderId, "Ferdig laget", (what) => `${what} er ferdig printet.`)));
+  if (status === "levert") after(() => safely(notifyCustomer(orderId, "Levert", (what) => `${what} er levert. Kos deg!`)));
   if (status === "avbrutt") after(() => safely(notifyCustomer(orderId, "Bestilling avbrutt", (what) => `${what} ble avbrutt.`)));
   revalidatePath("/admin/bestillinger");
   revalidatePath("/mine");
@@ -135,7 +135,7 @@ export async function replyToOrderAction(_prev: ReplyState, form: FormData): Pro
     })
     .where(eq(orders.id, orderId));
   if (!empty) {
-    const title = approval ? `${APPROVAL_LABEL[approval]} ✅` : "Beskjed fra 3DKing";
+    const title = approval ? APPROVAL_LABEL[approval] : "Beskjed fra 3DKing";
     const text = [reply, plan && `Levering: ${plan}`].filter(Boolean).join(" · ");
     after(() => safely(notifyCustomer(orderId, title, (what) => (text ? `${what}: ${text}` : what))));
   }

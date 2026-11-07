@@ -1,3 +1,4 @@
+import { Icon } from "@/components/Icon";
 import { APPROVAL_LABEL, when } from "@/lib/format";
 
 // Viser svaret fra Liam på en bestilling (godkjent / med endringer, beskjed og planlagt levering).
@@ -30,7 +31,7 @@ export function AdminReply({
       )}
       {deliveryPlan && (
         <p className="delivery-plan small-text">
-          🚚 <b>Planlagt levering:</b> {deliveryPlan}
+          <Icon name="truck" className="inline" /> <b>Planlagt levering:</b> {deliveryPlan}
         </p>
       )}
     </>

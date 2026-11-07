@@ -22,7 +22,7 @@ export default async function StatusPage() {
     <main className="page">
       <h1>Status</h1>
       <div className="card">
-        <p>Databasen virker ✅</p>
+        <p>Databasen virker.</p>
         <p className="muted">Type: {dbKind() === "neon" ? "Neon (på nett)" : "PGlite (lokalt på PC-en)"}</p>
       </div>
       <div className="card">

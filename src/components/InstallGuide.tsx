@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icon";
 import { useEffect, useState } from "react";
 import { isAndroid, isIos, isStandalone } from "./pwa";
 
@@ -36,7 +37,7 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
 
   if (!platform) return null;
   if (installed) {
-    return compact ? null : <p className="muted small-text">✅ Du bruker 3DKing som app. Alt er klart!</p>;
+    return compact ? null : <p className="muted small-text"><Icon name="check" className="inline ok-icon" /> Du bruker 3DKing som app. Alt er klart!</p>;
   }
   if (hidden) return null;
 
@@ -63,7 +64,7 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
     <section className={compact ? "card install-guide" : "install-guide"}>
       {compact && (
         <div className="order-head">
-          <b>📲 Legg 3DKing på {where}</b>
+          <b className="with-icon"><Icon name="install" /> Legg 3DKing på {where}</b>
           <button type="button" className="small secondary" onClick={hide} aria-label="Skjul guiden">
             Skjul
           </button>
@@ -92,7 +93,7 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
             <>
               <li>Åpne 3dking-app.vercel.app i <b>Safari</b>.</li>
               <li>
-                Trykk på <b>Del-knappen</b> (firkanten med en pil opp ⬆️) nederst på skjermen.
+                Trykk på <b>Del-knappen</b> <Icon name="share" size={16} className="inline" /> nederst på skjermen.
               </li>
               <li>
                 Bla ned og velg <b>«Legg til på Hjem-skjerm»</b>.
@@ -131,7 +132,7 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
           {platform === "mac-safari" && (
             <>
               <li>
-                Klikk på <b>Fil</b> i menylinjen øverst (eller Del-knappen ⬆️).
+                Klikk på <b>Fil</b> i menylinjen øverst (eller Del-knappen <Icon name="share" size={16} className="inline" />).
               </li>
               <li>
                 Velg <b>«Legg til i Dock»</b>.
