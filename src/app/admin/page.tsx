@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { users } from "@/lib/schema";
 import { requireAdmin } from "@/lib/auth";
 import { CreateUserForm } from "@/components/CreateUserForm";
 import { UserRow } from "@/components/UserRow";
+import { AdminNav } from "@/components/AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +15,7 @@ export default async function AdminPage() {
 
   return (
     <main className="page">
-      <p>
-        <Link href="/">← Tilbake</Link>
-      </p>
-      <h1>Admin</h1>
+      <AdminNav active="brukere" />
 
       <section className="card">
         <h2>Ny bruker</h2>
