@@ -5,6 +5,7 @@ import { kr } from "@/lib/format";
 import { AdminNav } from "@/components/AdminNav";
 import { ProductRowActions } from "@/components/ProductRowActions";
 import { ProductImage } from "@/components/ProductImage";
+import { ProductsSubNav } from "@/components/ProductsSubNav";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,7 @@ export default async function AdminProductsPage() {
   return (
     <main className="page">
       <AdminNav active="produkter" />
+      <ProductsSubNav active="produkter" />
       <p>
         <Link href="/admin/produkter/ny" className="button">Legg til produkt</Link>
       </p>

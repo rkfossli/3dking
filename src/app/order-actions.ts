@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { orders, products } from "@/lib/schema";
+import { filaments, orders, products } from "@/lib/schema";
 import { pushToAdmins, safely, sendPush } from "@/lib/push";
 import { APPROVAL_LABEL } from "@/lib/format";
 import { requireAdmin, requireUser } from "@/lib/auth";
@@ -34,7 +34,14 @@ export async function placeCartAction(lines: CartInput[]): Promise<OrderState> {
     const [product] = await db.select().from(products).where(eq(products.id, Number(line.productId)));
     if (!product || !product.available) return { error: "Et av produktene finnes ikke lenger. Fjern det fra kurven." };
     const note = String(line.note ?? "").trim().slice(0, 500) || null;
-    rows.push({ product, quantity, note });
+    // Fargen må finnes og være på lager. Navnet og fargekoden kopieres inn i bestillingen.
+    let color: { name: string; hex: string } | null = null;
+    if (line.colorId != null) {
+      const [f] = await db.select().from(filaments).where(eq(filaments.id, Number(line.colorId)));
+      if (!f || !f.inStock) return { error: "En av fargene er tom nå. Velg en annen farge i kurven." };
+      color = { name: f.name, hex: f.hex };
+    }
+    rows.push({ product, quantity, note, color });
   }
 
   // Ordrenummeret er tilfeldig. Er det tatt fra før (sjelden), prøver vi et nytt.
@@ -56,11 +63,13 @@ export async function placeCartAction(lines: CartInput[]): Promise<OrderState> {
       note: r.note,
       unitPriceNok: r.product.priceNok,
       unitCostNok: r.product.costNok,
+      colorName: r.color?.name ?? null,
+      colorHex: r.color?.hex ?? null,
     })),
   );
 
   // Varsel til Liam. after() sender det etter at svaret har gått tilbake, så kunden slipper å vente.
-  const what = rows.map((r) => `${r.quantity} × ${r.product.name}`).join(", ");
+  const what = rows.map((r) => `${r.quantity} × ${r.product.name}${r.color ? ` (${r.color.name})` : ""}`).join(", ");
   after(() =>
     safely(
       pushToAdmins({

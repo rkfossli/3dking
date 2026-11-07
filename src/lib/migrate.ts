@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -115,5 +115,17 @@ export const UPGRADES: Record<number, string> = {
   8: `
     DROP INDEX IF EXISTS orders_order_number_idx;
     CREATE INDEX IF NOT EXISTS orders_order_number_lookup_idx ON orders (order_number);
+  `,
+  // Fargevalg: filamentfargene Liam har, og fargen kunden valgte på hver bestilling.
+  9: `
+    CREATE TABLE IF NOT EXISTS filaments (
+      id serial PRIMARY KEY,
+      name text NOT NULL,
+      hex text NOT NULL,
+      in_stock boolean NOT NULL DEFAULT true,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS color_name text;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS color_hex text;
   `,
 };

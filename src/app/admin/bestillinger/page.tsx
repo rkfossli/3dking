@@ -55,6 +55,11 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
         {o.deliveredAt && ` · levert ${when(o.deliveredAt)}`}
         {o.paidAt && ` · betalt ${when(o.paidAt)}`}
       </p>
+      {o.colorName && (
+        <p className="small-text color-line">
+          <span className="swatch" style={{ background: o.colorHex ?? undefined }} /> {o.colorName}
+        </p>
+      )}
       {o.note && <p className="small-text">«{o.note}»</p>}
       <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Ditt svar" />
       {o.approval === "endringer" && (

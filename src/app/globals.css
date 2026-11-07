@@ -2123,3 +2123,81 @@ body.has-tabbar {
   background: var(--card-2);
   box-shadow: var(--nest-edge);
 }
+
+/* ==========================================================================
+   Revisjonen, steg 4: fargevalg og filament
+   ========================================================================== */
+
+.colors {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.colors legend {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  padding: 0;
+  margin-bottom: var(--s2);
+}
+
+.colors legend b {
+  color: var(--text);
+}
+
+.color-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+}
+
+/* Runde fargeknapper. Den valgte får en ring i temafargen og gløder. */
+.color-chip {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--chip);
+  border: 2px solid var(--border-strong);
+  box-shadow: none;
+}
+
+.color-chip.on {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+/* Tom farge: grå skrå strek over og halvt gjennomsiktig */
+.color-chip:disabled {
+  opacity: 0.35;
+  background: linear-gradient(135deg, transparent 45%, var(--muted) 45%, var(--muted) 55%, transparent 55%), var(--chip);
+  cursor: not-allowed;
+}
+
+.swatch.big {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.filament-fields {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: var(--s3);
+}
+
+.color-pick input {
+  padding: 4px;
+  height: 48px;
+  cursor: pointer;
+}
+
+/* Små faner (filtre og underfaner) er roligere enn hovedfanene: temafarge på tekst, ikke fylt. */
+.small-tabs a.on {
+  background: color-mix(in srgb, var(--accent) 16%, var(--card));
+  border-color: var(--accent);
+  color: var(--accent-text);
+  box-shadow: none;
+}

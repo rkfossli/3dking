@@ -73,6 +73,18 @@ export const orders = pgTable("orders", {
   customerResponse: text("customer_response"),
   customerNote: text("customer_note"), // f.eks. «Vil heller vente på rødt»
   customerRespondedAt: timestamp("customer_responded_at", { withTimezone: true }),
+  // Fargen kunden valgte. Navnet og koden kopieres inn, så bestillingen viser riktig farge selv om Liam sletter den senere.
+  colorName: text("color_name"),
+  colorHex: text("color_hex"),
+});
+
+// Filamentfarger Liam har. Kunden velger blant dem på produktsiden. Tom farge vises grå og kan ikke velges.
+export const filaments = pgTable("filaments", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(), // f.eks. «Rød» eller «Glow in the dark»
+  hex: text("hex").notNull(), // fargekoden, f.eks. «#e53935»
+  inStock: boolean("in_stock").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Telefoner som har sagt ja til varsler (brukes i Fase 6).
