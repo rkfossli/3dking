@@ -16,8 +16,8 @@ export default async function FilamentPage() {
       <AdminNav active="produkter" />
       <ProductsSubNav active="filament" />
       <section className="card">
-        <h2>Ny farge</h2>
-        <FilamentForm />
+        <h2>Legg til farger</h2>
+        <FilamentForm existing={list.map((f) => f.name)} />
       </section>
       <section className="card">
         <h2>Farger ({list.length})</h2>

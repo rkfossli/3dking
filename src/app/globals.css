@@ -2497,3 +2497,172 @@ body.has-tabbar {
 .big-stat.wide b {
   font-size: var(--fs-title);
 }
+
+/* Admin-fanene: rutenett med tre i hver rad, så alle seks synes uten å scrolle sidelengs. */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s2);
+  margin: var(--s3) 0 var(--s4);
+}
+
+.admin-grid a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  min-height: 48px;
+  padding: var(--s2);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-grid a .icon {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.admin-grid a.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 0 16px -4px var(--accent-glow);
+}
+
+.admin-grid a.on .icon {
+  color: var(--accent-ink);
+}
+
+.admin-grid .count {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  margin: 0;
+}
+
+/* Smale telefoner: ikonet over teksten, så ordene får plass. */
+@media (max-width: 380px) {
+  .admin-grid a {
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--fs-cap);
+  }
+}
+
+/* Små faner (filtre og underfaner) brytes over flere linjer i stedet for å scrolle sidelengs. */
+.small-tabs {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+
+/* Trykk på telefon: nettleseren legger en firkantet farget boks over det du trykker på.
+   Den skrus av, og i stedet krymper knappen litt mens du holder fingeren på den. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active:not(:disabled),
+.button:active,
+.tabs a:active,
+.admin-grid a:active,
+.tabbar a:active {
+  transform: scale(0.97);
+}
+
+button,
+.button,
+.tabs a,
+.admin-grid a {
+  transition: transform 80ms ease-out;
+}
+
+/* Fokusringen (når man bruker tastatur) følger de runde hjørnene. */
+button:focus-visible,
+.button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+.button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Fargekartet i Filament: runde prøver i et rutenett, trykk på flere */
+.palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: var(--s2);
+}
+
+.pal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s1);
+  min-height: 0;
+  padding: var(--s2) var(--s1);
+  background: var(--card-2);
+  color: var(--text);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.pal.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--card));
+}
+
+.pal:disabled {
+  opacity: 0.45;
+}
+
+.pal-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+.pal-dot .icon {
+  filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 1px #000);
+}
+
+.pal.on .pal-dot {
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.pal-name {
+  font-size: var(--fs-cap);
+  line-height: 1.2;
+  text-align: center;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.own-color summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--accent-text);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+
+.own-preview {
+  align-self: end;
+  width: 48px;
+  height: 48px;
+  border-style: dashed;
+}

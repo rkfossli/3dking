@@ -1,0 +1,26 @@
+// Vanlige filamentfarger, til fargekartet i Admin › Produkter › Filament.
+// Liam krysser av for fargene han har, i stedet for å blande fargen selv.
+export const PALETTE: { name: string; hex: string }[] = [
+  { name: "Svart", hex: "#1b1b1b" },
+  { name: "Hvit", hex: "#f5f5f5" },
+  { name: "Grå", hex: "#8a8d91" },
+  { name: "Sølv", hex: "#c0c4c8" },
+  { name: "Rød", hex: "#e53935" },
+  { name: "Mørkerød", hex: "#8e1b1b" },
+  { name: "Oransje", hex: "#fb8c00" },
+  { name: "Gul", hex: "#fdd835" },
+  { name: "Gull", hex: "#d4a017" },
+  { name: "Lysegrønn", hex: "#7cd96b" },
+  { name: "Grønn", hex: "#2e9e44" },
+  { name: "Mørkegrønn", hex: "#1f5e33" },
+  { name: "Turkis", hex: "#1fb5ad" },
+  { name: "Lyseblå", hex: "#64b5f6" },
+  { name: "Blå", hex: "#1e66d0" },
+  { name: "Marineblå", hex: "#1a2a5e" },
+  { name: "Lilla", hex: "#8e44ad" },
+  { name: "Rosa", hex: "#f48fb1" },
+  { name: "Brun", hex: "#7b4a2a" },
+  { name: "Beige", hex: "#d9c3a0" },
+  { name: "Glow in the dark", hex: "#c8f7a6" },
+  { name: "Gjennomsiktig", hex: "#dfe9ee" },
+];

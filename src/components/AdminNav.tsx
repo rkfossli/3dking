@@ -1,27 +1,35 @@
 import Link from "next/link";
 import { countNew } from "@/lib/orders";
 import { countNewWishes } from "@/lib/wishes";
+import { Icon, type IconName } from "./Icon";
+
+type Tab = "bestillinger" | "onsker" | "brukere" | "produkter" | "oversikt" | "verksted";
 
 // Fanene øverst på admin-sidene. `active` sier hvilken fane som er valgt.
-// Bestillinger-fanen viser et tall når noe venter på å bli laget.
-// På smale skjermer ruller fanene sidelengs i stedet for å bryte over to linjer.
-export async function AdminNav({ active }: { active: "bestillinger" | "onsker" | "brukere" | "produkter" | "oversikt" | "verksted" }) {
+// Seks faner får ikke plass på én linje på telefon, så de ligger i et rutenett med tre i hver rad.
+// Da ser Liam alle med en gang, uten å scrolle sidelengs. Ordre og Ønsker viser et tall når noe venter.
+export async function AdminNav({ active }: { active: Tab }) {
   const waiting = await countNew();
   const newWishes = await countNewWishes();
+  const tabs: { key: Tab; href: string; label: string; icon: IconName; count?: number }[] = [
+    { key: "bestillinger", href: "/admin/bestillinger", label: "Ordre", icon: "list", count: waiting },
+    { key: "onsker", href: "/admin/onsker", label: "Ønsker", icon: "star", count: newWishes },
+    { key: "produkter", href: "/admin/produkter", label: "Produkter", icon: "cube" },
+    { key: "brukere", href: "/admin", label: "Brukere", icon: "user" },
+    { key: "oversikt", href: "/admin/oversikt", label: "Oversikt", icon: "chart" },
+    { key: "verksted", href: "/admin/verksted", label: "Verksted", icon: "wrench" },
+  ];
   return (
     <>
       <h1>Admin</h1>
-      <nav className="tabs">
-        <Link href="/admin/bestillinger" className={active === "bestillinger" ? "on" : ""}>
-          Ordre{waiting > 0 && <span className="count">{waiting}</span>}
-        </Link>
-        <Link href="/admin/onsker" className={active === "onsker" ? "on" : ""}>
-          Ønsker{newWishes > 0 && <span className="count">{newWishes}</span>}
-        </Link>
-        <Link href="/admin/produkter" className={active === "produkter" ? "on" : ""}>Produkter</Link>
-        <Link href="/admin" className={active === "brukere" ? "on" : ""}>Brukere</Link>
-        <Link href="/admin/oversikt" className={active === "oversikt" ? "on" : ""}>Oversikt</Link>
-        <Link href="/admin/verksted" className={active === "verksted" ? "on" : ""}>Verksted</Link>
+      <nav className="admin-grid" aria-label="Admin">
+        {tabs.map((t) => (
+          <Link key={t.key} href={t.href} className={active === t.key ? "on" : ""} aria-current={active === t.key ? "page" : undefined}>
+            <Icon name={t.icon} size={20} />
+            <span>{t.label}</span>
+            {t.count != null && t.count > 0 && <span className="count">{t.count}</span>}
+          </Link>
+        ))}
       </nav>
     </>
   );
