@@ -7,8 +7,7 @@ import { ProductImage } from "@/components/ProductImage";
 import { InstallGuide } from "@/components/InstallGuide";
 import { PinHint } from "@/components/PinHint";
 import { Logo } from "@/components/Logo";
-import { countNew, countReadyForUser, countUpdatesForUser } from "@/lib/orders";
-import { logoutAction } from "./auth-actions";
+import { countReadyForUser } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
@@ -18,24 +17,13 @@ export default async function Home() {
   const user = await requireUser();
   const isAdmin = user.role === "admin";
   const list = await availableProducts();
-  const waiting = isAdmin ? await countNew() : 0;
   const ready = await countReadyForUser(user.id);
-  const updates = await countUpdatesForUser(user.id, user.ordersSeenAt);
 
   return (
     <main className="page">
+      {/* Mine bestillinger, Admin og Meg ligger i fanelinja nederst (TabBar), så toppen er bare logoen. */}
       <div className="top">
         <Logo theme={user.theme} />
-        <div className="row-buttons">
-          <Link href="/mine" className="button small secondary">
-            Mine bestillinger{updates > 0 && <span className="count" title="Nytt siden sist">{updates}</span>}
-          </Link>
-          {isAdmin && (
-            <Link href="/admin/bestillinger" className="button small">
-              Admin{waiting > 0 && <span className="count">{waiting}</span>}
-            </Link>
-          )}
-        </div>
       </div>
       <p className="muted greeting">
         Hei, {user.displayName}! {isAdmin ? "Slik ser butikken ut for kundene." : "Velg noe du vil at 3DKing skal printe."}
@@ -76,14 +64,6 @@ export default async function Home() {
 
       <InstallGuide compact place="bottom" />
 
-      <div className="footer-line">
-        <p className="muted small-text">
-          Logget inn som {user.username} · <Link href="/meg">Innstillinger</Link>
-        </p>
-        <form action={logoutAction}>
-          <button type="submit" className="small secondary">Logg ut</button>
-        </form>
-      </div>
     </main>
   );
 }

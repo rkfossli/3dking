@@ -1,10 +1,9 @@
-import { Icon } from "@/components/Icon";
-import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { ChangePinForm } from "@/components/ChangePinForm";
 import { PushSettings } from "@/components/PushSettings";
 import { InstallGuide } from "@/components/InstallGuide";
 import { ThemePicker } from "@/components/ThemePicker";
+import { logoutAction } from "../auth-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +12,6 @@ export default async function MePage() {
   const user = await requireUser();
   return (
     <main className="page narrow">
-      <p>
-        <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til butikken</Link>
-      </p>
       <h1>{user.displayName}</h1>
       <p className="muted">Logget inn som {user.username}</p>
       <section className="card">
@@ -46,6 +42,10 @@ export default async function MePage() {
           Appen bruker ingen reklame og deler ingenting med andre. Vil du at alt om deg skal slettes, så si fra til 3DKing.
         </p>
       </section>
+      {/* Logg ut lå før nederst på forsiden. Nå som menyen er i fanelinja, hører den hjemme her under Meg. */}
+      <form action={logoutAction} className="logout">
+        <button type="submit" className="secondary">Logg ut</button>
+      </form>
     </main>
   );
 }

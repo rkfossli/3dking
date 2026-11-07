@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ServiceWorker } from "@/components/ServiceWorker";
+import { TabBar } from "@/components/TabBar";
+import { countNew, countUpdatesForUser } from "@/lib/orders";
 import { getCurrentUser } from "@/lib/auth";
 import { isMode, isTheme, themeBg } from "@/lib/themes";
 import "./globals.css";
@@ -26,10 +28,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const user = await getCurrentUser();
   const theme = user && isTheme(user.theme) ? user.theme : "neon";
   const mode = user && isMode(user.mode) ? user.mode : "dark";
+  // Tallene på fanelinja: nye bestillinger (bare Liam) og nytt på mine bestillinger.
+  const isAdmin = user?.role === "admin";
+  const waiting = isAdmin ? await countNew() : 0;
+  const updates = user ? await countUpdatesForUser(user.id, user.ordersSeenAt) : 0;
   return (
     <html lang="no" data-theme={theme} data-mode={mode}>
-      <body>
+      <body className={user ? "has-tabbar" : undefined}>
         {children}
+        {/* Fanelinja vises bare når noen er logget inn. Den svever rett over infolinja. */}
+        {user && <TabBar isAdmin={isAdmin} waiting={waiting} updates={updates} />}
         {/* Infolinja ligger fast nederst på skjermen, så den alltid er synlig uten å ta plass øverst. */}
         <footer className="info-bar">
           Hobbyprosjekt · <span className="wide-only">Prisene dekker bare filament og strøm</span>

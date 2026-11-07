@@ -9,6 +9,7 @@ import { kr, orderNo, plural, when, CUSTOMER_STATUS_LABEL } from "@/lib/format";
 import { CancelMyOrder } from "@/components/OrderActions";
 import { AdminReply } from "@/components/AdminReply";
 import { ChangeResponse } from "@/components/ChangeResponse";
+import { OrderSteps } from "@/components/OrderSteps";
 
 export const dynamic = "force-dynamic";
 
@@ -37,9 +38,11 @@ export default async function MyOrdersPage() {
         </span>
         <span className="badges">
           {isNew(o.changedByAdminAt) && <span className="badge nytt">Nytt</span>}
-          <span className={`badge ${o.status}`}>{CUSTOMER_STATUS_LABEL[o.status]}</span>
+          {o.status === "avbrutt" && <span className="badge avbrutt">{CUSTOMER_STATUS_LABEL[o.status]}</span>}
         </span>
       </div>
+      {/* Statuslinja viser hvor langt bestillingen har kommet: Mottatt → Ferdig → Levert. */}
+      <OrderSteps status={o.status} />
       {/* Prisen står tydelig for seg selv, så kunden ser hva de skal betale. */}
       <p className="order-price">
         <b>{kr(o.quantity * o.unitPriceNok)}</b> <span className="muted small-text">(filament og strøm)</span>
@@ -68,9 +71,6 @@ export default async function MyOrdersPage() {
 
   return (
     <main className="page">
-      <p>
-        <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til butikken</Link>
-      </p>
       <h1>Mine bestillinger</h1>
       {list.length === 0 && (
         <div className="card">

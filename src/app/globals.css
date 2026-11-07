@@ -1826,3 +1826,192 @@ select {
     animation: none;
   }
 }
+
+/* ==========================================================================
+   Revisjonen, steg 2: fanelinja nederst og statuslinja på bestillinger
+   ========================================================================== */
+
+/* Infolinja ligger helt nederst. Fanelinja svever rett over den, med runde hjørner og uskarp bakgrunn. */
+.info-bar {
+  z-index: 21;
+}
+
+.tabbar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--infobar-h) + 8px + env(safe-area-inset-bottom, 0px));
+  max-width: 520px;
+  margin: 0 auto;
+  z-index: 22;
+  display: flex;
+  height: var(--tabbar-h);
+  background: color-mix(in srgb, var(--card) 82%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 30px rgba(0, 0, 0, 0.5);
+  view-transition-name: tabbar;
+}
+
+[data-mode="light"] .tabbar {
+  box-shadow: 0 10px 26px rgba(17, 20, 24, 0.14);
+}
+
+.tabbar a {
+  flex: 1;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  font-size: var(--fs-cap);
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.tabbar a.on {
+  color: var(--accent-text);
+}
+
+.tabbar a.on .icon {
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+.tab-icon {
+  position: relative;
+  display: grid;
+}
+
+.tab-badge {
+  position: absolute;
+  top: -6px;
+  right: -12px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* Plass nederst, så verken fanelinja eller infolinja dekker innholdet. */
+body.has-tabbar {
+  padding-bottom: calc(var(--tabbar-h) + var(--infobar-h) + 32px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Fanelinja står stille når siden bytter. */
+::view-transition-group(tabbar) {
+  animation: none;
+  z-index: 50;
+}
+
+::view-transition-old(tabbar) {
+  display: none;
+}
+
+::view-transition-new(tabbar) {
+  animation: none;
+}
+
+.top {
+  justify-content: flex-start;
+}
+
+.logout {
+  margin-top: var(--s6);
+}
+
+.logout button {
+  width: 100%;
+}
+
+/* Statuslinja: tre prikker med en strek imellom. Steget man er på lyser. */
+.steps {
+  list-style: none;
+  margin: var(--s3) 0 var(--s1);
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.steps li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--s1);
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+
+/* Streken fra forrige prikk til denne */
+.steps li + li::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 50%;
+  width: 100%;
+  height: 3px;
+  margin-right: 13px;
+  border-radius: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.steps li.done + li::before {
+  background: var(--accent);
+}
+
+.step-dot {
+  position: relative;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--card-2);
+  border: 2px solid var(--border);
+}
+
+.steps li.done .step-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.steps li.now .step-dot {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 25%, var(--card));
+  color: var(--accent-ink);
+  box-shadow: 0 0 12px var(--accent-glow);
+  animation: step-pulse 2s ease-in-out infinite;
+}
+
+.steps li.now .step-lbl {
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+.steps li.done .step-lbl {
+  color: var(--text);
+}
+
+@keyframes step-pulse {
+  50% {
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steps li.now .step-dot {
+    animation: none;
+  }
+}
