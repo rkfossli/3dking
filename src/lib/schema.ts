@@ -17,6 +17,8 @@ export const users = pgTable("users", {
   // Feil PIN på rad, og når en eventuell sperre slutter.
   failedPins: integer("failed_pins").notNull().default(0),
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
+  // Sist brukeren åpnet «Mine bestillinger». Brukes til å vise et tall når noe nytt har skjedd.
+  ordersSeenAt: timestamp("orders_seen_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -53,6 +55,13 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   madeAt: timestamp("made_at", { withTimezone: true }),
   deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+  // Svar fra Liam: null = ikke svart, "godkjent" eller "endringer" (godkjent med endringer).
+  approval: text("approval"),
+  adminReply: text("admin_reply"), // beskjed til den som bestilte
+  repliedAt: timestamp("replied_at", { withTimezone: true }),
+  // Sist Liam endret noe brukeren bør se (status, svar, levering).
+  changedByAdminAt: timestamp("changed_by_admin_at", { withTimezone: true }),
+  deliveryPlan: text("delivery_plan"), // f.eks. «Leveres på skolen på mandag»
 });
 
 // Telefoner som har sagt ja til varsler (brukes i Fase 6).

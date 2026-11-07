@@ -17,3 +17,9 @@ export const STATUS_LABEL: Record<string, string> = {
   levert: "Levert",
   avbrutt: "Avbrutt",
 };
+
+/** Teksten som vises for svaret fra admin. */
+export const APPROVAL_LABEL: Record<string, string> = {
+  godkjent: "Godkjent",
+  endringer: "Godkjent med endringer",
+};

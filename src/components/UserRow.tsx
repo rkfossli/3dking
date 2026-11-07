@@ -1,4 +1,5 @@
 "use client";
+import { ConfirmButton } from "./ConfirmButton";
 import { useState, useTransition } from "react";
 import { deleteUserAction, renameUserAction, resetPinAction, setActiveAction } from "@/app/admin-actions";
 
@@ -63,18 +64,15 @@ export function UserRow({ id, displayName, username, role, active, isMe }: Props
             <button type="button" className="small secondary" disabled={pending} onClick={() => start(() => setActiveAction(id, !active))}>
               {active ? "Slå av" : "Slå på"}
             </button>
-            <button
-              type="button"
-              className="small danger"
+            {/* ConfirmButton spør «Er du sikker?» i appen først. Sletting kan ikke angres. */}
+            <ConfirmButton
               disabled={pending}
-              onClick={() => {
-                // confirm() viser en «Er du sikker?»-boks i nettleseren. Sletting kan ikke angres.
-                if (!confirm(`Slette ${displayName} for godt? Dette kan ikke angres.`)) return;
-                start(async () => setError((await deleteUserAction(id)).error ?? null));
-              }}
+              question={`Slette ${displayName} for godt? Dette kan ikke angres.`}
+              confirmLabel="Ja, slett"
+              onConfirm={() => start(async () => setError((await deleteUserAction(id)).error ?? null))}
             >
               Slett
-            </button>
+            </ConfirmButton>
           </>
         )}
       </div>

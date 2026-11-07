@@ -1,5 +1,6 @@
 "use client";
 import { useTransition } from "react";
+import { ConfirmButton } from "./ConfirmButton";
 import { cancelMyOrderAction, deleteOrderAction, setOrderStatusAction } from "@/app/order-actions";
 
 // Knappene Liam bruker for å flytte en bestilling videre (eller tilbake hvis han trykket feil).
@@ -15,24 +16,24 @@ export function AdminOrderActions({ id, status }: { id: number; status: string }
       {status === "levert" && <button type="button" className="small secondary" disabled={pending} onClick={() => set("laget")}>Angre</button>}
       {status === "avbrutt" && <button type="button" className="small secondary" disabled={pending} onClick={() => set("ny")}>Gjenåpne</button>}
       {(status === "ny" || status === "laget") && (
-        <button
-          type="button"
-          className="small danger"
+        <ConfirmButton
           disabled={pending}
-          onClick={() => confirm("Avbryte denne bestillingen?") && set("avbrutt")}
+          question="Avbryte denne bestillingen? Den som bestilte ser at den er avbrutt."
+          confirmLabel="Ja, avbryt"
+          onConfirm={() => set("avbrutt")}
         >
           Avbryt
-        </button>
+        </ConfirmButton>
       )}
       {(status === "avbrutt" || status === "levert") && (
-        <button
-          type="button"
-          className="small danger"
+        <ConfirmButton
           disabled={pending}
-          onClick={() => confirm("Slette bestillingen for godt? Dette kan ikke angres.") && start(() => deleteOrderAction(id))}
+          question="Slette bestillingen for godt? Dette kan ikke angres."
+          confirmLabel="Ja, slett"
+          onConfirm={() => start(() => deleteOrderAction(id))}
         >
           Slett
-        </button>
+        </ConfirmButton>
       )}
     </div>
   );
@@ -42,13 +43,13 @@ export function AdminOrderActions({ id, status }: { id: number; status: string }
 export function CancelMyOrder({ id }: { id: number }) {
   const [pending, start] = useTransition();
   return (
-    <button
-      type="button"
-      className="small danger"
+    <ConfirmButton
       disabled={pending}
-      onClick={() => confirm("Avbryte bestillingen?") && start(() => cancelMyOrderAction(id))}
+      question="Vil du avbryte bestillingen?"
+      confirmLabel="Ja, avbryt"
+      onConfirm={() => start(() => cancelMyOrderAction(id))}
     >
-      Avbryt
-    </button>
+      Avbryt bestilling
+    </ConfirmButton>
   );
 }

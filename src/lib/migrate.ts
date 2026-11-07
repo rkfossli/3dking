@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -72,5 +72,14 @@ export const UPGRADES: Record<number, string> = {
     );
     ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_pins integer NOT NULL DEFAULT 0;
     ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until timestamptz;
+  `,
+  // Svar fra admin på en bestilling: godkjent (eventuelt med endringer) og en beskjed.
+  3: `
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS approval text;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS admin_reply text;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS replied_at timestamptz;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_plan text;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS changed_by_admin_at timestamptz;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS orders_seen_at timestamptz;
   `,
 };
