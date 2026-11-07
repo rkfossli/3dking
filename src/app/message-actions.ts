@@ -7,7 +7,7 @@ import { getDb } from "@/lib/db";
 import { orderMessages, orders } from "@/lib/schema";
 import { requireUser } from "@/lib/auth";
 import { pushToAdmins, safely, sendPush } from "@/lib/push";
-import { MAX_MESSAGE } from "@/lib/messages";
+import { MAX_MESSAGE, isFinished } from "@/lib/messages";
 
 export type MessageState = { error?: string; ok?: number };
 
@@ -20,11 +20,12 @@ export async function sendMessageAction(_prev: MessageState, form: FormData): Pr
   if (body.length > MAX_MESSAGE) return { error: `Meldingen kan være maks ${MAX_MESSAGE} tegn.` };
 
   const db = await getDb();
-  const lines = await db.select({ userId: orders.userId }).from(orders).where(eq(orders.orderNumber, orderNumber));
+  const lines = await db.select({ userId: orders.userId, status: orders.status }).from(orders).where(eq(orders.orderNumber, orderNumber));
   if (lines.length === 0) return { error: "Fant ikke bestillingen." };
   const isAdmin = user.role === "admin";
   const customerId = lines[0].userId;
   if (!isAdmin && customerId !== user.id) return { error: "Fant ikke bestillingen." };
+  if (isFinished(lines.map((l) => l.status))) return { error: "Bestillingen er ferdig, så samtalen er stengt." };
 
   await db.insert(orderMessages).values({ orderNumber, userId: user.id, body });
 

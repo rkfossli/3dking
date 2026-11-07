@@ -2698,3 +2698,29 @@ button:focus:not(:focus-visible),
   width: 100%;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
+
+/* Appen skal bare brukes stående. Holdes telefonen på tvers, dekker denne skjermen. */
+.rotate-hint {
+  display: none;
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .rotate-hint {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s2);
+    background: var(--bg);
+    color: var(--text);
+    text-align: center;
+  }
+
+  .rotate-hint b {
+    font-size: var(--fs-xl, 1.5rem);
+    color: var(--accent-text);
+  }
+}

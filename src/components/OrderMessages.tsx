@@ -8,13 +8,15 @@ export type MessageView = { id: number; userId: number; body: string; createdAt:
 
 // Samtalen på en bestilling, som en liten chat. Mine meldinger står til høyre, de andres til venstre.
 // `meId` er den som ser på. Kunden ser «3DKing» i stedet for Liams navn.
-export function OrderMessages({ orderNumber, messages, meId, meIsAdmin }: { orderNumber: string; messages: MessageView[]; meId: number; meIsAdmin: boolean }) {
+export function OrderMessages({ orderNumber, messages, meId, meIsAdmin, closed = false }: { orderNumber: string; messages: MessageView[]; meId: number; meIsAdmin: boolean; closed?: boolean }) {
   const [state, action, pending] = useActionState<MessageState, FormData>(sendMessageAction, {});
   const form = useRef<HTMLFormElement>(null);
   useEffect(() => {
     if (state.ok) form.current?.reset();
   }, [state]);
 
+  // Ferdig bestilling uten meldinger: ingen samtale å vise.
+  if (closed && messages.length === 0) return null;
   return (
     <details className="messages" open={messages.length > 0}>
       <summary>
@@ -35,11 +37,15 @@ export function OrderMessages({ orderNumber, messages, meId, meIsAdmin }: { orde
           })}
         </ul>
       )}
-      <form ref={form} action={action} className="chat-form">
-        <input type="hidden" name="orderNumber" value={orderNumber} />
-        <input name="body" placeholder={meIsAdmin ? "Skriv til kunden" : "Skriv til 3DKing"} maxLength={500} aria-label="Melding" required />
-        <button type="submit" className="small" disabled={pending}>{pending ? "…" : "Send"}</button>
-      </form>
+      {closed ? (
+        <p className="muted small-text">Bestillingen er ferdig, så samtalen er stengt.</p>
+      ) : (
+        <form ref={form} action={action} className="chat-form">
+          <input type="hidden" name="orderNumber" value={orderNumber} />
+          <input name="body" placeholder={meIsAdmin ? "Skriv til kunden" : "Skriv til 3DKing"} maxLength={500} aria-label="Melding" required />
+          <button type="submit" className="small" disabled={pending}>{pending ? "…" : "Send"}</button>
+        </form>
+      )}
       {state.error && <p className="error small-text">{state.error}</p>}
     </details>
   );
