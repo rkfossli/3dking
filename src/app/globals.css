@@ -2976,57 +2976,79 @@ input[type="checkbox"]:focus-visible {
   margin-top: var(--s4);
 }
 
-/* Introturen: en side om gangen, med ikon, tekst og prikker for hvor langt man har kommet */
-.confirm-dialog.tour {
-  max-width: min(400px, calc(100vw - 32px));
-  text-align: center;
-  padding: var(--s5, 24px) var(--s4, 20px);
+/* Introturen: mørkt teppe med et lyskaster-hull rundt det som forklares, og en tekstboks ved siden av */
+.tour-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
 }
 
-.tour h2 {
-  margin: var(--s3) 0 var(--s2);
+.tour-dim {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.72);
 }
 
-.tour p {
-  min-height: 6.5em;
-  line-height: 1.5;
+.tour-spot {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow: 0 0 0 200vmax rgb(0 0 0 / 0.72), 0 0 0 2px var(--accent), 0 0 24px 2px var(--accent-glow);
+  pointer-events: none;
+  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
 }
 
-.tour-icon {
-  width: 76px;
-  height: 76px;
+.tour-card {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  max-width: 420px;
   margin: 0 auto;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: color-mix(in srgb, var(--accent) 14%, var(--card));
+  padding: var(--s4, 18px);
+  border-radius: var(--radius, 16px);
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease, top 0.3s ease;
+}
+
+.tour-card.ready {
+  opacity: 1;
+}
+
+.tour-card h2 {
+  margin: var(--s2) 0;
+  padding-left: 0;
+  border-left: none;
   color: var(--accent-text);
-  box-shadow: 0 0 24px -6px var(--accent-glow);
+}
+
+.tour-card p {
+  margin: 0 0 var(--s3);
+  line-height: 1.5;
 }
 
 .tour-dots {
   display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-bottom: var(--s4);
+  gap: 5px;
 }
 
 .tour-dots span {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
   background: var(--border-strong);
   transition: width 0.2s ease;
 }
 
 .tour-dots span.on {
-  width: 22px;
+  width: 20px;
   background: var(--accent);
 }
 
 .tour-buttons {
   display: flex;
-  justify-content: space-between;
   gap: var(--s2);
 }
 
@@ -3034,88 +3056,14 @@ input[type="checkbox"]:focus-visible {
   flex: 1;
 }
 
-/* Introturen er midtstilt, så den grønne streken foran overskriften passer ikke her */
-.tour h2::before {
-  display: none;
-}
-
-.tour h2 {
-  padding-left: 0;
-  border-left: none;
-}
-
-/* Introfilmen etter innlogging (src/components/IntroPlayer.tsx). Ligger over alt annet i appen. */
-.intro {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  pointer-events: none;
-}
-.intro-stage {
-  position: absolute;
-  inset: 0;
-  background: #000;
-  pointer-events: auto;
-  animation: intro-in 0.25s ease-out;
-}
-@keyframes intro-in {
-  from {
-    opacity: 0;
-  }
-}
-.intro-stage video {
-  position: absolute;
+.tour-end {
   display: block;
-  object-fit: contain;
-}
-.intro-fx {
-  position: absolute;
-  inset: 0;
-}
-/* Logoen som flyr fra filmen og opp til toppen av forsiden */
-.intro-logo {
-  position: absolute;
-  z-index: 3;
-  transform-origin: 50% 50%;
-  will-change: transform, opacity;
-  filter: drop-shadow(0 0 10px rgba(13, 247, 98, 0.55));
-}
-/* De svarte lagene som «printes» bort nedenfra */
-.intro-layer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  background: #000;
-  pointer-events: auto;
-}
-/* Den glødende dysen som beveger seg oppover mens lagene printes */
-.intro-nozzle {
-  position: absolute;
-  z-index: 2;
-  left: -10%;
-  right: -10%;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #b8ffd2 30%, #fff 50%, #b8ffd2 70%, transparent);
-  box-shadow:
-    0 0 16px 4px rgba(13, 247, 98, 0.8),
-    0 0 50px 10px rgba(13, 247, 98, 0.35);
-}
-.intro-skip {
-  position: absolute;
-  z-index: 4;
-  top: calc(14px + env(safe-area-inset-top, 0px));
-  right: 14px;
-  width: auto;
-  min-height: 0;
-  margin: 0;
-  padding: 8px 16px;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  pointer-events: auto;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  margin: var(--s2) auto 0;
+  min-height: 36px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: 500;
 }

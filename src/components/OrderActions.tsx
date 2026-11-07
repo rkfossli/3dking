@@ -64,7 +64,7 @@ export function CancelMyOrder({ id }: { id: number }) {
 
 // «Merk som levert» åpner en boks i appen: Er den betalt? Ja, Nei eller Gratis.
 // Svarer Liam nei, kan han skrive et notat, for eksempel «Betaler i morgen».
-const NOTE_IDEAS = ["Betaler i morgen", "Betaler med Vipps senere", "Betaler kontant"];
+const NOTE_IDEAS = ["Betaler i morgen", "Betaler senere"];
 
 function DeliverButton({ id, disabled }: { id: number; disabled?: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
