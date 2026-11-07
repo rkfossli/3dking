@@ -44,8 +44,8 @@ export function UserRow({ id, displayName, username, role, active, isMe }: Props
     <li className={`user-row${active ? "" : " inactive"}`}>
       <div>
         <b>{displayName}</b> <span className="muted">@{username}</span>
-        {role === "admin" && <span className="tag">admin</span>}
-        {!active && <span className="tag">av</span>}
+        {role === "admin" && <span className="tag">Admin</span>}
+        {!active && <span className="tag">Slått av</span>}
         {pin && <p className="pin">Ny PIN: {pin}</p>}
         {error && <p className="error">{error}</p>}
       </div>
@@ -53,14 +53,17 @@ export function UserRow({ id, displayName, username, role, active, isMe }: Props
         <button type="button" className="small secondary" onClick={() => setEditing(true)}>Endre</button>
         {!isMe && (
           <>
-            <button
-              type="button"
-              className="small"
+            {/* Ny PIN gjør den gamle ugyldig med en gang, så den spør først (som Slett). */}
+            <ConfirmButton
+              className="small secondary"
+              confirmClassName="small"
               disabled={pending}
-              onClick={() => start(async () => setPin((await resetPinAction(id)).pin))}
+              question={`Lage ny PIN til ${displayName}? Den gamle slutter å virke med en gang, og ${displayName} blir logget ut.`}
+              confirmLabel="Ja, lag ny PIN"
+              onConfirm={() => start(async () => setPin((await resetPinAction(id)).pin))}
             >
               Ny PIN
-            </button>
+            </ConfirmButton>
             <button type="button" className="small secondary" disabled={pending} onClick={() => start(() => setActiveAction(id, !active))}>
               {active ? "Slå av" : "Slå på"}
             </button>

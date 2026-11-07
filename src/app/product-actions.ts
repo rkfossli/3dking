@@ -73,7 +73,7 @@ export async function deleteProductAction(id: number): Promise<{ error?: string 
   await requireAdmin();
   const db = await getDb();
   const [{ n }] = await db.select({ n: count() }).from(orders).where(eq(orders.productId, id));
-  if (n > 0) return { error: `${n} bestilling(er) gjelder dette produktet. Skjul det i stedet, eller slett bestillingene først.` };
+  if (n > 0) return { error: "Noen har bestilt dette produktet, så det kan ikke slettes. Skjul det i stedet." };
   const product = await getProduct(id);
   await db.delete(products).where(eq(products.id, id));
   if (product?.imageUrl) await deleteImage(product.imageUrl);

@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -88,5 +88,12 @@ export const UPGRADES: Record<number, string> = {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS unit_cost_nok integer;
     UPDATE orders SET unit_cost_nok = products.cost_nok
       FROM products WHERE products.id = orders.product_id AND orders.unit_cost_nok IS NULL;
+  `,
+  // Betalt-markering på bestillinger, og om brukeren har byttet til sin egen PIN.
+  // Admin-kontoen laget sin egen PIN i oppsettet, så den regnes som byttet.
+  5: `
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS paid_at timestamptz;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS own_pin boolean NOT NULL DEFAULT false;
+    UPDATE users SET own_pin = true WHERE role = 'admin';
   `,
 };

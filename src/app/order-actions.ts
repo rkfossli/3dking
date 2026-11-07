@@ -36,8 +36,8 @@ export async function placeOrderAction(_prev: OrderState, form: FormData): Promi
   after(() =>
     safely(
       pushToAdmins({
-        title: "Ny bestilling",
-        body: `${user.displayName}: ${quantity} × ${product.name}${note ? ` («${note}»)` : ""}`,
+        title: `Ny bestilling fra ${user.displayName}`,
+        body: `${quantity} × ${product.name}${note ? ` · «${note}»` : ""}`,
         url: "/admin/bestillinger?vis=ny",
         tag: "ny-bestilling",
       }),
@@ -46,6 +46,7 @@ export async function placeOrderAction(_prev: OrderState, form: FormData): Promi
 
   revalidatePath("/mine");
   revalidatePath("/admin/bestillinger");
+  revalidatePath("/admin/oversikt");
   return { ok: true };
 }
 
@@ -97,6 +98,16 @@ export async function setOrderStatusAction(orderId: number, status: string): Pro
   revalidatePath("/mine");
 }
 
+/** Liam markerer at en bestilling er betalt (eller angrer). Betaling skjer med Vipps, utenfor appen. */
+export async function setPaidAction(orderId: number, paid: boolean): Promise<void> {
+  await requireAdmin();
+  const db = await getDb();
+  await db.update(orders).set({ paidAt: paid ? new Date() : null }).where(eq(orders.id, orderId));
+  revalidatePath("/admin/bestillinger");
+  revalidatePath("/admin/oversikt");
+  revalidatePath("/mine");
+}
+
 /** Liam sletter en bestilling for godt (for eksempel en test eller en som er avbrutt). */
 export async function deleteOrderAction(orderId: number): Promise<void> {
   await requireAdmin();
@@ -135,7 +146,7 @@ export async function replyToOrderAction(_prev: ReplyState, form: FormData): Pro
     })
     .where(eq(orders.id, orderId));
   if (!empty) {
-    const title = approval ? APPROVAL_LABEL[approval] : "Beskjed fra 3DKing";
+    const title = approval ? APPROVAL_LABEL[approval] : "Beskjed fra Liam";
     const text = [reply, plan && `Levering: ${plan}`].filter(Boolean).join(" · ");
     after(() => safely(notifyCustomer(orderId, title, (what) => (text ? `${what}: ${text}` : what))));
   }

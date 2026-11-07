@@ -19,6 +19,8 @@ export const users = pgTable("users", {
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
   // Sist brukeren åpnet «Mine bestillinger». Brukes til å vise et tall når noe nytt har skjedd.
   ordersSeenAt: timestamp("orders_seen_at", { withTimezone: true }),
+  // true når brukeren har byttet til sin egen PIN. Da slutter forsiden å foreslå det.
+  ownPin: boolean("own_pin").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -63,6 +65,7 @@ export const orders = pgTable("orders", {
   // Sist Liam endret noe brukeren bør se (status, svar, levering).
   changedByAdminAt: timestamp("changed_by_admin_at", { withTimezone: true }),
   deliveryPlan: text("delivery_plan"), // f.eks. «Leveres på skolen på mandag»
+  paidAt: timestamp("paid_at", { withTimezone: true }), // når Liam fikk betalt (Vipps). null = ikke betalt
 });
 
 // Telefoner som har sagt ja til varsler (brukes i Fase 6).

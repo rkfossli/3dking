@@ -44,7 +44,7 @@ export function OrderReplyForm({
       <label>
         Svar
         <select name="approval" value={choice} onChange={(e) => setChoice(e.target.value)}>
-          <option value="">Bare beskjed (ikke godkjent ennå)</option>
+          <option value="">Ikke godkjent ennå (bare beskjed)</option>
           <option value="godkjent">Godkjent</option>
           <option value="endringer">Godkjent med endringer</option>
         </select>

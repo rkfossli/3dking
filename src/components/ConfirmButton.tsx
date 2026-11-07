@@ -11,6 +11,7 @@ export function ConfirmButton({
   onConfirm,
   disabled,
   className = "small danger",
+  confirmClassName = "small danger-solid",
 }: {
   children: ReactNode;
   question: string;
@@ -19,6 +20,7 @@ export function ConfirmButton({
   onConfirm: () => void;
   disabled?: boolean;
   className?: string;
+  confirmClassName?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   return (
@@ -39,7 +41,7 @@ export function ConfirmButton({
           </button>
           <button
             type="button"
-            className="small danger-solid"
+            className={confirmClassName}
             onClick={() => {
               dialog.current?.close();
               onConfirm();

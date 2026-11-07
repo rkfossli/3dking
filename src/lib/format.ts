@@ -18,6 +18,19 @@ export const STATUS_LABEL: Record<string, string> = {
   avbrutt: "Avbrutt",
 };
 
+/** Statusnavnene slik kunden ser dem. «Ny» sier lite til den som har bestilt. */
+export const CUSTOMER_STATUS_LABEL: Record<string, string> = {
+  ny: "Mottatt",
+  laget: "Ferdig laget",
+  levert: "Levert",
+  avbrutt: "Avbrutt",
+};
+
+/** 1 → "1 bestilling", 3 → "3 bestillinger". Riktig flertall i stedet for «bestilling(er)». */
+export function plural(n: number, one: string, many: string): string {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
 /** Teksten som vises for svaret fra admin. */
 export const APPROVAL_LABEL: Record<string, string> = {
   godkjent: "Godkjent",

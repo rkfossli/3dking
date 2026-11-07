@@ -898,3 +898,268 @@ button.danger-solid {
 .order-done .with-icon {
   justify-content: center;
 }
+
+/* ---------- Forbedringsrunden (PR #11) ---------- */
+
+/* Større knapper: minst 44 px høye (40 px for små), så de er lette å treffe med fingeren. */
+button,
+.button {
+  min-height: 44px;
+  font-size: 15px;
+}
+
+button.small,
+.button.small {
+  min-height: 40px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Testbanneret: én linje på telefon. Blir teksten for lang, kuttes den med … */
+.test-banner {
+  font-size: 12px;
+  padding: 5px 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Forsiden: logo og knapper på samme rad */
+.top {
+  flex-wrap: nowrap;
+}
+
+.top .logo {
+  width: 112px;
+}
+
+.top .row-buttons {
+  flex-wrap: nowrap;
+}
+
+.footer-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-line p {
+  margin: 0;
+}
+
+/* Admin-fanene ruller sidelengs på én linje i stedet for å brytes */
+.tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs a {
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.small-tabs a {
+  min-height: 36px;
+}
+
+/* Tallet på filtrene (Ny 3, Laget 5) */
+.filter-count {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+/* Flere merker ved siden av hverandre (Betalt + status) */
+.badges {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.badge.betalt {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.badge.ubetalt {
+  color: var(--muted);
+  border-style: dashed;
+}
+
+/* Produktkort: bildet og navnet er en lenke til produktsiden */
+.product-link {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+
+.product-link:hover h2 {
+  text-decoration: underline;
+}
+
+/* Beskrivelsen på kortet vises med maks to linjer. Hele står på produktsiden. */
+.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.narrow-wide {
+  max-width: 520px;
+}
+
+.product-page {
+  gap: 10px;
+}
+
+.product-page h1 {
+  margin: 8px 0 0;
+}
+
+.product-page .description {
+  margin: 0;
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
+.product-page .order-btn {
+  margin-top: 6px;
+}
+
+/* «Mine bestillinger»: Pågår og Tidligere */
+.section-title {
+  margin: 20px 0 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.earlier {
+  margin-top: 24px;
+}
+
+.earlier summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--muted);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+/* Spørsmålet om varsler etter «Bestilt!» */
+.push-ask {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.push-ask p {
+  margin: 0;
+}
+
+/* Forslaget om å bytte PIN */
+.hint {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hint p {
+  margin: 0;
+}
+
+.center {
+  text-align: center;
+}
+
+.plain-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.big-number {
+  font-size: 26px;
+  color: var(--accent);
+}
+
+/* Kortere banner-tekst på telefon, så den får plass på én linje */
+.narrow-only {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .wide-only {
+    display: none;
+  }
+  .narrow-only {
+    display: inline;
+  }
+}
+
+/* Logo og knapper må få plass på én rad også på smale telefoner */
+.top {
+  gap: 8px;
+}
+
+.top .logo {
+  width: 96px;
+}
+
+.top .row-buttons .button {
+  padding: 8px 12px;
+}
+
+/* Er skjermen enda smalere, får knappene gå ned under logoen */
+.top {
+  flex-wrap: wrap;
+}
+
+.tabs a {
+  padding: 8px 12px;
+  font-size: 15px;
+}
+
+.small-tabs a {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.section-title {
+  margin-bottom: 10px;
+}
+
+.month + .order-list {
+  margin-top: 16px;
+}
+
+nav.tabs:not(.small-tabs) {
+  gap: 6px;
+}
+
+nav.tabs:not(.small-tabs) a {
+  padding: 8px 10px;
+}

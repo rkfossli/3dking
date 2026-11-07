@@ -31,7 +31,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         {/* Testbanneret skal alltid være synlig, så det ligger i layouten. */}
         <div className="test-banner">
-          Testversjon · Hobbyprosjekt for å lære koding · Prisene dekker bare filament og strøm
+          Testversjon · Hobbyprosjekt · <span className="wide-only">Prisene dekker bare filament og strøm</span>
+          <span className="narrow-only">Pris = filament og strøm</span>
         </div>
         {children}
         <ServiceWorker />

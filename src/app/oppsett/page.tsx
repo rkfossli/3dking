@@ -10,7 +10,7 @@ export default async function SetupPage() {
   return (
     <main className="page narrow">
       <h1>Velkommen til 3DKing</h1>
-      <p className="muted">Ingen brukere ennå. Lag admin-kontoen din. Etterpå kan du lage brukere til andre.</p>
+      <p className="muted">Velkommen! Lag din egen admin-konto først. Etterpå kan du lage brukere til andre.</p>
       <SetupForm />
     </main>
   );
