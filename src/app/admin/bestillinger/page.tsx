@@ -6,6 +6,8 @@ import { OrderReplyForm } from "@/components/OrderReplyForm";
 import { AdminReply } from "@/components/AdminReply";
 import { AdminNav } from "@/components/AdminNav";
 import { AdminOrderActions } from "@/components/OrderActions";
+import { OrderMessages } from "@/components/OrderMessages";
+import { messagesFor } from "@/lib/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +15,7 @@ const FILTERS: (Status | "alle")[] = ["ny", "laget", "levert", "avbrutt", "alle"
 
 // Liams bestillingsfane. ?vis=laget i adressen velger hvilke bestillinger som vises.
 export default async function AdminOrdersPage({ searchParams }: PageProps<"/admin/bestillinger">) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { vis } = await searchParams;
   const filter: Status | "alle" = typeof vis === "string" && (isStatus(vis) || vis === "alle") ? vis : "ny";
   const list = await ordersByStatus(filter);
@@ -30,6 +32,15 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
     if (g) g.orders.push(o);
     else groups.push({ userId: o.userId, userName: o.userName, orders: [o] });
   }
+
+  // Meldingene vises én gang per ordrenummer, under den første linja med det nummeret.
+  const messages = await messagesFor(list.map((o) => o.orderNumber).filter((n): n is string => n != null));
+  const shown = new Set<string>();
+  const thread = (n: string | null) => {
+    if (!n || shown.has(n)) return null;
+    shown.add(n);
+    return <OrderMessages orderNumber={n} messages={messages.get(n) ?? []} meId={admin.id} meIsAdmin />;
+  };
 
   // Én bestilling med knapper og svar-skjema. inGroup = den ligger i en boks for én person.
   const orderCard = (o: OrderRow, inGroup: boolean) => (
@@ -74,6 +85,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
       {o.status !== "avbrutt" && (
         <OrderReplyForm id={o.id} userName={o.userName} approval={o.approval} reply={o.adminReply} deliveryPlan={o.deliveryPlan} status={o.status} />
       )}
+      {thread(o.orderNumber)}
     </li>
   );
 

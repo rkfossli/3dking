@@ -62,6 +62,16 @@ export default async function Home() {
         ))}
       </div>
 
+      {/* Ønskeboksen: for det som ikke finnes i butikken */}
+      <Link href="/onsker" className="card wish-cta">
+        <Icon name="star" size={26} />
+        <span>
+          <b>Finner du ikke det du vil ha?</b>
+          <span className="muted small-text">Ønsk deg noe, så svarer 3DKing om det kan lages.</span>
+        </span>
+        <Icon name="arrow-right" />
+      </Link>
+
       <InstallGuide compact place="bottom" />
 
     </main>

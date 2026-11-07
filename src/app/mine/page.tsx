@@ -10,6 +10,8 @@ import { CancelMyOrder } from "@/components/OrderActions";
 import { AdminReply } from "@/components/AdminReply";
 import { ChangeResponse } from "@/components/ChangeResponse";
 import { OrderSteps } from "@/components/OrderSteps";
+import { OrderMessages } from "@/components/OrderMessages";
+import { messagesFor } from "@/lib/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,9 @@ export default async function MyOrdersPage() {
   const lastSeen = user.ordersSeenAt;
   const isNew = (changed: Date | null) => changed != null && (lastSeen == null || changed > lastSeen);
   const db = await getDb();
+  // Meldingene på alle bestillingene, samlet per ordrenummer.
+  const messages = await messagesFor(list.map((o) => o.orderNumber).filter((n): n is string => n != null));
+  const thread = (n: string | null) => n && <OrderMessages orderNumber={n} messages={messages.get(n) ?? []} meId={user.id} meIsAdmin={false} />;
   await db.update(users).set({ ordersSeenAt: new Date() }).where(eq(users.id, user.id));
 
   // Én bestilling i listen. Brukes i begge delene.
@@ -71,6 +76,7 @@ export default async function MyOrdersPage() {
       ) : (
         o.status === "ny" && <CancelMyOrder id={o.id} />
       )}
+      {!inGroup && thread(o.orderNumber)}
     </li>
   );
 
@@ -94,6 +100,7 @@ export default async function MyOrdersPage() {
             </span>
           </div>
           <ul className="order-list">{g.map((o) => item(o, true))}</ul>
+          {thread(g[0].orderNumber)}
         </li>
       ),
     );

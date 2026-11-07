@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -127,5 +127,29 @@ export const UPGRADES: Record<number, string> = {
     );
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS color_name text;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS color_hex text;
+  `,
+  // Ønskeboksen og meldinger på bestillinger.
+  10: `
+    CREATE TABLE IF NOT EXISTS wishes (
+      id serial PRIMARY KEY,
+      user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      text text NOT NULL,
+      link text,
+      image_url text,
+      status text NOT NULL DEFAULT 'ny',
+      price_nok integer,
+      admin_reply text,
+      product_id integer REFERENCES products(id) ON DELETE SET NULL,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      answered_at timestamptz
+    );
+    CREATE TABLE IF NOT EXISTS order_messages (
+      id serial PRIMARY KEY,
+      order_number text NOT NULL,
+      user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body text NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+    CREATE INDEX IF NOT EXISTS order_messages_number_idx ON order_messages (order_number);
   `,
 };

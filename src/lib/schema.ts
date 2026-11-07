@@ -87,6 +87,32 @@ export const filaments = pgTable("filaments", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Ønskeboksen: kunden ber om noe som ikke finnes i butikken. Liam svarer ja eller nei, med pris.
+// Sier han ja, kan han gjøre ønsket om til et produkt, og da kan kunden bestille det som vanlig.
+export const wishes = pgTable("wishes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  text: text("text").notNull(), // hva kunden ønsker seg
+  link: text("link"), // f.eks. en lenke til MakerWorld
+  imageUrl: text("image_url"),
+  status: text("status").notNull().default("ny"), // "ny", "ja" eller "nei"
+  priceNok: integer("price_nok"), // prisen Liam foreslår
+  adminReply: text("admin_reply"),
+  productId: integer("product_id").references(() => products.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  answeredAt: timestamp("answered_at", { withTimezone: true }),
+});
+
+// Meldinger på en bestilling, fram og tilbake mellom kunden og 3DKing.
+// Knyttes til ordrenummeret, så alt fra samme handlekurv har én samtale.
+export const orderMessages = pgTable("order_messages", {
+  id: serial("id").primaryKey(),
+  orderNumber: text("order_number").notNull(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // Telefoner som har sagt ja til varsler (brukes i Fase 6).
 export const pushSubscriptions = pgTable("push_subscriptions", {
   id: serial("id").primaryKey(),

@@ -2201,3 +2201,142 @@ body.has-tabbar {
   color: var(--accent-text);
   box-shadow: none;
 }
+
+/* ==========================================================================
+   Revisjonen, steg 5: ønskeboks og meldinger
+   ========================================================================== */
+
+/* Kortet nederst i butikken som leder til ønskeboksen */
+.wish-cta {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s3);
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: inset 3px 0 0 var(--accent-pair);
+}
+
+.wish-cta > .icon:first-child {
+  color: var(--accent-text);
+}
+
+.wish-cta span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wish-cta .small-text {
+  margin: 0;
+}
+
+.wish {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.wish-text {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.wish-img {
+  width: 100%;
+  max-width: 240px;
+  border-radius: 12px;
+  display: block;
+}
+
+.wish .admin-reply p {
+  margin: 0;
+}
+
+.badge.wish-ny {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.badge.wish-ja {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.badge.wish-nei {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* Meldinger på en bestilling: en liten chat */
+.messages {
+  margin-top: var(--s2);
+  border-top: 1px solid var(--border);
+  padding-top: var(--s2);
+}
+
+.messages summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 40px;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.messages[open] summary {
+  color: var(--text);
+}
+
+.chat {
+  list-style: none;
+  margin: var(--s2) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.chat li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  max-width: 85%;
+}
+
+.chat li.mine {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.bubble {
+  padding: var(--s2) var(--s3);
+  border-radius: 16px 16px 16px 4px;
+  background: var(--card-2);
+  box-shadow: var(--nest-edge);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.chat li.mine .bubble {
+  border-radius: 16px 16px 4px 16px;
+  background: color-mix(in srgb, var(--accent) 22%, var(--card));
+}
+
+.chat-meta {
+  font-size: var(--fs-cap);
+}
+
+.chat-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s2);
+}
+
+.chat-form button {
+  padding: 0 var(--s4);
+}
