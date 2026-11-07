@@ -8,7 +8,7 @@ import { Icon } from "./Icon";
 import { ProductImage } from "./ProductImage";
 import { PushAsk } from "./PushAsk";
 import { Sparks } from "./Sparks";
-import { colorFill } from "@/lib/palette";
+import { ColorLine } from "./ColorLine";
 
 // Listen i handlekurven: endre antall, fjerne linjer og sende alt som én bestilling.
 export function Cart() {
@@ -20,7 +20,7 @@ export function Cart() {
   function send() {
     setError("");
     start(async () => {
-      const res = await placeCartAction(lines.map((l) => ({ productId: l.productId, quantity: l.quantity, note: l.note, colorId: l.colorId })));
+      const res = await placeCartAction(lines.map((l) => ({ productId: l.productId, quantity: l.quantity, note: l.note, colorId: l.colorId, extraColorIds: (l.extraColors ?? []).map((c) => c.id) })));
       if (res.error) return setError(res.error);
       clearCart();
       setDone(res.orderNumber ?? "");
@@ -60,11 +60,7 @@ export function Cart() {
             </div>
             <div className="cart-info">
               <b>{l.name}</b>
-              {l.colorName && (
-                <span className="small-text color-line">
-                  <span className="swatch" style={{ background: colorFill(l.colorHex) }} /> {l.colorName}
-                </span>
-              )}
+              <ColorLine as="span" main={l.colorName ? { name: l.colorName, hex: l.colorHex ?? "" } : null} extra={l.extraColors ?? []} />
               {l.note && <span className="small-text muted">«{l.note}»</span>}
               <div className="cart-row">
                 <div className="stepper mini" aria-label="Antall">

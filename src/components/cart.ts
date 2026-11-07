@@ -15,6 +15,8 @@ export type CartLine = {
   colorId: number | null;
   colorName: string | null;
   colorHex: string | null;
+  // Farge 2 og 3 når produktet har flere farger. Mangler i kurver lagret før dette fantes.
+  extraColors?: { id: number; name: string; hex: string }[];
 };
 
 const KEY = "3dking-kurv";
@@ -73,10 +75,14 @@ export function cartTotal(lines: CartLine[]): number {
   return lines.reduce((sum, l) => sum + l.quantity * l.price, 0);
 }
 
+function extraKey(l: Pick<CartLine, "extraColors">): string {
+  return (l.extraColors ?? []).map((c) => c.id).join(",");
+}
+
 export function addToCart(line: Omit<CartLine, "id">) {
   const lines = read();
   // Samme produkt, farge og ønske legges sammen i én linje i stedet for to.
-  const same = lines.find((l) => l.productId === line.productId && l.colorId === line.colorId && l.note === line.note);
+  const same = lines.find((l) => l.productId === line.productId && l.colorId === line.colorId && extraKey(l) === extraKey(line) && l.note === line.note);
   if (same) write(lines.map((l) => (l === same ? { ...l, quantity: Math.min(20, l.quantity + line.quantity) } : l)));
   else write([...lines, { ...line, id: Math.random().toString(36).slice(2) }]);
 }

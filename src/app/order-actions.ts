@@ -13,7 +13,7 @@ import { APPROVALS, MAX_LINES, MAX_QUANTITY, MAX_REPLY, isStatus, newOrderNumber
 export type OrderState = { error?: string; ok?: boolean; orderNumber?: string };
 
 /** Én linje fra handlekurven, slik nettleseren sender den. */
-export type CartInput = { productId: number; quantity: number; note: string; colorId: number | null };
+export type CartInput = { productId: number; quantity: number; note: string; colorId: number | null; extraColorIds?: number[] };
 
 /**
  * Kunden sender handlekurven. Alle linjene blir bestillinger med samme ordrenummer,
@@ -41,7 +41,15 @@ export async function placeCartAction(lines: CartInput[]): Promise<OrderState> {
       if (!f || !f.inStock) return { error: "En av fargene er tom nå. Velg en annen farge i kurven." };
       color = { name: f.name, hex: f.hex };
     }
-    rows.push({ product, quantity, note, color });
+    // Farge 2 og 3: bare så mange som produktet tillater, og bare farger på lager.
+    const extraIds = (Array.isArray(line.extraColorIds) ? line.extraColorIds : []).map(Number).slice(0, Math.max(0, product.colorCount - 1));
+    const extra: { name: string; hex: string }[] = [];
+    for (const id of extraIds) {
+      const [f] = await db.select().from(filaments).where(eq(filaments.id, id));
+      if (!f || !f.inStock) return { error: "En av fargene er tom nå. Velg en annen farge i kurven." };
+      extra.push({ name: f.name, hex: f.hex });
+    }
+    rows.push({ product, quantity, note, color, extra });
   }
 
   // Ordrenummeret er tilfeldig. Er det tatt fra før (sjelden), prøver vi et nytt.
@@ -65,11 +73,12 @@ export async function placeCartAction(lines: CartInput[]): Promise<OrderState> {
       unitCostNok: r.product.costNok,
       colorName: r.color?.name ?? null,
       colorHex: r.color?.hex ?? null,
+      extraColors: r.extra.length > 0 ? JSON.stringify(r.extra) : null,
     })),
   );
 
   // Varsel til Liam. after() sender det etter at svaret har gått tilbake, så kunden slipper å vente.
-  const what = rows.map((r) => `${r.quantity} × ${r.product.name}${r.color ? ` (${r.color.name})` : ""}`).join(", ");
+  const what = rows.map((r) => `${r.quantity} × ${r.product.name}${r.color || r.extra.length ? ` (${[r.color?.name, ...r.extra.map((c) => c.name)].filter(Boolean).join(", ")})` : ""}`).join(", ");
   after(() =>
     safely(
       pushToAdmins({

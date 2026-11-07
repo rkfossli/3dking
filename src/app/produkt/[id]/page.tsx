@@ -37,7 +37,7 @@ export default async function ProductPage({ params }: PageProps<"/produkt/[id]">
         {isAdmin && p.costNok != null && <p className="muted small-text">Filament {kr(p.costNok)} · bare synlig for deg</p>}
         {p.available && (
           <OrderForm
-            product={{ id: p.id, name: p.name, price: p.priceNok, imageUrl: p.imageUrl }}
+            product={{ id: p.id, name: p.name, price: p.priceNok, imageUrl: p.imageUrl, colorCount: p.colorCount }}
             colors={colors.map((c) => ({ id: c.id, name: c.name, hex: c.hex, inStock: c.inStock }))}
           />
         )}

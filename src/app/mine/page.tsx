@@ -12,7 +12,8 @@ import { ChangeResponse } from "@/components/ChangeResponse";
 import { OrderSteps } from "@/components/OrderSteps";
 import { OrderMessages } from "@/components/OrderMessages";
 import { messagesFor, isFinished } from "@/lib/messages";
-import { colorFill } from "@/lib/palette";
+import { parseExtraColors } from "@/lib/palette";
+import { ColorLine } from "@/components/ColorLine";
 
 export const dynamic = "force-dynamic";
 
@@ -61,11 +62,7 @@ export default async function MyOrdersPage() {
         {o.madeAt && ` · laget ${when(o.madeAt)}`}
         {o.deliveredAt && ` · levert ${when(o.deliveredAt)}`}
       </p>
-      {o.colorName && (
-        <p className="small-text color-line">
-          <span className="swatch" style={{ background: colorFill(o.colorHex) }} /> {o.colorName}
-        </p>
-      )}
+      <ColorLine main={o.colorName ? { name: o.colorName, hex: o.colorHex ?? "" } : null} extra={parseExtraColors(o.extraColors)} />
       {o.note && <p className="small-text">Ditt ønske: «{o.note}»</p>}
       {o.status === "laget" && !o.deliveryPlan && (
         <p className="small-text with-icon"><Icon name="ready" /> Ferdig laget! 3DKing sier fra når og hvor du får den.</p>
