@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { count, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { orders, products, wishes } from "@/lib/schema";
+import { orders, productCategories, products, wishes } from "@/lib/schema";
 import { after } from "next/server";
 import { safely, sendPush } from "@/lib/push";
 import { getWish } from "@/lib/wishes";
@@ -52,9 +52,11 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
 
   const values = { name, description, priceNok, costNok, available, imageUrl };
   const db = await getDb();
+  let productId = id;
   if (id) await db.update(products).set(values).where(eq(products.id, id));
   else {
     const [created] = await db.insert(products).values(values).returning({ id: products.id });
+    productId = created.id;
     // Ønsket kobles til det nye produktet, så kunden får en «Bestill»-knapp på ønsket sitt.
     if (wish) {
       await db.update(wishes).set({ productId: created.id }).where(eq(wishes.id, wish.id));
@@ -63,6 +65,15 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
       );
       revalidatePath("/onsker");
       revalidatePath("/admin/onsker");
+    }
+  }
+
+  // Kategoriene: fjern de gamle koblingene og lag nye for de som er krysset av.
+  if (productId) {
+    const categoryIds = form.getAll("category").map(Number).filter((n) => Number.isInteger(n) && n > 0);
+    await db.delete(productCategories).where(eq(productCategories.productId, productId));
+    if (categoryIds.length > 0) {
+      await db.insert(productCategories).values(categoryIds.map((categoryId) => ({ productId: productId as number, categoryId }))).onConflictDoNothing();
     }
   }
 

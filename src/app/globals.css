@@ -2340,3 +2340,160 @@ body.has-tabbar {
 .chat-form button {
   padding: 0 var(--s4);
 }
+
+/* ==========================================================================
+   Revisjonen, steg 6: kategorier, søk og statistikk
+   ========================================================================== */
+
+.search {
+  position: relative;
+  margin-top: var(--s4);
+}
+
+.search .icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.search input {
+  padding-left: 44px;
+  background: var(--card);
+  border-color: transparent;
+}
+
+.cat-tabs {
+  margin: var(--s3) 0 0;
+}
+
+/* Merkene oppå produktbildet */
+.img-wrap {
+  position: relative;
+  display: block;
+}
+
+.ribbons {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: var(--s1);
+  flex-wrap: wrap;
+}
+
+.ribbon {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.ribbon.new {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.ribbon.hot {
+  background: var(--accent-pair);
+  color: #0b0b0b;
+}
+
+/* Kategorivalget i produktskjemaet: avkrysningsbokser som «piller» */
+.cat-pick {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.cat-pick legend {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  padding: 0;
+  margin-bottom: var(--s2);
+}
+
+.cat-opt {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  min-height: 44px;
+  border-radius: 999px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.cat-opt input {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  accent-color: var(--accent);
+}
+
+.cat-opt:has(input:checked) {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--card));
+}
+
+.chat-form.grow {
+  flex: 1;
+}
+
+/* Verkstedet: store tall */
+.big-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s3);
+  margin-top: var(--s4);
+}
+
+.big-stat {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: var(--s4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  position: relative;
+  overflow: hidden;
+}
+
+.big-stat::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-pair));
+}
+
+.big-stat b {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--accent-text);
+  letter-spacing: -0.02em;
+}
+
+.big-stat span {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.big-stat.wide {
+  grid-column: 1 / -1;
+}
+
+.big-stat.wide b {
+  font-size: var(--fs-title);
+}

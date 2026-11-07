@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/auth";
 import { AdminNav } from "@/components/AdminNav";
 import { ProductForm } from "@/components/ProductForm";
 import { getWish } from "@/lib/wishes";
+import { allCategories } from "@/lib/categories";
 
 // Nytt produkt. Med ?onske=5 i adressen fylles skjemaet ut fra ønske nr. 5 i ønskeboksen.
 export default async function NewProductPage({ searchParams }: PageProps<"/admin/produkter/ny">) {
@@ -18,12 +19,13 @@ export default async function NewProductPage({ searchParams }: PageProps<"/admin
         imageUrl: wish.imageUrl,
       }
     : undefined;
+  const cats = await allCategories();
   return (
     <main className="page">
       <AdminNav active="produkter" />
       <section className="card">
         <h2>{wish ? `Nytt produkt fra ønsket til ${wish.userName}` : "Nytt produkt"}</h2>
-        <ProductForm product={fromWish} wishId={wish?.id} />
+        <ProductForm product={fromWish} wishId={wish?.id} categories={cats.map((c) => ({ id: c.id, name: c.name }))} />
       </section>
     </main>
   );

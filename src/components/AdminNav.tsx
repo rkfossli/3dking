@@ -5,7 +5,7 @@ import { countNewWishes } from "@/lib/wishes";
 // Fanene øverst på admin-sidene. `active` sier hvilken fane som er valgt.
 // Bestillinger-fanen viser et tall når noe venter på å bli laget.
 // På smale skjermer ruller fanene sidelengs i stedet for å bryte over to linjer.
-export async function AdminNav({ active }: { active: "bestillinger" | "onsker" | "brukere" | "produkter" | "oversikt" }) {
+export async function AdminNav({ active }: { active: "bestillinger" | "onsker" | "brukere" | "produkter" | "oversikt" | "verksted" }) {
   const waiting = await countNew();
   const newWishes = await countNewWishes();
   return (
@@ -21,6 +21,7 @@ export async function AdminNav({ active }: { active: "bestillinger" | "onsker" |
         <Link href="/admin/produkter" className={active === "produkter" ? "on" : ""}>Produkter</Link>
         <Link href="/admin" className={active === "brukere" ? "on" : ""}>Brukere</Link>
         <Link href="/admin/oversikt" className={active === "oversikt" ? "on" : ""}>Oversikt</Link>
+        <Link href="/admin/verksted" className={active === "verksted" ? "on" : ""}>Verksted</Link>
       </nav>
     </>
   );

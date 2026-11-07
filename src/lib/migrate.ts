@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -151,5 +151,18 @@ export const UPGRADES: Record<number, string> = {
       created_at timestamptz NOT NULL DEFAULT now()
     );
     CREATE INDEX IF NOT EXISTS order_messages_number_idx ON order_messages (order_number);
+  `,
+  // Kategorier i butikken. Et produkt kan være i flere kategorier.
+  11: `
+    CREATE TABLE IF NOT EXISTS categories (
+      id serial PRIMARY KEY,
+      name text NOT NULL,
+      sort integer NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS product_categories (
+      product_id integer NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+      category_id integer NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+      PRIMARY KEY (product_id, category_id)
+    );
   `,
 };

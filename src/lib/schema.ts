@@ -1,7 +1,7 @@
 // Tabellene i databasen, skrevet i TypeScript med Drizzle.
 // Hver `pgTable` er én tabell, og hver linje inni er én kolonne.
 // Drizzle bruker dette til å gi oss autofullføring og typesjekk når vi leser og skriver data.
-import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, primaryKey, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 // Brukere. Liam er admin, alle andre er vanlige brukere.
 export const users = pgTable("users", {
@@ -112,6 +112,24 @@ export const orderMessages = pgTable("order_messages", {
   body: text("body").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// Kategoriene i butikken (fanene øverst). Liam lager dem selv i admin.
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  sort: integer("sort").notNull().default(0), // lavest først
+});
+
+// Hvilke kategorier et produkt er med i. Et produkt kan være i flere kategorier,
+// og en kategori kan ha mange produkter. Derfor trengs en egen tabell som kobler dem (mange-til-mange).
+export const productCategories = pgTable(
+  "product_categories",
+  {
+    productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+    categoryId: integer("category_id").notNull().references(() => categories.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.productId, t.categoryId] })],
+);
 
 // Telefoner som har sagt ja til varsler (brukes i Fase 6).
 export const pushSubscriptions = pgTable("push_subscriptions", {
