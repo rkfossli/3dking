@@ -16,7 +16,7 @@ export default async function AdminProductsPage() {
     <main className="page">
       <AdminNav active="produkter" />
       <p>
-        <Link href="/admin/produkter/ny" className="button">+ Nytt produkt</Link>
+        <Link href="/admin/produkter/ny" className="button">Legg til produkt</Link>
       </p>
       <section className="card">
         <h2>Produkter ({list.length})</h2>

@@ -1,8 +1,9 @@
 "use client";
 import { Icon } from "@/components/Icon";
 import { useEffect, useState, useTransition } from "react";
-import { subscribePushAction, testPushAction, unsubscribePushAction, vapidPublicKeyAction } from "@/app/push-actions";
-import { base64ToBytes, isIos, isStandalone, pushSupported } from "./pwa";
+import { subscribePushAction, testPushAction, unsubscribePushAction } from "@/app/push-actions";
+import { isIos, isStandalone, pushSupported } from "./pwa";
+import { turnOnPush } from "./push-client";
 
 type State = "loading" | "unsupported" | "ios-home" | "denied" | "off" | "on";
 
@@ -29,22 +30,9 @@ export function PushSettings({ isAdmin }: { isAdmin: boolean }) {
     setMsg(null);
     start(async () => {
       try {
-        // Nettleseren spør «Vil du tillate varsler?». Det må skje rett etter et trykk.
-        const perm = await Notification.requestPermission();
-        if (perm !== "granted") {
-          setState(perm === "denied" ? "denied" : "off");
-          return;
-        }
-        const reg = await navigator.serviceWorker.register("/sw.js");
-        await navigator.serviceWorker.ready;
-        const key = base64ToBytes(await vapidPublicKeyAction());
-        const sub =
-          (await reg.pushManager.getSubscription()) ??
-          (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key }));
-        const r = await subscribePushAction(sub.toJSON());
-        if (!r.ok) throw new Error("lagring feilet");
-        setState("on");
-        setMsg("Varsler er slått på. Trykk «Send testvarsel» for å prøve.");
+        const result = await turnOnPush();
+        setState(result);
+        if (result === "on") setMsg("Varsler er slått på. Trykk «Send testvarsel» for å prøve.");
       } catch {
         setMsg("Fikk ikke slått på varsler. Prøv igjen.");
       }
@@ -89,7 +77,7 @@ export function PushSettings({ isAdmin }: { isAdmin: boolean }) {
   if (state === "denied")
     return (
       <p className="small-text">
-        Varsler er blokkert for 3DKing. Tillat varsler i innstillingene på telefonen (eller ved hengelåsen i adressefeltet på PC), og last siden på nytt.
+        Varsler er slått av for 3DKing på denne enheten. Slå dem på i telefonens innstillinger (på PC: hengelåsen i adressefeltet), og last siden på nytt.
       </p>
     );
 

@@ -32,7 +32,7 @@ export async function resetPinAction(userId: number): Promise<{ pin: string }> {
   await requireAdmin();
   const db = await getDb();
   const pin = randomPin();
-  await db.update(users).set({ pinHash: await hashPin(pin), failedPins: 0, lockedUntil: null }).where(eq(users.id, userId));
+  await db.update(users).set({ pinHash: await hashPin(pin), ownPin: false, failedPins: 0, lockedUntil: null }).where(eq(users.id, userId));
   await db.delete(sessions).where(eq(sessions.userId, userId));
   revalidatePath("/admin");
   return { pin };
@@ -74,7 +74,10 @@ export async function deleteUserAction(userId: number): Promise<{ error?: string
   if (userId === admin.id) return { error: "Du kan ikke slette deg selv." };
   const db = await getDb();
   const [{ n }] = await db.select({ n: count() }).from(orders).where(eq(orders.userId, userId));
-  if (n > 0) return { error: `Brukeren har ${n} bestilling(er) og kan ikke slettes. Slå den av i stedet.` };
+  if (n > 0) {
+    const [u] = await db.select({ name: users.displayName }).from(users).where(eq(users.id, userId));
+    return { error: `${u?.name ?? "Brukeren"} har bestillinger og kan ikke slettes. Slå brukeren av i stedet.` };
+  }
   await db.delete(users).where(eq(users.id, userId));
   revalidatePath("/admin");
   return {};

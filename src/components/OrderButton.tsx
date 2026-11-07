@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { placeOrderAction, type OrderState } from "@/app/order-actions";
 import { kr } from "@/lib/format";
+import { PushAsk } from "./PushAsk";
 
 const MAX = 20;
 
@@ -23,7 +24,8 @@ function OrderForm({ productId, price, onAgain }: { productId: number; price: nu
     return (
       <div className="order-done">
         <b className="with-icon"><Icon name="check" /> Bestilt!</b>
-        <p className="small-text muted">Liam har fått beskjed. Du følger med under «Mine bestillinger».</p>
+        <p className="small-text muted">Liam har fått beskjed. Du ser hvordan det går under «Mine bestillinger».</p>
+        <PushAsk />
         <Link href="/mine" className="button small">Se bestillingen</Link>
         <button type="button" className="small secondary" onClick={onAgain}>Bestill flere</button>
       </div>
@@ -47,7 +49,7 @@ function OrderForm({ productId, price, onAgain }: { productId: number; price: nu
         <span>{qty} stk</span>
         <button type="button" className="small secondary" onClick={() => setQty(Math.min(MAX, qty + 1))} aria-label="Flere">+</button>
       </div>
-      <textarea name="note" rows={2} placeholder="Kommentar (farge, ønsker …)" maxLength={500} />
+      <textarea name="note" rows={2} placeholder="Ønsker? For eksempel farge eller størrelse" aria-label="Ønsker" maxLength={500} />
       {state.error && <p className="error small-text">{state.error}</p>}
       <button type="submit" className="small" disabled={pending}>
         {pending ? "Bestiller …" : `Bestill for ${kr(qty * price)}`}

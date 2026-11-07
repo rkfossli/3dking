@@ -17,7 +17,7 @@ export default async function MePage() {
         <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til butikken</Link>
       </p>
       <h1>{user.displayName}</h1>
-      <p className="muted">Brukernavn: {user.username}</p>
+      <p className="muted">Logget inn som {user.username}</p>
       <section className="card">
         <h2>Utseende</h2>
         <ThemePicker current={user.theme} mode={user.mode} />
@@ -30,9 +30,21 @@ export default async function MePage() {
         <h2>Appen på hjemskjermen</h2>
         <InstallGuide />
       </section>
-      <section className="card">
+      <section className="card" id="pin">
         <h2>Bytt PIN</h2>
         <ChangePinForm />
+      </section>
+      <section className="card">
+        <h2>Hva appen lagrer om deg</h2>
+        <ul className="plain-list small-text">
+          <li>Navnet og brukernavnet ditt, som Liam la inn.</li>
+          <li>PIN-en din, men bare som en kode som ikke kan leses tilbake. Ingen, heller ikke Liam, kan se den.</li>
+          <li>Bestillingene dine, med ønskene du skrev og svarene fra Liam.</li>
+          <li>Hvilket tema du har valgt, og om du vil ha varsler på denne enheten.</li>
+        </ul>
+        <p className="muted small-text">
+          Appen bruker ingen reklame og deler ingenting med andre. Vil du at alt om deg skal slettes, så si fra til Liam.
+        </p>
       </section>
     </main>
   );

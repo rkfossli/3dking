@@ -1,6 +1,6 @@
 // Bestillinger: statuser og spørringer.
 import "server-only";
-import { and, count, desc, eq, gt, isNotNull, ne, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, isNotNull, isNull, ne, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { orders, products, users } from "./schema";
 
@@ -33,13 +33,15 @@ export type OrderRow = {
   repliedAt: Date | null;
   deliveryPlan: string | null;
   changedByAdminAt: Date | null;
+  paidAt: Date | null;
+  productId: number;
   productName: string;
   productImage: string | null;
   costNok: number | null;
   userName: string;
 };
 
-async function query(where?: ReturnType<typeof eq>) {
+async function query(where?: ReturnType<typeof eq>, oldestFirst = false) {
   const db = await getDb();
   const q = db
     .select({
@@ -56,6 +58,8 @@ async function query(where?: ReturnType<typeof eq>) {
       repliedAt: orders.repliedAt,
       deliveryPlan: orders.deliveryPlan,
       changedByAdminAt: orders.changedByAdminAt,
+      paidAt: orders.paidAt,
+      productId: orders.productId,
       productName: products.name,
       productImage: products.imageUrl,
       // Kostnaden fra da det ble bestilt. Mangler den, brukes produktets kostnad nå.
@@ -65,12 +69,48 @@ async function query(where?: ReturnType<typeof eq>) {
     .from(orders)
     .innerJoin(products, eq(products.id, orders.productId))
     .innerJoin(users, eq(users.id, orders.userId));
-  return (where ? q.where(where) : q).orderBy(desc(orders.createdAt));
+  const order = oldestFirst ? asc(orders.createdAt) : desc(orders.createdAt);
+  return (where ? q.where(where) : q).orderBy(order);
 }
 
-/** Alle bestillinger med en gitt status (eller alle), nyeste først. Til admin. */
+/**
+ * Alle bestillinger med en gitt status (eller alle). Til admin.
+ * «Ny» og «Laget» vises med eldste først, så Liam printer og leverer i den rekkefølgen folk bestilte.
+ * De andre vises med nyeste først.
+ */
 export async function ordersByStatus(status: Status | "alle"): Promise<OrderRow[]> {
-  return query(status === "alle" ? undefined : eq(orders.status, status));
+  const oldestFirst = status === "ny" || status === "laget";
+  return query(status === "alle" ? undefined : eq(orders.status, status), oldestFirst);
+}
+
+/** Hvor mange bestillinger det er med hver status, for tallene på filtrene. */
+export async function countByStatus(): Promise<Record<Status, number>> {
+  const db = await getDb();
+  const rows = await db.select({ status: orders.status, n: count() }).from(orders).groupBy(orders.status);
+  const counts: Record<Status, number> = { ny: 0, laget: 0, levert: 0, avbrutt: 0 };
+  for (const r of rows) if (isStatus(r.status)) counts[r.status] = r.n;
+  return counts;
+}
+
+/** Én person som skylder penger: navn, beløp og hvor mange bestillinger det gjelder. */
+export type Debt = { userName: string; amount: number; orders: number };
+
+/** Det som ikke er betalt ennå (alt unntatt avbrutte), samlet per person. Mest først. */
+export async function outstandingByUser(): Promise<Debt[]> {
+  const db = await getDb();
+  const rows = await db
+    .select({ userName: users.displayName, quantity: orders.quantity, unitPriceNok: orders.unitPriceNok })
+    .from(orders)
+    .innerJoin(users, eq(users.id, orders.userId))
+    .where(and(isNull(orders.paidAt), ne(orders.status, "avbrutt")));
+  const byUser = new Map<string, Debt>();
+  for (const r of rows) {
+    const d = byUser.get(r.userName) ?? { userName: r.userName, amount: 0, orders: 0 };
+    d.amount += r.quantity * r.unitPriceNok;
+    d.orders += 1;
+    byUser.set(r.userName, d);
+  }
+  return [...byUser.values()].sort((a, b) => b.amount - a.amount);
 }
 
 /** Bestillingene til én bruker. */

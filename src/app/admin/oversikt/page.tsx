@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
-import { monthlySummary } from "@/lib/orders";
-import { kr } from "@/lib/format";
+import { monthlySummary, outstandingByUser } from "@/lib/orders";
+import { kr, plural } from "@/lib/format";
 import { AdminNav } from "@/components/AdminNav";
 
 export const dynamic = "force-dynamic";
@@ -19,10 +19,33 @@ function monthName(key: string): string {
 export default async function OverviewPage() {
   await requireAdmin();
   const months = await monthlySummary();
+  const debts = await outstandingByUser();
+  const owed = debts.reduce((sum, d) => sum + d.amount, 0);
 
   return (
     <main className="page">
       <AdminNav active="oversikt" />
+      {/* Utestående: det som er bestilt, men ikke markert som betalt. Avbrutte teller ikke. */}
+      <section className="card month">
+        <h2>Utestående</h2>
+        {debts.length === 0 ? (
+          <p className="muted small-text">Alle har betalt. Bra!</p>
+        ) : (
+          <>
+            <p>
+              <b className="big-number">{kr(owed)}</b>
+            </p>
+            <ul className="plain-list small-text">
+              {debts.map((d) => (
+                <li key={d.userName}>
+                  {d.userName}: <b>{kr(d.amount)}</b> <span className="muted">({plural(d.orders, "bestilling", "bestillinger")})</span>
+                </li>
+              ))}
+            </ul>
+            <p className="muted small-text">Trykk «Merk betalt» på bestillingen når du har fått Vipps.</p>
+          </>
+        )}
+      </section>
       {months.length === 0 && (
         <div className="card">
           <p className="muted">Ingen bestillinger ennå. Oversikten fylles ut når noen bestiller.</p>
@@ -44,7 +67,7 @@ export default async function OverviewPage() {
                   <b>{m.items}</b>
                 </div>
                 <div>
-                  <span className="muted small-text">Brukerne betaler</span>
+                  <span className="muted small-text">Inntekt</span>
                   <b>{kr(m.income)}</b>
                 </div>
                 <div>

@@ -1,6 +1,7 @@
 "use server";
 // Server actions: funksjoner som kjører på serveren når et skjema sendes inn.
 // "use server" øverst gjør at skjemaene i nettleseren kan kalle dem direkte.
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
@@ -52,7 +53,7 @@ export async function setupAction(_prev: FormState, form: FormData): Promise<For
   const db = await getDb();
   const [admin] = await db
     .insert(users)
-    .values({ username, displayName, pinHash: await hashPin(pin), role: "admin" })
+    .values({ username, displayName, pinHash: await hashPin(pin), role: "admin", ownPin: true })
     .returning({ id: users.id });
   await startSession(admin.id);
   redirect("/admin");
@@ -70,6 +71,7 @@ export async function changePinAction(_prev: PinChangeState, form: FormData): Pr
   if (!isValidPin(pin)) return { error: "Ny PIN må være 4 sifre." };
   if (pin !== pin2) return { error: "De nye PIN-kodene er ikke like." };
   const db = await getDb();
-  await db.update(users).set({ pinHash: await hashPin(pin) }).where(eq(users.id, user.id));
+  await db.update(users).set({ pinHash: await hashPin(pin), ownPin: true }).where(eq(users.id, user.id));
+  revalidatePath("/");
   return { ok: true };
 }

@@ -6,10 +6,27 @@ import { isAndroid, isIos, isStandalone } from "./pwa";
 type Platform = "ios" | "android" | "mac-safari" | "pc";
 
 const HIDE_KEY = "3dking-skjul-installguide";
+const SEEN_KEY = "3dking-installguide-vist";
+
+// Første gang vises guiden øverst på forsiden. Senere flyttes den ned under produktene.
+// Svaret leses bare én gang per sidevisning, så de to plassene på forsiden er enige.
+let seenBefore: boolean | null = null;
+function guideSeenBefore(): boolean {
+  if (seenBefore === null) {
+    try {
+      seenBefore = localStorage.getItem(SEEN_KEY) === "1";
+      localStorage.setItem(SEEN_KEY, "1");
+    } catch {
+      seenBefore = false;
+    }
+  }
+  return seenBefore;
+}
 
 // Guiden for å legge 3DKing på hjemskjermen (mobil) eller skrivebordet (PC).
 // «compact»: på forsiden kan den skjules. På Meg-siden vises den alltid.
-export function InstallGuide({ compact = false }: { compact?: boolean }) {
+// «place»: forsiden har guiden både øverst og nederst, men bare én av dem vises (se guideSeenBefore).
+export function InstallGuide({ compact = false, place }: { compact?: boolean; place?: "top" | "bottom" }) {
   const [platform, setPlatform] = useState<Platform | null>(null);
   const [installed, setInstalled] = useState(false);
   const [hidden, setHidden] = useState(true);
@@ -23,17 +40,18 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
     /* eslint-disable react-hooks/set-state-in-effect -- leser nettleseren én gang ved oppstart */
     setPlatform(isIos() ? "ios" : isAndroid() ? "android" : safariMac ? "mac-safari" : "pc");
     setInstalled(isStandalone());
+    const wrongPlace = place != null && (place === "top") === guideSeenBefore();
     try {
-      setHidden(compact && localStorage.getItem(HIDE_KEY) === "1");
+      setHidden(wrongPlace || (compact && localStorage.getItem(HIDE_KEY) === "1"));
     } catch {
-      setHidden(false);
+      setHidden(wrongPlace);
     }
     setCanPrompt(Boolean(window.__installPrompt));
     /* eslint-enable react-hooks/set-state-in-effect */
     const onReady = () => setCanPrompt(true);
     window.addEventListener("3dking-installable", onReady);
     return () => window.removeEventListener("3dking-installable", onReady);
-  }, [compact]);
+  }, [compact, place]);
 
   if (!platform) return null;
   if (installed) {
@@ -91,7 +109,7 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
         <ol className="install-steps small-text">
           {platform === "ios" && (
             <>
-              <li>Åpne 3dking-app.vercel.app i <b>Safari</b>.</li>
+              <li>Bruk <b>Safari</b>. Har du åpnet lenken i en annen app, trykk «Åpne i Safari» først.</li>
               <li>
                 Trykk på <b>Del-knappen</b> <Icon name="share" size={16} className="inline" /> nederst på skjermen.
               </li>
@@ -123,8 +141,11 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
                 Se etter <b>installer-ikonet</b> (en skjerm med pil ned) helt til høyre i adressefeltet, og trykk på det.
               </li>
               <li>
-                Ser du det ikke: trykk på <b>⋮</b> (Chrome) eller <b>…</b> (Edge) øverst til høyre, og velg{" "}
-                <b>«Lagre og del» → «Installer 3DKing»</b> eller <b>«Apper» → «Installer dette nettstedet som en app»</b>.
+                Ser du det ikke i Chrome: trykk på <b>⋮</b> øverst til høyre og velg <b>«Lagre og del» → «Installer 3DKing»</b>.
+              </li>
+              <li>
+                Ser du det ikke i Edge: trykk på <b>…</b> øverst til høyre og velg{" "}
+                <b>«Apper» → «Installer dette nettstedet som en app»</b>.
               </li>
               <li>Trykk <b>«Installer»</b>. 3DKing får et eget vindu og et ikon på skrivebordet eller i Start-menyen.</li>
             </>

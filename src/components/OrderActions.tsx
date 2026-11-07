@@ -1,12 +1,14 @@
 "use client";
 import { useTransition } from "react";
 import { ConfirmButton } from "./ConfirmButton";
-import { cancelMyOrderAction, deleteOrderAction, setOrderStatusAction } from "@/app/order-actions";
+import { cancelMyOrderAction, deleteOrderAction, setOrderStatusAction, setPaidAction } from "@/app/order-actions";
 
 // Knappene Liam bruker for å flytte en bestilling videre (eller tilbake hvis han trykket feil).
-export function AdminOrderActions({ id, status }: { id: number; status: string }) {
+// «Merk betalt» står ved siden av, siden betaling (Vipps) kan skje når som helst.
+export function AdminOrderActions({ id, status, paid }: { id: number; status: string; paid: boolean }) {
   const [pending, start] = useTransition();
   const set = (s: string) => start(() => setOrderStatusAction(id, s));
+  const pay = (p: boolean) => start(() => setPaidAction(id, p));
 
   return (
     <div className="row-buttons left">
@@ -15,6 +17,12 @@ export function AdminOrderActions({ id, status }: { id: number; status: string }
       {status === "laget" && <button type="button" className="small secondary" disabled={pending} onClick={() => set("ny")}>Angre</button>}
       {status === "levert" && <button type="button" className="small secondary" disabled={pending} onClick={() => set("laget")}>Angre</button>}
       {status === "avbrutt" && <button type="button" className="small secondary" disabled={pending} onClick={() => set("ny")}>Gjenåpne</button>}
+      {status !== "avbrutt" && !paid && (
+        <button type="button" className="small secondary" disabled={pending} onClick={() => pay(true)}>Merk betalt</button>
+      )}
+      {status !== "avbrutt" && paid && (
+        <button type="button" className="small secondary" disabled={pending} onClick={() => pay(false)}>Angre betalt</button>
+      )}
       {(status === "ny" || status === "laget") && (
         <ConfirmButton
           disabled={pending}
