@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { markTourSeenAction } from "@/app/tour-actions";
 import { Icon, type IconName } from "./Icon";
+import { INTRO_DONE_EVENT, introActive } from "./IntroPlayer";
 
 // Introturen: noen korte sider om hvordan man bestiller. Vises i en boks i appen (ikke nettleserens).
 // Den åpner seg selv første gang en kunde logger inn, og kan åpnes igjen fra Meg med openIntroTour().
@@ -55,8 +56,16 @@ export function IntroTour({ autoOpen }: { autoOpen: boolean }) {
       if (!dialog.current?.open) dialog.current?.showModal();
     };
     window.addEventListener(OPEN_EVENT, open);
-    if (autoOpen) open();
-    return () => window.removeEventListener(OPEN_EVENT, open);
+    // Rett etter innlogging vises introfilmen først. Da venter turen til filmen er ferdig.
+    const afterIntro = () => open();
+    if (autoOpen) {
+      if (introActive()) window.addEventListener(INTRO_DONE_EVENT, afterIntro, { once: true });
+      else open();
+    }
+    return () => {
+      window.removeEventListener(OPEN_EVENT, open);
+      window.removeEventListener(INTRO_DONE_EVENT, afterIntro);
+    };
   }, [autoOpen]);
 
   function close() {
