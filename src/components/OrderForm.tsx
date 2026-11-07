@@ -61,7 +61,7 @@ export function OrderForm({ product, colors }: { product: ProductForCart; colors
   }
 
   return (
-    <form onSubmit={add} className="order-form">
+    <form noValidate onSubmit={add} className="order-form">
       <div className="stepper" aria-label="Antall">
         <button type="button" className="small secondary" onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Færre">−</button>
         <span>{qty} stk</span>

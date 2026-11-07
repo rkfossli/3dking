@@ -7,7 +7,7 @@ export function LoginForm() {
   // useActionState kobler skjemaet til server-handlingen og gir oss svaret (state) og om den jobber (pending).
   const [state, action, pending] = useActionState<FormState, FormData>(loginAction, {});
   return (
-    <form action={action} className="form">
+    <form noValidate action={action} className="form">
       <label>
         Brukernavn
         <input name="username" autoComplete="username" autoCapitalize="none" required />

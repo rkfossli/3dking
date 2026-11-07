@@ -43,7 +43,7 @@ export default async function MePage() {
         </p>
       </section>
       {/* Logg ut lå før nederst på forsiden. Nå som menyen er i fanelinja, hører den hjemme her under Meg. */}
-      <form action={logoutAction} className="logout">
+      <form noValidate action={logoutAction} className="logout">
         <button type="submit" className="secondary">Logg ut</button>
       </form>
     </main>

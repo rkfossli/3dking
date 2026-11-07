@@ -46,7 +46,7 @@ export function OrderReplyForm({
   }
 
   return (
-    <form action={action} className="reply-form">
+    <form noValidate action={action} className="reply-form">
       <input type="hidden" name="orderId" value={id} />
       {/* Tre valg som knapper i appens farger (i stedet for en nedtrekksliste, som bruker telefonens farger). */}
       <input type="hidden" name="approval" value={choice} />

@@ -40,7 +40,7 @@ export function OrderMessages({ orderNumber, messages, meId, meIsAdmin, closed =
       {closed ? (
         <p className="muted small-text">Bestillingen er ferdig, så samtalen er stengt.</p>
       ) : (
-        <form ref={form} action={action} className="chat-form">
+        <form noValidate ref={form} action={action} className="chat-form">
           <input type="hidden" name="orderNumber" value={orderNumber} />
           <input name="body" placeholder={meIsAdmin ? "Skriv til kunden" : "Skriv til 3DKing"} maxLength={500} aria-label="Melding" required />
           <button type="submit" className="small" disabled={pending}>{pending ? "…" : "Send"}</button>

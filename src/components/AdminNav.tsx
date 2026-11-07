@@ -3,10 +3,10 @@ import { countNew } from "@/lib/orders";
 import { countNewWishes } from "@/lib/wishes";
 import { Icon, type IconName } from "./Icon";
 
-type Tab = "bestillinger" | "onsker" | "brukere" | "produkter" | "oversikt" | "verksted";
+type Tab = "bestillinger" | "onsker" | "brukere" | "produkter" | "farger" | "oversikt" | "verksted";
 
 // Fanene øverst på admin-sidene. `active` sier hvilken fane som er valgt.
-// Seks faner får ikke plass på én linje på telefon, så de ligger i et rutenett med tre i hver rad.
+// Sju faner får ikke plass på én linje på telefon, så de ligger i et rutenett med fire i hver rad.
 // Da ser Liam alle med en gang, uten å scrolle sidelengs. Ordre og Ønsker viser et tall når noe venter.
 export async function AdminNav({ active }: { active: Tab }) {
   const waiting = await countNew();
@@ -15,6 +15,7 @@ export async function AdminNav({ active }: { active: Tab }) {
     { key: "bestillinger", href: "/admin/bestillinger", label: "Ordre", icon: "list", count: waiting },
     { key: "onsker", href: "/admin/onsker", label: "Ønsker", icon: "star", count: newWishes },
     { key: "produkter", href: "/admin/produkter", label: "Produkter", icon: "cube" },
+    { key: "farger", href: "/admin/farger", label: "Farger", icon: "drop" },
     { key: "brukere", href: "/admin", label: "Brukere", icon: "user" },
     { key: "oversikt", href: "/admin/oversikt", label: "Oversikt", icon: "chart" },
     { key: "verksted", href: "/admin/verksted", label: "Verksted", icon: "wrench" },

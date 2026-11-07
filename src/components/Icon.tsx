@@ -3,6 +3,13 @@
 // Tegnet i en 24x24-boks med strek, i samme stil som resten av appen.
 
 const PATHS = {
+  // Dråpe: farger og filament
+  drop: (
+    <>
+      <path d="M12 3.5s6 6.4 6 10.8a6 6 0 0 1-12 0c0-4.4 6-10.8 6-10.8z" />
+      <path d="M9.2 14.6a2.9 2.9 0 0 0 2.6 2.6" />
+    </>
+  ),
   // Hake i en sirkel: noe er ferdig eller på
   check: (
     <>

@@ -11,7 +11,7 @@ export function CategoryForm() {
     if (state.ok) form.current?.reset();
   }, [state]);
   return (
-    <form ref={form} action={action} className="chat-form">
+    <form noValidate ref={form} action={action} className="chat-form">
       <input name="name" placeholder="For eksempel Figurer" maxLength={30} aria-label="Navn på kategorien" required />
       <button type="submit" className="small" disabled={pending}>Legg til</button>
       {state.error && <p className="error small-text">{state.error}</p>}
@@ -30,6 +30,7 @@ export function CategoryRow({ id, name, count, first, last }: { id: number; name
     <li className="user-row">
       {editing ? (
         <form
+          noValidate
           className="chat-form grow"
           onSubmit={(e) => {
             e.preventDefault();

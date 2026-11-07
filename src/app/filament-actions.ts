@@ -10,7 +10,7 @@ import { isHex } from "@/lib/filaments";
 export type FilamentState = { error?: string; ok?: boolean };
 
 function refresh() {
-  revalidatePath("/admin/filament");
+  revalidatePath("/admin/farger", "layout");
   revalidatePath("/produkt/[id]", "page");
 }
 

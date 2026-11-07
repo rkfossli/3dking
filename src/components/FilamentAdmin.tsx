@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { addFilamentAction, addFilamentsAction, deleteFilamentAction, setInStockAction, type FilamentState } from "@/app/filament-actions";
 import { PALETTE, colorFill } from "@/lib/palette";
@@ -13,6 +14,7 @@ export function FilamentForm({ existing }: { existing: string[] }) {
   const [picked, setPicked] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<number | null>(null);
   const [pending, start] = useTransition();
   const q = query.trim().toLowerCase();
 
@@ -22,11 +24,15 @@ export function FilamentForm({ existing }: { existing: string[] }) {
 
   function add() {
     setError(null);
+    setDone(null);
     const all = PALETTE.flatMap((g) => g.colors);
     start(async () => {
       const res = await addFilamentsAction(all.filter((c) => picked.includes(c.name)));
       if (res.error) setError(res.error);
-      else setPicked([]);
+      else {
+        setDone(picked.length);
+        setPicked([]);
+      }
     });
   }
 
@@ -76,6 +82,11 @@ export function FilamentForm({ existing }: { existing: string[] }) {
         );
       })}
       {error && <p className="error small-text">{error}</p>}
+      {done != null && (
+        <p className="ok-text small-text">
+          La til {done === 1 ? "1 farge" : `${done} farger`}. <Link href="/admin/farger">Se Mine farger</Link>
+        </p>
+      )}
       <div className="pal-add">
         <button type="button" onClick={add} disabled={pending || picked.length === 0}>
           {pending ? "Legger til …" : picked.length === 0 ? "Trykk på fargene du har" : `Legg til ${picked.length === 1 ? "1 farge" : `${picked.length} farger`}`}
@@ -100,7 +111,7 @@ function OwnColorForm() {
   }, {});
   const valid = /^#[0-9a-f]{6}$/i.test(hex);
   return (
-    <form action={action} className="form">
+    <form noValidate action={action} className="form">
       <div className="filament-fields">
         <span className="swatch big own-preview" style={{ background: valid ? hex : "transparent" }} aria-hidden />
         <label>
@@ -119,31 +130,87 @@ function OwnColorForm() {
   );
 }
 
-// Én farge i listen: prøve, navn, På lager/Tom og Slett.
-export function FilamentRow({ id, name, hex, inStock }: { id: number; name: string; hex: string; inStock: boolean }) {
+type MyColor = { id: number; name: string; hex: string; inStock: boolean };
+
+/** Hvilken Bambu-type en farge hører til, ut fra navnet. Farger Liam har laget selv havner i «Egne farger». */
+function lineOf(name: string): string {
+  const hit = PALETTE.map((g) => g.line).filter((l) => name.startsWith(l + " ")).sort((a, b) => b.length - a.length)[0];
+  return hit ?? "Egne farger";
+}
+
+// Mine farger: alle fargene Liam har, gruppert etter type som små ruter.
+// Trykk på en rute for å bytte mellom «inne» og «tom». I «Rediger» kan han fjerne farger.
+export function MyColors({ list }: { list: MyColor[] }) {
+  const [filter, setFilter] = useState<"alle" | "inne" | "tom">("alle");
+  const [edit, setEdit] = useState(false);
   const [pending, start] = useTransition();
+  const empty = list.filter((c) => !c.inStock).length;
+  const shown = list.filter((c) => (filter === "alle" ? true : filter === "inne" ? c.inStock : !c.inStock));
+
+  // Samme rekkefølge som i fargekartet, med egne farger til slutt.
+  const order = [...PALETTE.map((g) => g.line), "Egne farger"];
+  const groups = order
+    .map((line) => ({ line, colors: shown.filter((c) => lineOf(c.name) === line) }))
+    .filter((g) => g.colors.length > 0);
+
   return (
-    <li className={`user-row${inStock ? "" : " inactive"}`}>
-      <div className="thumb-row">
-        <span className="swatch big" style={{ background: colorFill(hex) }} />
-        <div>
-          <b>{name}</b>
-          {!inStock && <span className="tag">tom</span>}
+    <div className="my-colors">
+      <div className="my-colors-bar">
+        <div className="seg" role="group" aria-label="Vis">
+          <button type="button" className={filter === "alle" ? "on" : ""} aria-pressed={filter === "alle"} onClick={() => setFilter("alle")}>Alle ({list.length})</button>
+          <button type="button" className={filter === "inne" ? "on" : ""} aria-pressed={filter === "inne"} onClick={() => setFilter("inne")}>Inne ({list.length - empty})</button>
+          <button type="button" className={filter === "tom" ? "on" : ""} aria-pressed={filter === "tom"} onClick={() => setFilter("tom")}>Tom ({empty})</button>
         </div>
-      </div>
-      <div className="row-buttons">
-        <button type="button" className="small secondary" disabled={pending} onClick={() => start(() => setInStockAction(id, !inStock))}>
-          {inStock ? "Tom" : "På lager"}
+        <button type="button" className={`small ${edit ? "" : "secondary"}`} onClick={() => setEdit(!edit)}>
+          {edit ? "Ferdig" : "Rediger"}
         </button>
-        <ConfirmButton
-          disabled={pending}
-          question={`Slette fargen «${name}»? Gamle bestillinger beholder fargen.`}
-          confirmLabel="Ja, slett"
-          onConfirm={() => start(() => deleteFilamentAction(id))}
-        >
-          Slett
-        </ConfirmButton>
       </div>
-    </li>
+      <p className="muted small-text">
+        {edit ? "Trykk «Fjern» på farger du ikke vil ha i listen lenger." : "Trykk på en farge for å merke den som tom eller inne igjen."}
+      </p>
+      {groups.length === 0 && <p className="muted">Ingen farger her.</p>}
+      {groups.map((g) => (
+        <section key={g.line} className="my-group">
+          <h3>{g.line}</h3>
+          <div className="palette">
+            {g.colors.map((c) => {
+              const short = g.line === "Egne farger" ? c.name : c.name.slice(g.line.length + 1);
+              if (edit) {
+                return (
+                  <div key={c.id} className="pal mine-edit">
+                    <span className="pal-dot" style={{ background: colorFill(c.hex) }} />
+                    <span className="pal-name">{short}</span>
+                    <ConfirmButton
+                      disabled={pending}
+                      className="small danger"
+                      question={`Fjerne «${c.name}»? Gamle bestillinger beholder fargen.`}
+                      confirmLabel="Ja, fjern"
+                      onConfirm={() => start(() => deleteFilamentAction(c.id))}
+                    >
+                      Fjern
+                    </ConfirmButton>
+                  </div>
+                );
+              }
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={`pal${c.inStock ? "" : " empty"}`}
+                  disabled={pending}
+                  aria-pressed={c.inStock}
+                  title={c.inStock ? `${c.name}: trykk for å merke som tom` : `${c.name}: trykk når den er inne igjen`}
+                  onClick={() => start(() => setInStockAction(c.id, !c.inStock))}
+                >
+                  <span className="pal-dot" style={{ background: colorFill(c.hex) }} />
+                  <span className="pal-name">{short}</span>
+                  <span className={`pal-state${c.inStock ? "" : " off"}`}>{c.inStock ? "Inne" : "Tom"}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
   );
 }

@@ -16,6 +16,7 @@ export function UserRow({ id, displayName, username, role, active, isMe }: Props
     return (
       <li className="user-row">
         <form
+          noValidate
           className="edit-form"
           action={(form) =>
             start(async () => {
