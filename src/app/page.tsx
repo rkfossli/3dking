@@ -38,7 +38,7 @@ export default async function Home() {
         </div>
       </div>
       <p className="muted">
-        Hei, {user.displayName}! {isAdmin ? "Slik ser butikken ut for kundene." : "Velg noe du vil at Liam skal printe."}
+        Hei, {user.displayName}! {isAdmin ? "Slik ser butikken ut for kundene." : "Velg noe du vil at 3DKing skal printe."}
       </p>
       {ready > 0 && (
         <Link href="/mine" className="ready-notice">
