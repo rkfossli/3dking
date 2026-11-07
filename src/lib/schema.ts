@@ -66,6 +66,10 @@ export const orders = pgTable("orders", {
   changedByAdminAt: timestamp("changed_by_admin_at", { withTimezone: true }),
   deliveryPlan: text("delivery_plan"), // f.eks. «Leveres på skolen på mandag»
   paidAt: timestamp("paid_at", { withTimezone: true }), // når Liam fikk betalt (Vipps). null = ikke betalt
+  // Kundens svar på «godkjent med endringer»: "godtatt" eller "avslatt". null = ikke svart ennå.
+  customerResponse: text("customer_response"),
+  customerNote: text("customer_note"), // f.eks. «Vil heller vente på rødt»
+  customerRespondedAt: timestamp("customer_responded_at", { withTimezone: true }),
 });
 
 // Telefoner som har sagt ja til varsler (brukes i Fase 6).

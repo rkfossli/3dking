@@ -1302,3 +1302,44 @@ select:focus-visible {
 .page > .order-list {
   margin-top: 12px;
 }
+
+/* Kundens svar på «godkjent med endringer» */
+.customer-response {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.customer-response p {
+  margin: 0;
+}
+
+.customer-response.asking {
+  border-color: var(--accent);
+}
+
+.customer-response.godtatt {
+  border-color: var(--accent);
+}
+
+.customer-response.avslatt {
+  border-color: var(--danger);
+}
+
+.customer-response.venter {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.customer-response .stack,
+.customer-response label {
+  width: 100%;
+}
+
+p.customer-response {
+  display: block;
+}

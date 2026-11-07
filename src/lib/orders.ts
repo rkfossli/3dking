@@ -34,6 +34,9 @@ export type OrderRow = {
   deliveryPlan: string | null;
   changedByAdminAt: Date | null;
   paidAt: Date | null;
+  customerResponse: string | null;
+  customerNote: string | null;
+  customerRespondedAt: Date | null;
   productId: number;
   userId: number;
   productName: string;
@@ -60,6 +63,9 @@ async function query(where?: ReturnType<typeof eq>, oldestFirst = false) {
       deliveryPlan: orders.deliveryPlan,
       changedByAdminAt: orders.changedByAdminAt,
       paidAt: orders.paidAt,
+      customerResponse: orders.customerResponse,
+      customerNote: orders.customerNote,
+      customerRespondedAt: orders.customerRespondedAt,
       productId: orders.productId,
       userId: orders.userId,
       productName: products.name,
