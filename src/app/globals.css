@@ -352,3 +352,114 @@ input[type="file"] {
   font-size: 13px;
   padding: 8px;
 }
+
+/* Fase 5: bestillinger */
+.product {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-btn {
+  margin-top: auto;
+  width: 100%;
+}
+
+.product .price {
+  margin-bottom: 10px;
+}
+
+.order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-form textarea {
+  font-size: 14px;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ok {
+  color: var(--accent);
+}
+
+.order-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-list .card {
+  margin-top: 0;
+}
+
+.order-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.order .row-buttons {
+  margin-top: 10px;
+}
+
+.badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.badge.ny {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.badge.laget {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.badge.avbrutt {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.status-avbrutt,
+.status-levert {
+  opacity: 0.75;
+}
+
+.count {
+  display: inline-block;
+  min-width: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.tabs {
+  flex-wrap: wrap;
+}
+
+.small-tabs a {
+  padding: 5px 10px;
+  font-size: 13px;
+}

@@ -3,6 +3,8 @@ import { requireUser } from "@/lib/auth";
 import { availableProducts } from "@/lib/products";
 import { kr } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
+import { OrderButton } from "@/components/OrderButton";
+import { countNew } from "@/lib/orders";
 import { logoutAction } from "./auth-actions";
 
 export const dynamic = "force-dynamic";
@@ -12,13 +14,19 @@ export default async function Home() {
   const user = await requireUser();
   const isAdmin = user.role === "admin";
   const list = await availableProducts();
+  const waiting = isAdmin ? await countNew() : 0;
 
   return (
     <main className="page">
       <div className="top">
         <h1>3DKing</h1>
         <div className="row-buttons">
-          {isAdmin && <Link href="/admin/produkter" className="button small">Admin</Link>}
+          <Link href="/mine" className="button small secondary">Mine bestillinger</Link>
+          {isAdmin && (
+            <Link href="/admin/bestillinger" className="button small">
+              Admin{waiting > 0 && <span className="count">{waiting}</span>}
+            </Link>
+          )}
           <form action={logoutAction}>
             <button type="submit" className="small secondary">Logg ut</button>
           </form>
@@ -36,6 +44,7 @@ export default async function Home() {
             {p.description && <p className="muted small-text">{p.description}</p>}
             <p className="price">{kr(p.priceNok)}</p>
             {isAdmin && p.costNok != null && <p className="muted small-text">Filament: {kr(p.costNok)} (bare du ser dette)</p>}
+            <OrderButton productId={p.id} price={p.priceNok} />
           </article>
         ))}
       </div>
