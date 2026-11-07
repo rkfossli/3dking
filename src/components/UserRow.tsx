@@ -1,6 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
-import { renameUserAction, resetPinAction, setActiveAction } from "@/app/admin-actions";
+import { deleteUserAction, renameUserAction, resetPinAction, setActiveAction } from "@/app/admin-actions";
 
 type Props = { id: number; displayName: string; username: string; role: string; active: boolean; isMe: boolean };
 
@@ -46,6 +46,7 @@ export function UserRow({ id, displayName, username, role, active, isMe }: Props
         {role === "admin" && <span className="tag">admin</span>}
         {!active && <span className="tag">av</span>}
         {pin && <p className="pin">Ny PIN: {pin}</p>}
+        {error && <p className="error">{error}</p>}
       </div>
       <div className="row-buttons">
         <button type="button" className="small secondary" onClick={() => setEditing(true)}>Endre</button>
@@ -61,6 +62,18 @@ export function UserRow({ id, displayName, username, role, active, isMe }: Props
             </button>
             <button type="button" className="small secondary" disabled={pending} onClick={() => start(() => setActiveAction(id, !active))}>
               {active ? "Slå av" : "Slå på"}
+            </button>
+            <button
+              type="button"
+              className="small danger"
+              disabled={pending}
+              onClick={() => {
+                // confirm() viser en «Er du sikker?»-boks i nettleseren. Sletting kan ikke angres.
+                if (!confirm(`Slette ${displayName} for godt? Dette kan ikke angres.`)) return;
+                start(async () => setError((await deleteUserAction(id)).error ?? null));
+              }}
+            >
+              Slett
             </button>
           </>
         )}

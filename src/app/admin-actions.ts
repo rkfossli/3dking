@@ -2,9 +2,9 @@
 // Handlinger på admin-siden. ALLE starter med requireAdmin(), så bare admin kan bruke dem,
 // selv om noen skulle prøve å kalle dem uten å gå via knappene.
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { sessions, users } from "@/lib/schema";
+import { orders, sessions, users } from "@/lib/schema";
 import { hashPin, isValidUsername, normalizeUsername, randomPin, requireAdmin } from "@/lib/auth";
 
 /** Svaret vises på admin-siden. PIN vises bare denne ene gangen. */
@@ -61,6 +61,21 @@ export async function renameUserAction(userId: number, displayNameInput: string,
   if (taken && taken.id !== userId) return { error: `Brukernavnet «${username}» er tatt.` };
 
   await db.update(users).set({ displayName, username }).where(eq(users.id, userId));
+  revalidatePath("/admin");
+  return {};
+}
+
+/**
+ * Slett en bruker for godt. Økter og varsel-abonnementer slettes automatisk (ON DELETE CASCADE).
+ * Har brukeren bestillinger, slettes den ikke, så Liam ikke mister oversikten over hvem som har fått hva.
+ */
+export async function deleteUserAction(userId: number): Promise<{ error?: string }> {
+  const admin = await requireAdmin();
+  if (userId === admin.id) return { error: "Du kan ikke slette deg selv." };
+  const db = await getDb();
+  const [{ n }] = await db.select({ n: count() }).from(orders).where(eq(orders.userId, userId));
+  if (n > 0) return { error: `Brukeren har ${n} bestilling(er) og kan ikke slettes. Slå den av i stedet.` };
+  await db.delete(users).where(eq(users.id, userId));
   revalidatePath("/admin");
   return {};
 }
