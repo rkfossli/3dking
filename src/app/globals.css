@@ -301,3 +301,54 @@ button.danger {
   color: var(--danger);
   border: 1px solid var(--danger);
 }
+
+/* Fase 4: bilder */
+img.product-img {
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-field {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.image-field .check {
+  grid-column: 2;
+}
+
+.thumb-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.thumb {
+  width: 48px;
+  flex-shrink: 0;
+}
+
+.thumb .product-img {
+  font-size: 20px;
+  border-radius: 8px;
+}
+
+/* Felt skal aldri bli bredere enn skjermen */
+input,
+textarea {
+  width: 100%;
+  min-width: 0;
+}
+
+label {
+  min-width: 0;
+}
+
+input[type="file"] {
+  font-size: 13px;
+  padding: 8px;
+}

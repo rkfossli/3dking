@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { availableProducts } from "@/lib/products";
 import { kr } from "@/lib/format";
+import { ProductImage } from "@/components/ProductImage";
 import { logoutAction } from "./auth-actions";
 
 export const dynamic = "force-dynamic";
@@ -30,8 +31,7 @@ export default async function Home() {
       <div className="grid">
         {list.map((p) => (
           <article key={p.id} className="card product">
-            {/* Plass til bilde. Bilder kommer i Fase 4. */}
-            <div className="product-img" aria-hidden>🧊</div>
+            <ProductImage url={p.imageUrl} alt={p.name} />
             <h2>{p.name}</h2>
             {p.description && <p className="muted small-text">{p.description}</p>}
             <p className="price">{kr(p.priceNok)}</p>
