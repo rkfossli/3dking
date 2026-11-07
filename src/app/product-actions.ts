@@ -61,7 +61,7 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
     if (wish) {
       await db.update(wishes).set({ productId: created.id }).where(eq(wishes.id, wish.id));
       after(() =>
-        safely(sendPush([wish.userId], { title: "Ønsket ditt er i butikken!", body: `${name} kan bestilles nå.`, url: "/onsker", tag: `onske-${wish.id}` })),
+        safely(sendPush([wish.userId], { title: "Ønsket ditt kan bestilles!", body: `${name} kan bestilles nå.`, url: "/onsker", tag: `onske-${wish.id}` })),
       );
       revalidatePath("/onsker");
       revalidatePath("/admin/onsker");

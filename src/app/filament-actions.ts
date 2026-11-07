@@ -17,7 +17,7 @@ function refresh() {
 /** Liam legger til en ny farge. */
 export async function addFilamentAction(_prev: FilamentState, form: FormData): Promise<FilamentState> {
   await requireAdmin();
-  const name = String(form.get("name") ?? "").trim().slice(0, 40);
+  const name = String(form.get("name") ?? "").trim().slice(0, 60);
   const hex = String(form.get("hex") ?? "").trim();
   if (!name) return { error: "Fargen må ha et navn." };
   if (!isHex(hex)) return { error: "Velg en farge." };
@@ -31,9 +31,9 @@ export async function addFilamentAction(_prev: FilamentState, form: FormData): P
 export async function addFilamentsAction(colors: { name: string; hex: string }[]): Promise<FilamentState> {
   await requireAdmin();
   const clean = (Array.isArray(colors) ? colors : [])
-    .map((c) => ({ name: String(c.name ?? "").trim().slice(0, 40), hex: String(c.hex ?? "").trim() }))
+    .map((c) => ({ name: String(c.name ?? "").trim().slice(0, 60), hex: String(c.hex ?? "").trim() }))
     .filter((c) => c.name && isHex(c.hex))
-    .slice(0, 40);
+    .slice(0, 200);
   if (clean.length === 0) return { error: "Velg minst én farge." };
   const db = await getDb();
   const existing = new Set((await db.select({ name: filaments.name }).from(filaments)).map((f) => f.name.toLowerCase()));

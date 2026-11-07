@@ -24,7 +24,7 @@ export default async function ProductPage({ params }: PageProps<"/produkt/[id]">
   return (
     <main className="page narrow-wide">
       <p>
-        <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til butikken</Link>
+        <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til modellene</Link>
       </p>
       <article className="card product product-page">
         <ProductImage url={p.imageUrl} alt={p.name} />

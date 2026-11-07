@@ -12,6 +12,7 @@ import { ChangeResponse } from "@/components/ChangeResponse";
 import { OrderSteps } from "@/components/OrderSteps";
 import { OrderMessages } from "@/components/OrderMessages";
 import { messagesFor } from "@/lib/messages";
+import { colorFill } from "@/lib/palette";
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +63,7 @@ export default async function MyOrdersPage() {
       </p>
       {o.colorName && (
         <p className="small-text color-line">
-          <span className="swatch" style={{ background: o.colorHex ?? undefined }} /> {o.colorName}
+          <span className="swatch" style={{ background: colorFill(o.colorHex) }} /> {o.colorName}
         </p>
       )}
       {o.note && <p className="small-text">Ditt ønske: «{o.note}»</p>}
@@ -113,7 +114,7 @@ export default async function MyOrdersPage() {
         <div className="card">
           <p className="muted">Du har ikke bestilt noe ennå.</p>
           <Link href="/" className="button empty-cta">
-            Finn noe du liker i butikken
+            Finn noe du liker blant modellene
           </Link>
         </div>
       )}

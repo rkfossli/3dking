@@ -2666,3 +2666,35 @@ button:focus:not(:focus-visible),
   height: 48px;
   border-style: dashed;
 }
+
+/* Fargekartet er gruppert etter filamenttype (PLA Basic, PLA Matte …) */
+.pal-group {
+  border-top: 1px solid var(--border);
+  padding-top: var(--s2);
+}
+
+.pal-group summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  font-weight: 600;
+}
+
+.pal-group[open] summary {
+  margin-bottom: var(--s2);
+}
+
+/* Legg til-knappen blir liggende synlig over fanelinja mens man blar */
+.pal-add {
+  position: sticky;
+  bottom: calc(var(--tabbar-h) + var(--infobar-h) + var(--s3) + env(safe-area-inset-bottom));
+  z-index: 2;
+}
+
+.pal-add button {
+  width: 100%;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}

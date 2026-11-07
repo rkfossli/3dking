@@ -27,7 +27,7 @@ export default async function CategoriesPage() {
       </section>
       <section className="card">
         <h2>Kategorier ({list.length})</h2>
-        {list.length === 0 && <p className="muted">Ingen kategorier ennå. Uten kategorier viser butikken alt i én liste.</p>}
+        {list.length === 0 && <p className="muted">Ingen kategorier ennå. Uten kategorier vises alle modellene i én liste.</p>}
         <ul className="user-list">
           {list.map((c, i) => (
             <CategoryRow key={c.id} id={c.id} name={c.name} count={countOf(c.id)} first={i === 0} last={i === list.length - 1} />
