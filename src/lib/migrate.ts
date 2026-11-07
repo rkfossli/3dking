@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 11;
+export const SCHEMA_VERSION = 12;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -164,5 +164,10 @@ export const UPGRADES: Record<number, string> = {
       category_id integer NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
       PRIMARY KEY (product_id, category_id)
     );
+  `,
+  // Flere farger per print: produktet sier hvor mange, bestillingen husker farge 2 og 3.
+  12: `
+    ALTER TABLE products ADD COLUMN IF NOT EXISTS color_count integer NOT NULL DEFAULT 1;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS extra_colors text;
   `,
 };

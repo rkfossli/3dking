@@ -5,7 +5,7 @@ import { useActionState, useState, startTransition } from "react";
 import { saveProductAction, type ProductFormState } from "@/app/product-actions";
 import { shrinkImage } from "@/lib/shrinkImage";
 
-type Initial = { id?: number; name: string; description: string | null; priceNok: number; costNok: number | null; available: boolean; imageUrl: string | null };
+type Initial = { id?: number; name: string; description: string | null; priceNok: number; costNok: number | null; available: boolean; colorCount?: number; imageUrl: string | null };
 
 // Samme skjema brukes for nytt produkt (uten `product`) og for å endre et (med `product`).
 // `wishId`: produktet lages fra et ønske i ønskeboksen. Feltene er da fylt ut fra ønsket.
@@ -87,6 +87,14 @@ export function ProductForm({
         </label>
       </div>
       <p className="muted small-text">Filamentkost vises bare for deg. Prisen skal bare dekke filament og strøm.</p>
+      <label>
+        Farger per print
+        <select name="colorCount" defaultValue={product?.colorCount ?? 1}>
+          <option value={1}>1 farge</option>
+          <option value={2}>2 farger (hovedfarge + 1)</option>
+          <option value={3}>3 farger (hovedfarge + 2)</option>
+        </select>
+      </label>
       {/* Kategorier: kryss av for én eller flere. Alle avkrysningsboksene heter «category». */}
       {categories.length > 0 && (
         <fieldset className="cat-pick">

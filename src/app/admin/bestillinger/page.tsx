@@ -8,7 +8,8 @@ import { AdminNav } from "@/components/AdminNav";
 import { AdminOrderActions } from "@/components/OrderActions";
 import { OrderMessages } from "@/components/OrderMessages";
 import { messagesFor, isFinished } from "@/lib/messages";
-import { colorFill } from "@/lib/palette";
+import { parseExtraColors } from "@/lib/palette";
+import { ColorLine } from "@/components/ColorLine";
 
 export const dynamic = "force-dynamic";
 
@@ -67,11 +68,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
         {o.deliveredAt && ` · levert ${when(o.deliveredAt)}`}
         {o.paidAt && ` · betalt ${when(o.paidAt)}`}
       </p>
-      {o.colorName && (
-        <p className="small-text color-line">
-          <span className="swatch" style={{ background: colorFill(o.colorHex) }} /> {o.colorName}
-        </p>
-      )}
+      <ColorLine main={o.colorName ? { name: o.colorName, hex: o.colorHex ?? "" } : null} extra={parseExtraColors(o.extraColors)} />
       {o.note && <p className="small-text">«{o.note}»</p>}
       <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Ditt svar" />
       {o.approval === "endringer" && (

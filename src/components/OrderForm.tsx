@@ -8,7 +8,7 @@ import { colorFill } from "@/lib/palette";
 
 const MAX = 20;
 
-export type ProductForCart = { id: number; name: string; price: number; imageUrl: string | null };
+export type ProductForCart = { id: number; name: string; price: number; imageUrl: string | null; colorCount?: number };
 export type ColorChoice = { id: number; name: string; hex: string; inStock: boolean };
 
 // Skjemaet på produktsiden: antall, ønsker og «Legg i handlekurven».
@@ -17,8 +17,16 @@ export function OrderForm({ product, colors }: { product: ProductForCart; colors
   const [qty, setQty] = useState(1);
   const [note, setNote] = useState("");
   const [added, setAdded] = useState(false);
-  const [colorId, setColorId] = useState<number | null>(null);
-  const color = colors.find((c) => c.id === colorId) ?? null;
+  // Én plass per farge produktet tillater. Plass 0 er hovedfargen.
+  const slots = Math.min(3, Math.max(1, product.colorCount ?? 1));
+  const [picked, setPicked] = useState<(number | null)[]>(() => Array(slots).fill(null));
+  const chosen = picked.map((id) => colors.find((c) => c.id === id) ?? null);
+  const color = chosen[0];
+  const extra = chosen.slice(1).filter((c): c is ColorChoice => c != null);
+
+  function pick(slot: number, id: number) {
+    setPicked((p) => p.map((v, i) => (i === slot ? (v === id ? null : id) : v)));
+  }
 
   function add(e: React.FormEvent) {
     e.preventDefault();
@@ -32,10 +40,12 @@ export function OrderForm({ product, colors }: { product: ProductForCart; colors
       colorId: color?.id ?? null,
       colorName: color?.name ?? null,
       colorHex: color?.hex ?? null,
+      extraColors: extra.map((c) => ({ id: c.id, name: c.name, hex: c.hex })),
     });
     setAdded(true);
     setQty(1);
     setNote("");
+    setPicked(Array(slots).fill(null));
   }
 
   if (added) {
@@ -57,27 +67,34 @@ export function OrderForm({ product, colors }: { product: ProductForCart; colors
         <span>{qty} stk</span>
         <button type="button" className="small secondary" onClick={() => setQty(Math.min(MAX, qty + 1))} aria-label="Flere">+</button>
       </div>
-      {/* Fargevalg: runde knapper i fargene Liam har. Tomme farger er grå og kan ikke velges. */}
-      {colors.length > 0 && (
-        <fieldset className="colors">
-          <legend>Farge {color ? <b>· {color.name}</b> : <span className="muted">(valgfritt)</span>}</legend>
-          <div className="color-chips">
-            {colors.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                className={`color-chip${c.id === colorId ? " on" : ""}`}
-                style={{ ["--chip" as string]: colorFill(c.hex) }}
-                disabled={!c.inStock}
-                aria-pressed={c.id === colorId}
-                aria-label={c.inStock ? c.name : `${c.name} (tom)`}
-                title={c.inStock ? c.name : `${c.name} er tom`}
-                onClick={() => setColorId(c.id === colorId ? null : c.id)}
-              />
-            ))}
-          </div>
-        </fieldset>
-      )}
+      {/* Fargevalg: runde knapper i fargene Liam har, én rad per farge produktet tillater. Tomme farger er grå. */}
+      {colors.length > 0 &&
+        picked.map((selectedId, slot) => {
+          const current = chosen[slot];
+          const label = slots === 1 ? "Farge" : slot === 0 ? "Hovedfarge" : `Farge ${slot + 1}`;
+          return (
+            <fieldset key={slot} className="colors">
+              <legend>
+                {label} {current ? <b>· {current.name}</b> : <span className="muted">(valgfritt)</span>}
+              </legend>
+              <div className="color-chips">
+                {colors.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className={`color-chip${c.id === selectedId ? " on" : ""}`}
+                    style={{ ["--chip" as string]: colorFill(c.hex) }}
+                    disabled={!c.inStock}
+                    aria-pressed={c.id === selectedId}
+                    aria-label={c.inStock ? `${label}: ${c.name}` : `${c.name} (tom)`}
+                    title={c.inStock ? c.name : `${c.name} er tom`}
+                    onClick={() => pick(slot, c.id)}
+                  />
+                ))}
+              </div>
+            </fieldset>
+          );
+        })}
       <label>
         Ønsker (valgfritt)
         <textarea

@@ -25,6 +25,7 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
   const description = String(form.get("description") ?? "").trim() || null;
   const priceNok = parseKroner(form.get("price"));
   const costNok = parseKroner(form.get("cost"));
+  const colorCount = Math.min(3, Math.max(1, Number(form.get("colorCount")) || 1));
   const available = form.get("available") === "on"; // avkrysningsboks: "on" når den er huket av
 
   if (!name) return { error: "Produktet må ha et navn." };
@@ -50,7 +51,7 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
     imageUrl = null;
   }
 
-  const values = { name, description, priceNok, costNok, available, imageUrl };
+  const values = { name, description, priceNok, costNok, available, imageUrl, colorCount };
   const db = await getDb();
   let productId = id;
   if (id) await db.update(products).set(values).where(eq(products.id, id));

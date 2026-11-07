@@ -2724,3 +2724,16 @@ button:focus:not(:focus-visible),
     color: var(--accent-text);
   }
 }
+
+/* Flere farger på en bestilling: hver farge med sin prøve, brytes til ny linje ved behov */
+.color-line {
+  flex-wrap: wrap;
+  column-gap: var(--s3);
+  row-gap: var(--s1);
+}
+
+.color-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+}

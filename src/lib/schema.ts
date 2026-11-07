@@ -41,6 +41,8 @@ export const products = pgTable("products", {
   // Filamentkost: vises bare for admin.
   costNok: integer("cost_nok"),
   available: boolean("available").notNull().default(true),
+  // Hvor mange farger kunden kan velge per print: 1, 2 eller 3. Den første er hovedfargen.
+  colorCount: integer("color_count").notNull().default(1),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -76,6 +78,8 @@ export const orders = pgTable("orders", {
   // Fargen kunden valgte. Navnet og koden kopieres inn, så bestillingen viser riktig farge selv om Liam sletter den senere.
   colorName: text("color_name"),
   colorHex: text("color_hex"),
+  // Farge 2 og 3, når produktet har flere farger. JSON-liste med navn og fargekode, f.eks. [{"name":"PLA Basic Red","hex":"#c12e1f"}].
+  extraColors: text("extra_colors"),
 });
 
 // Filamentfarger Liam har. Kunden velger blant dem på produktsiden. Tom farge vises grå og kan ikke velges.

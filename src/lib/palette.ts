@@ -298,3 +298,16 @@ export function colorFill(hex: string | null | undefined): string | undefined {
 export function isHex(v: string): boolean {
   return /^#[0-9a-f]{6}(,#[0-9a-f]{6}){0,3}$/i.test(v);
 }
+
+export type NamedColor = { name: string; hex: string };
+
+/** Leser farge 2 og 3 fra bestillingen (lagret som JSON). Ugyldig innhold gir en tom liste. */
+export function parseExtraColors(raw: string | null | undefined): NamedColor[] {
+  if (!raw) return [];
+  try {
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list.filter((c) => c && typeof c.name === "string" && typeof c.hex === "string") : [];
+  } catch {
+    return [];
+  }
+}

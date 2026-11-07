@@ -42,6 +42,7 @@ export type OrderRow = {
   customerRespondedAt: Date | null;
   colorName: string | null;
   colorHex: string | null;
+  extraColors: string | null;
   productId: number;
   userId: number;
   productName: string;
@@ -74,6 +75,7 @@ async function query(where?: ReturnType<typeof eq>, oldestFirst = false) {
       customerRespondedAt: orders.customerRespondedAt,
       colorName: orders.colorName,
       colorHex: orders.colorHex,
+      extraColors: orders.extraColors,
       productId: orders.productId,
       userId: orders.userId,
       productName: products.name,
