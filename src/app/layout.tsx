@@ -7,7 +7,7 @@ import "./globals.css";
 // Metadata = tittelen som vises i nettleserfanen og når appen legges på hjemskjermen.
 export const metadata: Metadata = {
   title: "3DKing",
-  description: "Bestill 3D-printede ting. Testversjon og hobbyprosjekt.",
+  description: "Bestill 3D-printede ting. Et hobbyprosjekt.",
   // iPhone: åpne uten Safari-knapper når appen startes fra Hjem-skjermen.
   appleWebApp: { capable: true, title: "3DKing", statusBarStyle: "black" },
   // Ikonet iPhone bruker på Hjem-skjermen. Laget fra design/ikon.html.
@@ -29,12 +29,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="no" data-theme={theme} data-mode={mode}>
       <body>
-        {/* Testbanneret skal alltid være synlig, så det ligger i layouten. */}
-        <div className="test-banner">
-          Testversjon · Hobbyprosjekt · <span className="wide-only">Prisene dekker bare filament og strøm</span>
-          <span className="narrow-only">Pris = filament og strøm</span>
-        </div>
         {children}
+        {/* Infolinja ligger fast nederst på skjermen, så den alltid er synlig uten å ta plass øverst. */}
+        <footer className="info-bar">
+          Hobbyprosjekt · <span className="wide-only">Prisene dekker bare filament og strøm</span>
+          <span className="narrow-only">Pris = filament og strøm</span>
+        </footer>
         <ServiceWorker />
       </body>
     </html>

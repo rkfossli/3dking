@@ -92,13 +92,27 @@ body {
   font-family: var(--font-body);
 }
 
-.test-banner {
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-size: 13px;
-  font-weight: 600;
+/* Infolinja nederst: fast på skjermen, rolig farge så den ikke stjeler oppmerksomhet */
+.info-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
   text-align: center;
-  padding: 6px 16px;
+  padding: 6px 16px calc(6px + env(safe-area-inset-bottom, 0px));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Plass nederst så infolinja aldri dekker innhold */
+body {
+  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
 }
 
 .page {
@@ -922,14 +936,6 @@ button.small,
 }
 
 /* Testbanneret: én linje på telefon. Blir teksten for lang, kuttes den med … */
-.test-banner {
-  font-size: 12px;
-  padding: 5px 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Forsiden: logo og knapper på samme rad */
 .top {
   flex-wrap: nowrap;
