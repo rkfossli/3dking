@@ -47,3 +47,20 @@ export async function setActiveAction(userId: number, active: boolean): Promise<
   if (!active) await db.delete(sessions).where(eq(sessions.userId, userId));
   revalidatePath("/admin");
 }
+
+/** Endre navn og brukernavn. Brukeren beholder PIN-en og forblir innlogget. */
+export async function renameUserAction(userId: number, displayNameInput: string, usernameInput: string): Promise<{ error?: string }> {
+  await requireAdmin();
+  const displayName = displayNameInput.trim();
+  const username = normalizeUsername(usernameInput);
+  if (!displayName) return { error: "Navnet kan ikke være tomt." };
+  if (!isValidUsername(username)) return { error: "Brukernavn: 2–20 tegn, bare bokstaver, tall, . - _" };
+
+  const db = await getDb();
+  const [taken] = await db.select({ id: users.id }).from(users).where(eq(users.username, username));
+  if (taken && taken.id !== userId) return { error: `Brukernavnet «${username}» er tatt.` };
+
+  await db.update(users).set({ displayName, username }).where(eq(users.id, userId));
+  revalidatePath("/admin");
+  return {};
+}
