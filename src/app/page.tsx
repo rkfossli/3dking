@@ -4,7 +4,7 @@ import { availableProducts } from "@/lib/products";
 import { kr } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 import { OrderButton } from "@/components/OrderButton";
-import { countNew } from "@/lib/orders";
+import { countNew, countReadyForUser, countUpdatesForUser } from "@/lib/orders";
 import { logoutAction } from "./auth-actions";
 
 export const dynamic = "force-dynamic";
@@ -15,13 +15,17 @@ export default async function Home() {
   const isAdmin = user.role === "admin";
   const list = await availableProducts();
   const waiting = isAdmin ? await countNew() : 0;
+  const ready = await countReadyForUser(user.id);
+  const updates = await countUpdatesForUser(user.id, user.ordersSeenAt);
 
   return (
     <main className="page">
       <div className="top">
         <h1>3DKing</h1>
         <div className="row-buttons">
-          <Link href="/mine" className="button small secondary">Mine bestillinger</Link>
+          <Link href="/mine" className="button small secondary">
+            Mine bestillinger{updates > 0 && <span className="count" title="Nytt siden sist">{updates}</span>}
+          </Link>
           {isAdmin && (
             <Link href="/admin/bestillinger" className="button small">
               Admin{waiting > 0 && <span className="count">{waiting}</span>}
@@ -33,6 +37,11 @@ export default async function Home() {
         </div>
       </div>
       <p className="muted">Hei, {user.displayName}! Dette er det Liam kan printe for deg.</p>
+      {ready > 0 && (
+        <Link href="/mine" className="ready-notice">
+          🎉 {ready === 1 ? "En bestilling" : `${ready} bestillinger`} er ferdig laget! Se når {ready === 1 ? "den" : "de"} leveres →
+        </Link>
+      )}
 
       {list.length === 0 && <div className="card"><p className="muted">Ingen produkter ennå. Kom tilbake snart!</p></div>}
 
@@ -48,6 +57,9 @@ export default async function Home() {
           </article>
         ))}
       </div>
+      <p className="muted small-text footer-line">
+        Logget inn som {user.username} · <Link href="/meg">Bytt PIN</Link>
+      </p>
     </main>
   );
 }

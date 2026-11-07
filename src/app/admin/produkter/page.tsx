@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { allProducts } from "@/lib/products";
 import { kr } from "@/lib/format";
 import { AdminNav } from "@/components/AdminNav";
-import { AvailableToggle } from "@/components/AvailableToggle";
+import { ProductRowActions } from "@/components/ProductRowActions";
 import { ProductImage } from "@/components/ProductImage";
 
 export const dynamic = "force-dynamic";
@@ -35,10 +35,7 @@ export default async function AdminProductsPage() {
                 </p>
                 </div>
               </div>
-              <div className="row-buttons">
-                <Link href={`/admin/produkter/${p.id}`} className="button small secondary">Endre</Link>
-                <AvailableToggle id={p.id} available={p.available} />
-              </div>
+              <ProductRowActions id={p.id} name={p.name} available={p.available} />
             </li>
           ))}
         </ul>

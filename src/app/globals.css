@@ -463,3 +463,159 @@ input[type="file"] {
   padding: 5px 10px;
   font-size: 13px;
 }
+
+.row-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+  max-width: 60%;
+}
+
+.row-actions .error {
+  text-align: right;
+}
+
+.footer-line {
+  margin-top: 32px;
+  text-align: center;
+}
+
+/* Svar fra admin på en bestilling */
+select {
+  font: inherit;
+  font-size: 16px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
+
+.admin-reply {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.admin-reply.endringer {
+  border-left-color: #f5b942;
+  background: color-mix(in srgb, #f5b942 10%, transparent);
+}
+
+.admin-reply p {
+  margin: 4px 0 0;
+}
+
+.reply-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.reply-form label {
+  display: grid;
+  gap: 4px;
+}
+
+.delivery-plan {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px dashed var(--accent);
+}
+
+.ready-notice {
+  display: block;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.badge.nytt {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+/* Mer luft mellom ting. Kort med bestillinger stabler innholdet med fast avstand. */
+.order {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order > button {
+  align-self: flex-start;
+}
+
+.order > *,
+.order .row-buttons,
+.order .admin-reply,
+.order .delivery-plan {
+  margin: 0;
+}
+
+.order-list {
+  gap: 14px;
+}
+
+.row-buttons {
+  gap: 8px;
+}
+
+.top {
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.user-row {
+  gap: 12px;
+  padding: 14px 0;
+}
+
+.row-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.card > h2:first-child {
+  margin-top: 0;
+}
+
+/* «Er du sikker?»-boksen */
+.confirm-dialog {
+  margin: auto;
+  inset: 0;
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
+
+.confirm-dialog::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+
+.confirm-dialog p {
+  margin: 0 0 16px;
+}
+
+button.danger-solid {
+  background: var(--danger);
+  color: #fff;
+}

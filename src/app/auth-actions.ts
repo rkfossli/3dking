@@ -2,6 +2,7 @@
 // Server actions: funksjoner som kjører på serveren når et skjema sendes inn.
 // "use server" øverst gjør at skjemaene i nettleseren kan kalle dem direkte.
 import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { users } from "@/lib/schema";
 import {
@@ -12,6 +13,8 @@ import {
   isValidPin,
   isValidUsername,
   normalizeUsername,
+  pinMatches,
+  requireUser,
   startSession,
 } from "@/lib/auth";
 
@@ -53,4 +56,20 @@ export async function setupAction(_prev: FormState, form: FormData): Promise<For
     .returning({ id: users.id });
   await startSession(admin.id);
   redirect("/admin");
+}
+
+export type PinChangeState = { error?: string; ok?: boolean };
+
+/** Bytt din egen PIN. Krever at du skriver den gamle først. */
+export async function changePinAction(_prev: PinChangeState, form: FormData): Promise<PinChangeState> {
+  const user = await requireUser();
+  const oldPin = String(form.get("oldPin") ?? "");
+  const pin = String(form.get("pin") ?? "");
+  const pin2 = String(form.get("pin2") ?? "");
+  if (!(await pinMatches(oldPin, user.pinHash))) return { error: "Nåværende PIN er feil." };
+  if (!isValidPin(pin)) return { error: "Ny PIN må være 4 sifre." };
+  if (pin !== pin2) return { error: "De nye PIN-kodene er ikke like." };
+  const db = await getDb();
+  await db.update(users).set({ pinHash: await hashPin(pin) }).where(eq(users.id, user.id));
+  return { ok: true };
 }

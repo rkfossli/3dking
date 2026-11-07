@@ -5,7 +5,7 @@ import { and, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { orders, products } from "@/lib/schema";
 import { requireAdmin, requireUser } from "@/lib/auth";
-import { MAX_QUANTITY, isStatus } from "@/lib/orders";
+import { APPROVALS, MAX_QUANTITY, MAX_REPLY, isStatus } from "@/lib/orders";
 
 export type OrderState = { error?: string; ok?: boolean };
 
@@ -58,8 +58,51 @@ export async function setOrderStatusAction(orderId: number, status: string): Pro
       status,
       madeAt: status === "laget" || status === "levert" ? now : null,
       deliveredAt: status === "levert" ? now : null,
+      changedByAdminAt: now,
     })
     .where(eq(orders.id, orderId));
   revalidatePath("/admin/bestillinger");
   revalidatePath("/mine");
+}
+
+/** Liam sletter en bestilling for godt (for eksempel en test eller en som er avbrutt). */
+export async function deleteOrderAction(orderId: number): Promise<void> {
+  await requireAdmin();
+  const db = await getDb();
+  await db.delete(orders).where(eq(orders.id, orderId));
+  revalidatePath("/admin/bestillinger");
+  revalidatePath("/mine");
+}
+
+export type ReplyState = { error?: string; ok?: boolean };
+
+/** Liam svarer på en bestilling: godkjent / godkjent med endringer, en beskjed og planlagt levering. */
+export async function replyToOrderAction(_prev: ReplyState, form: FormData): Promise<ReplyState> {
+  await requireAdmin();
+  const orderId = Number(form.get("orderId"));
+  const approval = String(form.get("approval") ?? "");
+  const reply = String(form.get("reply") ?? "").trim();
+  const plan = String(form.get("deliveryPlan") ?? "").trim();
+
+  if (!(APPROVALS as readonly string[]).includes(approval)) return { error: "Ugyldig valg." };
+  if (reply.length > MAX_REPLY) return { error: `Beskjeden kan være maks ${MAX_REPLY} tegn.` };
+  if (plan.length > 200) return { error: "Planlagt levering kan være maks 200 tegn." };
+  // Endringer må forklares, ellers vet ikke kunden hva som er endret.
+  if (approval === "endringer" && !reply) return { error: "Skriv hvilke endringer du gjør." };
+
+  const db = await getDb();
+  const empty = !approval && !reply;
+  await db
+    .update(orders)
+    .set({
+      approval: approval || null,
+      adminReply: reply || null,
+      repliedAt: empty ? null : new Date(),
+      deliveryPlan: plan || null,
+      changedByAdminAt: new Date(),
+    })
+    .where(eq(orders.id, orderId));
+  revalidatePath("/admin/bestillinger");
+  revalidatePath("/mine");
+  return { ok: true };
 }
