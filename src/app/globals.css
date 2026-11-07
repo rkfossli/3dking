@@ -942,7 +942,7 @@ button.small,
 }
 
 .top .logo {
-  width: 112px;
+  width: 150px;
 }
 
 .top .row-buttons {
@@ -1132,7 +1132,8 @@ button.small,
 }
 
 .top .logo {
-  width: 96px;
+  width: 130px;
+  margin-top: 4px;
 }
 
 .top .row-buttons .button {
@@ -1391,4 +1392,120 @@ p.customer-response {
 /* Luft mellom hilsenen og det som kommer under (ferdig-meldingen, produktene) */
 .greeting {
   margin-bottom: 16px;
+}
+
+/* Påskeegg i logoen (se src/components/logo-egg/engine.js) */
+.logo {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.logo.egg-hidden {
+  opacity: 0;
+}
+.logo.egg-pulse {
+  animation: egg-pulse 1.1s ease-out;
+}
+@keyframes egg-pulse {
+  0% {
+    filter: brightness(1.9) drop-shadow(0 0 14px var(--accent));
+  }
+  100% {
+    filter: none;
+  }
+}
+.egg {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  overflow: hidden;
+}
+.egg-world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 600px;
+  height: 314px;
+  transform-origin: 0 0;
+}
+.egg-layer {
+  position: absolute;
+  inset: 0;
+}
+.egg-piece {
+  position: absolute;
+  background-image: var(--egg-logo);
+  background-repeat: no-repeat;
+  background-size: 600px 314px;
+  will-change: transform;
+}
+.egg-cracks {
+  position: absolute;
+  inset: 0;
+  width: 600px;
+  height: 314px;
+  overflow: visible;
+  -webkit-mask-image: var(--egg-logo);
+  mask-image: var(--egg-logo);
+  -webkit-mask-size: 600px 314px;
+  mask-size: 600px 314px;
+  transition: opacity 0.25s;
+}
+.egg-cracks path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.egg-fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.egg-layerline {
+  position: absolute;
+  left: 30px;
+  width: 540px;
+  background: var(--accent);
+  box-shadow: 0 0 10px 2px var(--accent);
+}
+/* Dysa på printeren. Tegnes rundt (0,0) og flyttes med transform. */
+.egg-nozzle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+}
+.egg-nozzle i {
+  position: absolute;
+  left: -14px;
+  top: -40px;
+  width: 28px;
+  height: 24px;
+  border-radius: 4px;
+  background: linear-gradient(#3a423a, #252b25);
+  border: 1px solid #4b554b;
+}
+.egg-nozzle b {
+  position: absolute;
+  left: -6px;
+  top: -16px;
+  width: 12px;
+  height: 10px;
+  background: #c9a24a;
+  clip-path: polygon(0 0, 100% 0, 62% 100%, 38% 100%);
+}
+.egg-nozzle span {
+  position: absolute;
+  left: -3px;
+  top: -6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px 4px var(--accent);
 }
