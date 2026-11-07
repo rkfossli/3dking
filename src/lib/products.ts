@@ -1,8 +1,9 @@
 // Hjelpere for produkter: lese fra databasen og sjekke skjemaer.
 import "server-only";
-import { asc, desc, eq, ne, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ne, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { orders, products } from "./schema";
+import { statsSince } from "./stats";
 
 export type Product = typeof products.$inferSelect;
 
@@ -21,10 +22,11 @@ export async function availableProducts(): Promise<Product[]> {
 /** Produktene som er bestilt mest (minst 2 stk, avbrutte teller ikke). Får merket «Populær». */
 export async function popularProductIds(limit = 3): Promise<number[]> {
   const db = await getDb();
+  const since = await statsSince(); // bare bestillinger etter at tellingen startet
   const rows = await db
     .select({ id: orders.productId, items: sql<number>`sum(${orders.quantity})` })
     .from(orders)
-    .where(ne(orders.status, "avbrutt"))
+    .where(since ? and(ne(orders.status, "avbrutt"), gte(orders.createdAt, since)) : ne(orders.status, "avbrutt"))
     .groupBy(orders.productId)
     .orderBy(desc(sql`sum(${orders.quantity})`))
     .limit(limit);

@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 13;
+export const SCHEMA_VERSION = 14;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -173,5 +173,11 @@ export const UPGRADES: Record<number, string> = {
   // Notat om betalingen når en bestilling leveres uten å være betalt.
   13: `
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_note text;
+  `,
+  // Statistikken (Verkstedet og «Populær») starter nå. Bestillingene fra før var tester.
+  14: `
+    INSERT INTO settings (key, value)
+    VALUES ('stats_since', to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'))
+    ON CONFLICT (key) DO NOTHING;
   `,
 };
