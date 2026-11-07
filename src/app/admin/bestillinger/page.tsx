@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { countByStatus, ordersByStatus, isStatus, type OrderRow, type Status } from "@/lib/orders";
-import { kr, plural, when, CUSTOMER_RESPONSE_LABEL, STATUS_LABEL } from "@/lib/format";
+import { kr, orderNo, plural, when, CUSTOMER_RESPONSE_LABEL, STATUS_LABEL } from "@/lib/format";
 import { OrderReplyForm } from "@/components/OrderReplyForm";
 import { AdminReply } from "@/components/AdminReply";
 import { AdminNav } from "@/components/AdminNav";
@@ -35,7 +35,10 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
   const orderCard = (o: OrderRow, inGroup: boolean) => (
     <li key={o.id} className={`card order status-${o.status}`}>
       <div className="order-head">
-        <b>{o.quantity} × {o.productName}</b>
+        <span>
+          <b>{o.quantity} × {o.productName}</b>
+          {o.orderNumber && <span className="order-no">{orderNo(o.orderNumber)}</span>}
+        </span>
         <span className="badges">
           {o.status !== "avbrutt" && (
             <span className={`badge ${o.paidAt ? "betalt" : "ubetalt"}`}>{o.paidAt ? "Betalt" : "Ikke betalt"}</span>

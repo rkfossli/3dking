@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -101,5 +101,13 @@ export const UPGRADES: Record<number, string> = {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_response text;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_note text;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_responded_at timestamptz;
+  `,
+  // Ordrenummer: 4 sifre + årstallet. Gamle bestillinger får et nummer regnet ut fra id-en
+  // (id * 7919 gir forskjellige sifre for hver id under 10 000, så de kolliderer ikke).
+  7: `
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_number text;
+    UPDATE orders SET order_number = lpad(((id * 7919) % 10000)::text, 4, '0') || to_char(created_at AT TIME ZONE 'Europe/Oslo', 'YY')
+      WHERE order_number IS NULL;
+    CREATE UNIQUE INDEX IF NOT EXISTS orders_order_number_idx ON orders (order_number);
   `,
 };

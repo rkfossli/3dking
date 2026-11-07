@@ -5,7 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { users } from "@/lib/schema";
 import { ordersForUser, type OrderRow } from "@/lib/orders";
-import { kr, plural, when, CUSTOMER_STATUS_LABEL } from "@/lib/format";
+import { kr, orderNo, plural, when, CUSTOMER_STATUS_LABEL } from "@/lib/format";
 import { CancelMyOrder } from "@/components/OrderActions";
 import { AdminReply } from "@/components/AdminReply";
 import { ChangeResponse } from "@/components/ChangeResponse";
@@ -31,7 +31,10 @@ export default async function MyOrdersPage() {
   const item = (o: OrderRow) => (
     <li key={o.id} className={`card order status-${o.status}`}>
       <div className="order-head">
-        <b>{o.quantity} × {o.productName}</b>
+        <span>
+          <b>{o.quantity} × {o.productName}</b>
+          {o.orderNumber && <span className="order-no">{orderNo(o.orderNumber)}</span>}
+        </span>
         <span className="badges">
           {isNew(o.changedByAdminAt) && <span className="badge nytt">Nytt</span>}
           <span className={`badge ${o.status}`}>{CUSTOMER_STATUS_LABEL[o.status]}</span>

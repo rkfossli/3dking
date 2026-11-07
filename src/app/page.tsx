@@ -37,7 +37,7 @@ export default async function Home() {
           )}
         </div>
       </div>
-      <p className="muted">
+      <p className="muted greeting">
         Hei, {user.displayName}! {isAdmin ? "Slik ser butikken ut for kundene." : "Velg noe du vil at 3DKing skal printe."}
       </p>
       {ready > 0 && (
