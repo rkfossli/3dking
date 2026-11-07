@@ -27,6 +27,22 @@ export async function addFilamentAction(_prev: FilamentState, form: FormData): P
   return { ok: true };
 }
 
+/** Legg til flere farger på en gang fra fargekartet. Farger med samme navn som en som finnes, hoppes over. */
+export async function addFilamentsAction(colors: { name: string; hex: string }[]): Promise<FilamentState> {
+  await requireAdmin();
+  const clean = (Array.isArray(colors) ? colors : [])
+    .map((c) => ({ name: String(c.name ?? "").trim().slice(0, 40), hex: String(c.hex ?? "").trim() }))
+    .filter((c) => c.name && isHex(c.hex))
+    .slice(0, 40);
+  if (clean.length === 0) return { error: "Velg minst én farge." };
+  const db = await getDb();
+  const existing = new Set((await db.select({ name: filaments.name }).from(filaments)).map((f) => f.name.toLowerCase()));
+  const fresh = clean.filter((c) => !existing.has(c.name.toLowerCase()));
+  if (fresh.length > 0) await db.insert(filaments).values(fresh);
+  refresh();
+  return { ok: true };
+}
+
 /** Marker en farge som tom (eller på lager igjen). */
 export async function setInStockAction(id: number, inStock: boolean): Promise<void> {
   await requireAdmin();

@@ -2592,3 +2592,77 @@ button:focus:not(:focus-visible),
 .button:focus:not(:focus-visible) {
   outline: none;
 }
+
+/* Fargekartet i Filament: runde prøver i et rutenett, trykk på flere */
+.palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: var(--s2);
+}
+
+.pal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s1);
+  min-height: 0;
+  padding: var(--s2) var(--s1);
+  background: var(--card-2);
+  color: var(--text);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.pal.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--card));
+}
+
+.pal:disabled {
+  opacity: 0.45;
+}
+
+.pal-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+.pal-dot .icon {
+  filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 1px #000);
+}
+
+.pal.on .pal-dot {
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.pal-name {
+  font-size: var(--fs-cap);
+  line-height: 1.2;
+  text-align: center;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.own-color summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--accent-text);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+
+.own-preview {
+  align-self: end;
+  width: 48px;
+  height: 48px;
+  border-style: dashed;
+}
