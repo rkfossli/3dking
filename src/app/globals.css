@@ -2497,3 +2497,64 @@ body.has-tabbar {
 .big-stat.wide b {
   font-size: var(--fs-title);
 }
+
+/* Admin-fanene: rutenett med tre i hver rad, så alle seks synes uten å scrolle sidelengs. */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s2);
+  margin: var(--s3) 0 var(--s4);
+}
+
+.admin-grid a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  min-height: 48px;
+  padding: var(--s2);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-grid a .icon {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.admin-grid a.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 0 16px -4px var(--accent-glow);
+}
+
+.admin-grid a.on .icon {
+  color: var(--accent-ink);
+}
+
+.admin-grid .count {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  margin: 0;
+}
+
+/* Smale telefoner: ikonet over teksten, så ordene får plass. */
+@media (max-width: 380px) {
+  .admin-grid a {
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--fs-cap);
+  }
+}
+
+/* Små faner (filtre og underfaner) brytes over flere linjer i stedet for å scrolle sidelengs. */
+.small-tabs {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}

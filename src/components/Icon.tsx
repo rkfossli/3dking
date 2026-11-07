@@ -91,6 +91,10 @@ const PATHS = {
   ),
   // Enkel hake uten sirkel (i statuslinja)
   tick: <path d="m5 12.5 4.5 4.5L19 7" />,
+  // Søylediagram: oversikt
+  chart: <path d="M4 20h16M7 16v-5M12 16V6M17 16v-8" />,
+  // Skiftenøkkel: verksted
+  wrench: <path d="M14.5 6.5a4 4 0 0 0 5 5L13 18a2.1 2.1 0 0 1-3-3l6.5-6.5a4 4 0 0 1-2-2zM14.5 6.5 17 4" />,
   // Plus: legg til
   plus: <path d="M12 5v14M5 12h14" />,
   // Kryss: fjern
