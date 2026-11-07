@@ -64,7 +64,9 @@ export default async function Home() {
               <h2>{p.name}</h2>
             </Link>
             {p.description && <p className="muted small-text clamp">{p.description}</p>}
-            <p className="price">{kr(p.priceNok)}</p>
+            <p className="price">
+              {kr(p.priceNok)} <span className="price-note">(filament og strøm)</span>
+            </p>
             {isAdmin && p.costNok != null && <p className="muted small-text">Filament {kr(p.costNok)} · bare synlig for deg</p>}
             {/* «Bestill» åpner produktsiden, der skjemaet har god plass til ønsker. */}
             <Link href={`/produkt/${p.id}`} className="button small order-btn">Bestill</Link>

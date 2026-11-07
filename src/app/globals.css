@@ -1343,3 +1343,27 @@ select:focus-visible {
 p.customer-response {
   display: block;
 }
+
+/* Prisen på bestillinger og produkter */
+.order-price {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+
+.order-price b {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.price-note {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.product .price-note {
+  display: block;
+}

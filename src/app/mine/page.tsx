@@ -37,9 +37,15 @@ export default async function MyOrdersPage() {
           <span className={`badge ${o.status}`}>{CUSTOMER_STATUS_LABEL[o.status]}</span>
         </span>
       </div>
+      {/* Prisen står tydelig for seg selv, så kunden ser hva de skal betale. */}
+      <p className="order-price">
+        <b>{kr(o.quantity * o.unitPriceNok)}</b> <span className="muted small-text">(filament og strøm)</span>
+        {o.status !== "avbrutt" && (
+          <span className={`badge ${o.paidAt ? "betalt" : "ubetalt"}`}>{o.paidAt ? "Betalt" : "Ikke betalt ennå"}</span>
+        )}
+      </p>
       <p className="muted small-text">
-        Bestilt {when(o.createdAt)} · {kr(o.quantity * o.unitPriceNok)}
-        {o.status !== "avbrutt" && (o.paidAt ? " · betalt" : " · ikke betalt ennå")}
+        Bestilt {when(o.createdAt)}
         {o.madeAt && ` · laget ${when(o.madeAt)}`}
         {o.deliveredAt && ` · levert ${when(o.deliveredAt)}`}
       </p>

@@ -29,7 +29,9 @@ export default async function ProductPage({ params }: PageProps<"/produkt/[id]">
         <h1>{p.name}</h1>
         {!p.available && <p className="muted small-text">Skjult: kundene ser ikke dette produktet.</p>}
         {p.description && <p className="description">{p.description}</p>}
-        <p className="price">{kr(p.priceNok)}</p>
+        <p className="price">
+              {kr(p.priceNok)} <span className="price-note">(filament og strøm)</span>
+            </p>
         {isAdmin && p.costNok != null && <p className="muted small-text">Filament {kr(p.costNok)} · bare synlig for deg</p>}
         {p.available && <OrderForm productId={p.id} price={p.priceNok} />}
       </article>
