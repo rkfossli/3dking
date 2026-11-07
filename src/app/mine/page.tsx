@@ -1,3 +1,4 @@
+import { Icon } from "@/components/Icon";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { requireUser } from "@/lib/auth";
@@ -25,7 +26,7 @@ export default async function MyOrdersPage() {
   return (
     <main className="page">
       <p>
-        <Link href="/">← Til butikken</Link>
+        <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til butikken</Link>
       </p>
       <h1>Mine bestillinger</h1>
       {list.length === 0 && <div className="card"><p className="muted">Du har ikke bestilt noe ennå.</p></div>}
@@ -46,7 +47,7 @@ export default async function MyOrdersPage() {
             </p>
             {o.note && <p className="small-text">Din kommentar: «{o.note}»</p>}
             {o.status === "laget" && !o.deliveryPlan && (
-              <p className="small-text">🎉 Ferdig laget! Liam gir beskjed om når den leveres.</p>
+              <p className="small-text with-icon"><Icon name="ready" /> Ferdig laget! Liam gir beskjed om når den leveres.</p>
             )}
             <AdminReply approval={o.approval} reply={o.adminReply} repliedAt={o.repliedAt} deliveryPlan={o.deliveryPlan} title="Svar fra 3DKing" />
             {o.status === "ny" && <CancelMyOrder id={o.id} />}

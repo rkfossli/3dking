@@ -1,3 +1,4 @@
+import { Icon } from "@/components/Icon";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { ChangePinForm } from "@/components/ChangePinForm";
@@ -13,7 +14,7 @@ export default async function MePage() {
   return (
     <main className="page narrow">
       <p>
-        <Link href="/">← Til butikken</Link>
+        <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til butikken</Link>
       </p>
       <h1>{user.displayName}</h1>
       <p className="muted">Brukernavn: {user.username}</p>

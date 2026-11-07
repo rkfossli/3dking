@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icon";
 import Link from "next/link";
 import { useActionState, useState, startTransition } from "react";
 import { saveProductAction, type ProductFormState } from "@/app/product-actions";
@@ -38,7 +39,7 @@ export function ProductForm({ product }: { product?: Initial }) {
       </label>
       <div className="image-field">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        {preview ? <img src={preview} alt="" className="product-img" /> : <div className="product-img" aria-hidden>🧊</div>}
+        {preview ? <img src={preview} alt="" className="product-img" /> : <div className="product-img empty" aria-hidden><Icon name="cube" size={40} /></div>}
         <label>
           Bilde
           <input

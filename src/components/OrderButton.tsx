@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icon";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { placeOrderAction, type OrderState } from "@/app/order-actions";
@@ -21,7 +22,7 @@ function OrderForm({ productId, price, onAgain }: { productId: number; price: nu
   if (state.ok) {
     return (
       <div className="order-done">
-        <b>✅ Bestilt!</b>
+        <b className="with-icon"><Icon name="check" /> Bestilt!</b>
         <p className="small-text muted">Liam har fått beskjed. Du følger med under «Mine bestillinger».</p>
         <Link href="/mine" className="button small">Se bestillingen</Link>
         <button type="button" className="small secondary" onClick={onAgain}>Bestill flere</button>

@@ -23,6 +23,6 @@ export async function unsubscribePushAction(endpoint: string): Promise<void> {
 
 export async function testPushAction(): Promise<{ sent: number }> {
   const user = await requireUser();
-  const sent = await sendPush([user.id], { title: "3DKing", body: "Testvarsel: varsler virker! 🎉", url: "/meg", tag: "test" });
+  const sent = await sendPush([user.id], { title: "3DKing", body: "Testvarsel: varsler virker!", url: "/meg", tag: "test" });
   return { sent };
 }

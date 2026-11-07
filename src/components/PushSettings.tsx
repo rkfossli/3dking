@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icon";
 import { useEffect, useState, useTransition } from "react";
 import { subscribePushAction, testPushAction, unsubscribePushAction, vapidPublicKeyAction } from "@/app/push-actions";
 import { base64ToBytes, isIos, isStandalone, pushSupported } from "./pwa";
@@ -95,7 +96,13 @@ export function PushSettings({ isAdmin }: { isAdmin: boolean }) {
   return (
     <div className="stack">
       <p className="muted small-text">
-        {state === "on" ? "✅ Varsler er på for denne enheten. " : "Varsler er av. "}
+        {state === "on" ? (
+          <>
+            <Icon name="check" className="inline ok-icon" /> Varsler er på for denne enheten.{" "}
+          </>
+        ) : (
+          "Varsler er av. "
+        )}
         {what}
       </p>
       <div className="row-buttons left">

@@ -596,7 +596,9 @@ select {
 }
 
 .ready-notice {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0 0 16px;
   padding: 12px 14px;
   border-radius: var(--radius);
@@ -857,4 +859,42 @@ button.danger-solid {
 
 .month p {
   margin: 0;
+}
+
+/* Egne ikoner (src/components/Icon.tsx) */
+.icon {
+  flex-shrink: 0;
+}
+
+.icon.inline {
+  display: inline-block;
+  vertical-align: -3px;
+}
+
+.with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ok-icon {
+  color: var(--accent);
+}
+
+.ready-notice span {
+  flex: 1;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.product-img.empty {
+  color: var(--muted);
+}
+
+.order-done .with-icon {
+  justify-content: center;
 }

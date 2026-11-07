@@ -1,3 +1,4 @@
+import { Icon } from "@/components/Icon";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { availableProducts } from "@/lib/products";
@@ -41,7 +42,11 @@ export default async function Home() {
       <p className="muted">Hei, {user.displayName}! Dette er det Liam kan printe for deg.</p>
       {ready > 0 && (
         <Link href="/mine" className="ready-notice">
-          🎉 {ready === 1 ? "En bestilling" : `${ready} bestillinger`} er ferdig laget! Se når {ready === 1 ? "den" : "de"} leveres →
+          <Icon name="ready" size={22} />
+          <span>
+            {ready === 1 ? "En bestilling" : `${ready} bestillinger`} er ferdig laget! Se når {ready === 1 ? "den" : "de"} leveres
+          </span>
+          <Icon name="arrow-right" />
         </Link>
       )}
 

@@ -1,10 +1,11 @@
 "use client";
+import { Icon } from "@/components/Icon";
 import { useActionState } from "react";
 import { changePinAction, type PinChangeState } from "@/app/auth-actions";
 
 export function ChangePinForm() {
   const [state, action, pending] = useActionState<PinChangeState, FormData>(changePinAction, {});
-  if (state.ok) return <p className="ok">PIN-en er byttet ✅</p>;
+  if (state.ok) return <p className="ok with-icon"><Icon name="check" /> PIN-en er byttet</p>;
   const pinInput = { type: "password", inputMode: "numeric" as const, pattern: "\\d{4}", maxLength: 4, required: true };
   return (
     <form action={action} className="form">
