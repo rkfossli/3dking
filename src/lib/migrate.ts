@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 14;
+export const SCHEMA_VERSION = 15;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -179,5 +179,9 @@ export const UPGRADES: Record<number, string> = {
     INSERT INTO settings (key, value)
     VALUES ('stats_since', to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'))
     ON CONFLICT (key) DO NOTHING;
+  `,
+  // Introturen: vises første gang en bruker logger inn.
+  15: `
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS tour_seen_at timestamptz;
   `,
 };

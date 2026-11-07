@@ -19,6 +19,7 @@ export const users = pgTable("users", {
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
   // Sist brukeren åpnet «Mine bestillinger». Brukes til å vise et tall når noe nytt har skjedd.
   ordersSeenAt: timestamp("orders_seen_at", { withTimezone: true }),
+  tourSeenAt: timestamp("tour_seen_at", { withTimezone: true }), // når brukeren så introturen. null = ikke sett ennå
   // true når brukeren har byttet til sin egen PIN. Da slutter forsiden å foreslå det.
   ownPin: boolean("own_pin").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
