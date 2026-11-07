@@ -15,3 +15,10 @@ npm run dev
 ## Publisering
 
 Repoet er koblet til Vercel. Hver `git push` til `main` publiseres automatisk.
+
+## Database
+
+- På Vercel brukes Neon Postgres via `DATABASE_URL` (settes automatisk når Neon kobles til prosjektet under Storage).
+- Lokalt brukes PGlite i mappen `.pglite`, så `npm run dev` virker uten oppsett. Slett mappen for å starte med tom database.
+- Tabellene står i `src/lib/schema.ts` og opprettes automatisk første gang appen kobler til (`src/lib/migrate.ts`).
+- Sjekk at alt virker på `/status`.
