@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 12;
+export const SCHEMA_VERSION = 13;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -169,5 +169,9 @@ export const UPGRADES: Record<number, string> = {
   12: `
     ALTER TABLE products ADD COLUMN IF NOT EXISTS color_count integer NOT NULL DEFAULT 1;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS extra_colors text;
+  `,
+  // Notat om betalingen når en bestilling leveres uten å være betalt.
+  13: `
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_note text;
   `,
 };

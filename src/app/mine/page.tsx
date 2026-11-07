@@ -18,12 +18,14 @@ import { ColorLine } from "@/components/ColorLine";
 export const dynamic = "force-dynamic";
 
 // «Mine bestillinger»: det brukeren har bestilt, og hvor langt Liam har kommet.
-// Delt i to: «Pågår» (mottatt og ferdig laget) øverst, og «Tidligere» (levert og avbrutt) sammenfoldet under.
+// Delt i to: «Pågår» (mottatt, laget, og levert men ikke betalt) øverst, og «Tidligere» (betalt eller avbrutt) sammenfoldet under.
 export default async function MyOrdersPage() {
   const user = await requireUser();
   const list = await ordersForUser(user.id);
-  const active = list.filter((o) => o.status === "ny" || o.status === "laget");
-  const earlier = list.filter((o) => o.status === "levert" || o.status === "avbrutt");
+  // Levert, men ikke betalt, blir liggende under «Pågår» til 3DKing har fått betalt.
+  const done = (o: OrderRow) => o.status === "avbrutt" || (o.status === "levert" && o.paidAt != null);
+  const active = list.filter((o) => !done(o));
+  const earlier = list.filter(done);
 
   // Husk når brukeren var her, så tallet på «Mine bestillinger»-knappen forsvinner.
   // Det som er endret siden forrige gang får merket «Nytt» denne ene gangen.
@@ -54,7 +56,7 @@ export default async function MyOrdersPage() {
       <p className="order-price">
         <b>{kr(o.quantity * o.unitPriceNok)}</b> <span className="muted small-text">(filament og strøm)</span>
         {o.status !== "avbrutt" && (
-          <span className={`badge ${o.paidAt ? "betalt" : "ubetalt"}`}>{o.paidAt ? "Betalt" : "Ikke betalt ennå"}</span>
+          <span className={`badge ${o.paidAt ? "betalt" : "ubetalt"}`}>{o.paymentNote === "Gratis" && o.paidAt ? "Gratis" : o.paidAt ? "Betalt" : "Ikke betalt ennå"}</span>
         )}
       </p>
       <p className="muted small-text">

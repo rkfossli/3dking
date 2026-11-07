@@ -2924,3 +2924,45 @@ input[type="checkbox"]:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* «Merk som levert»-boksen: forslag til notat som små knapper */
+.note-ideas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
+
+.chip {
+  min-height: 36px;
+  padding: 0 var(--s3);
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--card-2);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.chip.on {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.confirm-dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  margin-bottom: var(--s3);
+  text-align: left;
+}
+
+/* Notat om betaling på bestillingen */
+.pay-note {
+  color: var(--muted);
+}
+
+.pay-note.owed {
+  color: var(--warn, #f5a524);
+}
