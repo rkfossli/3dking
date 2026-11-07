@@ -25,7 +25,7 @@ export default async function AdminProductsPage() {
           {list.map((p) => (
             <li key={p.id} className={`user-row${p.available ? "" : " inactive"}`}>
               <div className="thumb-row">
-                <div className="thumb"><ProductImage url={p.imageUrl} alt="" /></div>
+                <div className="thumb"><ProductImage url={p.imageUrl} alt="" small /></div>
                 <div>
                 <b>{p.name}</b>
                 {!p.available && <span className="tag">skjult</span>}
