@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import { TabBar } from "@/components/TabBar";
 import { IntroTour } from "@/components/IntroTour";
+import { IntroPlayer } from "@/components/IntroPlayer";
 import { countNew, countUpdatesForUser } from "@/lib/orders";
 import { getCurrentUser } from "@/lib/auth";
 import { isMode, isTheme, themeBg } from "@/lib/themes";
@@ -50,6 +51,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <span>3DKing vises bare stående.</span>
         </div>
         {/* Introturen åpner seg selv første gang en kunde logger inn. 3DKing selv slipper. */}
+        {/* Introfilmen etter innlogging. Den ligger her (ikke på innloggingssiden) så den kan fortsette mens forsiden lastes. */}
+        <IntroPlayer loggedIn={!!user} />
         {user && <IntroTour autoOpen={!user.tourSeenAt && !isAdmin} />}
         <ServiceWorker />
       </body>
