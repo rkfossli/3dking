@@ -6,7 +6,7 @@ import { saveProductAction, type ProductFormState } from "@/app/product-actions"
 import { shrinkImage } from "@/lib/shrinkImage";
 import { ImagePicker } from "./ImagePicker";
 
-type Initial = { id?: number; name: string; description: string | null; priceNok: number; costNok: number | null; available: boolean; colorCount?: number; imageUrl: string | null };
+type Initial = { id?: number; name: string; description: string | null; priceNok: number; costNok: number | null; available: boolean; colorCount?: number; imageUrl: string | null; imageUrl2?: string | null };
 
 // Samme skjema brukes for nytt produkt (uten `product`) og for å endre et (med `product`).
 // `wishId`: produktet lages fra et ønske i ønskeboksen. Feltene er da fylt ut fra ønsket.
@@ -23,23 +23,23 @@ export function ProductForm({
   selected?: number[];
 }) {
   const [state, action, pending] = useActionState<ProductFormState, FormData>(saveProductAction, {});
-  // Forhåndsvisning av bildet: det gamle bildet, eller det nye som akkurat er valgt.
-  const [preview, setPreview] = useState<string | null>(product?.imageUrl ?? null);
   const [shrinking, setShrinking] = useState(false);
   const [colorCount, setColorCount] = useState(product?.colorCount ?? 1);
 
-  // Før skjemaet sendes: bytt ut det store bildet med en krympet kopi.
+  // Før skjemaet sendes: bytt ut de store bildene med krympede kopier.
   async function submit(form: FormData) {
-    const file = form.get("image");
-    if (file instanceof File && file.size > 0) {
-      setShrinking(true);
-      try {
-        form.set("image", await shrinkImage(file));
-      } catch {
-        // Klarer ikke nettleseren å krympe bildet, sender vi originalen.
+    for (const field of ["image", "image2"]) {
+      const file = form.get(field);
+      if (file instanceof File && file.size > 0) {
+        setShrinking(true);
+        try {
+          form.set(field, await shrinkImage(file));
+        } catch {
+          // Klarer ikke nettleseren å krympe bildet, sender vi originalen.
+        }
       }
-      setShrinking(false);
     }
+    setShrinking(false);
     startTransition(() => action(form));
   }
 
@@ -52,21 +52,9 @@ export function ProductForm({
         Navn
         <input name="name" defaultValue={product?.name} placeholder="Drage, 10 cm" required />
       </label>
-      <div className="image-field">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {preview ? <img src={preview} alt="" className="product-img" /> : <div className="product-img empty" aria-hidden><Icon name="cube" size={40} /></div>}
-        <ImagePicker
-          onPick={(f) => {
-            if (f) setPreview(URL.createObjectURL(f)); // viser bildet med en gang, før det lastes opp
-          }}
-        />
-        {product?.imageUrl && product.id != null && (
-          <label className="check">
-            <input type="checkbox" name="removeImage" />
-            Fjern bilde
-          </label>
-        )}
-      </div>
+      {/* To bilder: det første er hovedbildet, det andre er valgfritt. */}
+      <ImageSlot name="image" removeName="removeImage" label="Bilde 1 (hovedbilde)" current={product?.id != null ? product.imageUrl : null} initial={product?.imageUrl ?? null} />
+      <ImageSlot name="image2" removeName="removeImage2" label="Bilde 2 (valgfritt)" current={product?.imageUrl2 ?? null} initial={product?.imageUrl2 ?? null} />
       <label>
         Beskrivelse
         <textarea name="description" defaultValue={product?.description ?? ""} rows={3} placeholder="Farge, størrelse, materiale …" />
@@ -117,5 +105,30 @@ export function ProductForm({
         <Link href="/admin/produkter" className="button secondary">Avbryt</Link>
       </div>
     </form>
+  );
+}
+
+// Ett bildefelt med forhåndsvisning. `current` er bildet som er lagret nå, og da vises «Fjern bilde».
+function ImageSlot({ name, removeName, label, current, initial }: { name: string; removeName: string; label: string; current: string | null; initial: string | null }) {
+  // Forhåndsvisning: det gamle bildet, eller det nye som akkurat er valgt.
+  const [preview, setPreview] = useState<string | null>(initial);
+  return (
+    <div className="image-field">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      {preview ? <img src={preview} alt="" className="product-img" /> : <div className="product-img empty" aria-hidden><Icon name="cube" size={40} /></div>}
+      <ImagePicker
+        name={name}
+        label={label}
+        onPick={(f) => {
+          if (f) setPreview(URL.createObjectURL(f)); // viser bildet med en gang, før det lastes opp
+        }}
+      />
+      {current && (
+        <label className="check">
+          <input type="checkbox" name={removeName} />
+          Fjern bilde
+        </label>
+      )}
+    </div>
   );
 }

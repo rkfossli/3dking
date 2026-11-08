@@ -4,13 +4,13 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getProduct } from "@/lib/products";
 import { kr } from "@/lib/format";
-import { ProductImage } from "@/components/ProductImage";
+import { ProductGallery } from "@/components/ProductGallery";
 import { OrderForm } from "@/components/OrderForm";
 import { allFilaments } from "@/lib/filaments";
 
 export const dynamic = "force-dynamic";
 
-// Produktsiden: stort bilde, hele beskrivelsen og Bestill-knappen.
+// Produktsiden: store bilder (kunden kan bla mellom dem), hele beskrivelsen og Bestill-knappen.
 // Adressen er /produkt/3, der 3 er id-en til produktet.
 export default async function ProductPage({ params }: PageProps<"/produkt/[id]">) {
   const user = await requireUser();
@@ -27,7 +27,7 @@ export default async function ProductPage({ params }: PageProps<"/produkt/[id]">
         <Link href="/" className="back"><Icon name="arrow-left" size={16} /> Til modellene</Link>
       </p>
       <article className="card product product-page">
-        <ProductImage url={p.imageUrl} alt={p.name} />
+        <ProductGallery urls={[p.imageUrl, p.imageUrl2].filter((u): u is string => Boolean(u))} alt={p.name} />
         <h1>{p.name}</h1>
         {!p.available && <p className="muted small-text">Skjult: kundene ser ikke dette produktet.</p>}
         {p.description && <p className="description">{p.description}</p>}

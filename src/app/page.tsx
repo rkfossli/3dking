@@ -104,6 +104,10 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                   {isNewProduct(p.createdAt) && <span className="ribbon new">Ny</span>}
                   {popular.includes(p.id) && <span className="ribbon hot">Populær</span>}
                 </span>
+                {/* Har produktet to bilder, vises et lite merke. Bildene blas i på produktsiden. */}
+                {p.imageUrl && p.imageUrl2 && (
+                  <span className="img-count" aria-label="2 bilder"><Icon name="image" size={14} /> 2</span>
+                )}
               </span>
               <h2>{p.name}</h2>
             </Link>
