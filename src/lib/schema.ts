@@ -38,6 +38,8 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   description: text("description"),
   imageUrl: text("image_url"),
+  // Bilde nummer to er valgfritt. Kunden kan bla mellom bildene på produktsiden.
+  imageUrl2: text("image_url2"),
   priceNok: integer("price_nok").notNull(),
   // Filamentkost: vises bare for admin.
   costNok: integer("cost_nok"),

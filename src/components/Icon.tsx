@@ -104,6 +104,14 @@ const PATHS = {
   wrench: <path d="M14.5 6.5a4 4 0 0 0 5 5L13 18a2.1 2.1 0 0 1-3-3l6.5-6.5a4 4 0 0 1-2-2zM14.5 6.5 17 4" />,
   // Plus: legg til
   plus: <path d="M12 5v14M5 12h14" />,
+  // Bilde: ramme med fjell og sol
+  image: (
+    <>
+      <rect x="3.5" y="5" width="17" height="14" rx="2" />
+      <path d="m4 17 5-5 4 4 2.5-2.5L20 18" />
+      <circle cx="15.5" cy="9.5" r="1.5" />
+    </>
+  ),
   // Kryss: fjern
   close: <path d="M6 6l12 12M18 6 6 18" />,
 } as const;

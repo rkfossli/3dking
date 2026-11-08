@@ -36,22 +36,20 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
   const wishId = Number(form.get("wishId")) || null;
   const wish = wishId ? await getWish(wishId) : null;
 
-  // Bilde: et nytt bilde erstatter det gamle. "Fjern bilde" tar det bort.
+  // Bildene: et nytt bilde erstatter det gamle. «Fjern bilde» tar det bort.
   const old = id ? await getProduct(id) : null;
   let imageUrl = old?.imageUrl ?? wish?.imageUrl ?? null;
-  const file = form.get("image");
-  const removeImage = form.get("removeImage") === "on";
-  if (file instanceof File && file.size > 0) {
-    try {
-      imageUrl = await saveImage(file);
-    } catch (e) {
-      return { error: e instanceof Error ? e.message : "Klarte ikke å lagre bildet." };
-    }
-  } else if (removeImage) {
-    imageUrl = null;
+  let imageUrl2 = old?.imageUrl2 ?? null;
+  try {
+    imageUrl = await pickImage(form, "image", "removeImage", imageUrl);
+    imageUrl2 = await pickImage(form, "image2", "removeImage2", imageUrl2);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Klarte ikke å lagre bildet." };
   }
+  // Er bare bilde nummer to igjen, blir det hovedbildet.
+  if (!imageUrl && imageUrl2) [imageUrl, imageUrl2] = [imageUrl2, null];
 
-  const values = { name, description, priceNok, costNok, available, imageUrl, colorCount };
+  const values = { name, description, priceNok, costNok, available, imageUrl, imageUrl2, colorCount };
   const db = await getDb();
   let productId = id;
   if (id) await db.update(products).set(values).where(eq(products.id, id));
@@ -78,12 +76,23 @@ export async function saveProductAction(_prev: ProductFormState, form: FormData)
     }
   }
 
-  // Rydd bort det gamle bildet hvis det ble byttet ut eller fjernet.
-  if (old?.imageUrl && old.imageUrl !== imageUrl) await deleteImage(old.imageUrl);
+  // Rydd bort gamle bilder som ble byttet ut eller fjernet.
+  const kept = [imageUrl, imageUrl2];
+  for (const url of [old?.imageUrl, old?.imageUrl2]) {
+    if (url && !kept.includes(url)) await deleteImage(url);
+  }
 
   revalidatePath("/admin/produkter");
   revalidatePath("/");
   redirect("/admin/produkter");
+}
+
+/** Ett bildefelt i skjemaet: nytt bilde, fjern bildet, eller behold det som var. */
+async function pickImage(form: FormData, field: string, removeField: string, current: string | null): Promise<string | null> {
+  const file = form.get(field);
+  if (file instanceof File && file.size > 0) return saveImage(file);
+  if (form.get(removeField) === "on") return null;
+  return current;
 }
 
 /** Vis eller skjul et produkt i katalogen. Vi sletter ikke, fordi gamle bestillinger peker på produktet. */
@@ -107,6 +116,7 @@ export async function deleteProductAction(id: number): Promise<{ error?: string 
   const product = await getProduct(id);
   await db.delete(products).where(eq(products.id, id));
   if (product?.imageUrl) await deleteImage(product.imageUrl);
+  if (product?.imageUrl2) await deleteImage(product.imageUrl2);
   revalidatePath("/admin/produkter");
   revalidatePath("/");
   return {};

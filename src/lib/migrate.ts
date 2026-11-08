@@ -7,7 +7,7 @@
 // 3. Øk SCHEMA_VERSION til det nummeret.
 // SCHEMA_SQL under er versjon 1 og endres aldri. En tom database får først den, så alle UPGRADES.
 
-export const SCHEMA_VERSION = 15;
+export const SCHEMA_VERSION = 16;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -183,5 +183,9 @@ export const UPGRADES: Record<number, string> = {
   // Introturen: vises første gang en bruker logger inn.
   15: `
     ALTER TABLE users ADD COLUMN IF NOT EXISTS tour_seen_at timestamptz;
+  `,
+  // Produktene kan ha et bilde nummer to.
+  16: `
+    ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url2 text;
   `,
 };
