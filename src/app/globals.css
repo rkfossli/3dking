@@ -3067,3 +3067,79 @@ input[type="checkbox"]:focus-visible {
   font-size: var(--fs-sm);
   font-weight: 500;
 }
+
+/* Introfilmen etter innlogging (src/components/IntroPlayer.tsx). Ligger over alt annet i appen. */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+}
+.intro-stage {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  pointer-events: auto;
+  animation: intro-in 0.25s ease-out;
+}
+@keyframes intro-in {
+  from {
+    opacity: 0;
+  }
+}
+.intro-stage video {
+  position: absolute;
+  display: block;
+  object-fit: contain;
+}
+.intro-fx {
+  position: absolute;
+  inset: 0;
+}
+/* Logoen som flyr fra filmen og opp til toppen av forsiden */
+.intro-logo {
+  position: absolute;
+  z-index: 3;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 0 10px rgba(13, 247, 98, 0.55));
+}
+/* De svarte lagene som «printes» bort nedenfra */
+.intro-layer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: #000;
+  pointer-events: auto;
+}
+/* Den glødende dysen som beveger seg oppover mens lagene printes */
+.intro-nozzle {
+  position: absolute;
+  z-index: 2;
+  left: -10%;
+  right: -10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #b8ffd2 30%, #fff 50%, #b8ffd2 70%, transparent);
+  box-shadow:
+    0 0 16px 4px rgba(13, 247, 98, 0.8),
+    0 0 50px 10px rgba(13, 247, 98, 0.35);
+}
+.intro-skip {
+  position: absolute;
+  z-index: 4;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  right: 14px;
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: auto;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
