@@ -406,7 +406,8 @@ textarea {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  /* Alltid minst to kort i bredden, også på smale telefoner. */
+  grid-template-columns: repeat(auto-fill, minmax(min(160px, calc(50% - 6px)), 1fr));
   gap: 12px;
 }
 
@@ -1757,7 +1758,8 @@ select {
 
 .sk-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  /* Alltid minst to kort i bredden, også på smale telefoner. */
+  grid-template-columns: repeat(auto-fill, minmax(min(160px, calc(50% - 6px)), 1fr));
   gap: var(--s3);
   margin-top: var(--s3);
 }
@@ -3233,4 +3235,46 @@ input[type="checkbox"]:focus-visible {
   font-weight: 700;
   background: rgba(0, 0, 0, 0.6);
   color: #fff;
+}
+
+/* Smale telefoner: to produktkort i bredden, så kortene blir litt strammere. */
+@media (max-width: 400px) {
+  .grid,
+  .sk-grid {
+    gap: var(--s2);
+  }
+  .grid .product {
+    padding: var(--s2);
+  }
+  .grid .product .product-img {
+    border-radius: 8px;
+  }
+  .grid .product h2 {
+    font-size: 15px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .grid .product .price {
+    font-size: 17px;
+  }
+  .grid .product .price-note {
+    font-size: 11px;
+  }
+  .grid .product .ribbons {
+    top: 6px;
+    left: 6px;
+  }
+  .grid .product .ribbon {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  .grid .product .img-count {
+    right: 6px;
+    bottom: 6px;
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+  .grid .product .order-btn {
+    padding: var(--s2);
+  }
 }
